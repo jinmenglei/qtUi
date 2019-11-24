@@ -1,0 +1,93 @@
+<RCC>
+  <qresource prefix="frame">
+    <file>res/frame/lichen.png</file>
+    <file>res/frame/信号1.png</file>
+    <file>res/frame/信号2.png</file>
+    <file>res/frame/信号3.png</file>
+    <file>res/frame/信号4.png</file>
+    <file>res/frame/充电.png</file>
+    <file>res/frame/切换到 手动驾驶.png</file>
+    <file>res/frame/切换到 自动驾驶.png</file>
+    <file>res/frame/水量.png</file>
+    <file>res/frame/没有信号.png</file>
+    <file>res/frame/电池1.png</file>
+    <file>res/frame/电池2.png</file>
+    <file>res/frame/电池3.png</file>
+    <file>res/frame/电池4.png</file>
+    <file>res/frame/电池5.png</file>
+  </qresource>
+  <qresource prefix="mode_author">
+    <file>res/mode_author/0-选中.png</file>
+    <file>res/mode_author/0.png</file>
+    <file>res/mode_author/1-选中.png</file>
+    <file>res/mode_author/1.png</file>
+    <file>res/mode_author/2-选中.png</file>
+    <file>res/mode_author/2.png</file>
+    <file>res/mode_author/3-选中.png</file>
+    <file>res/mode_author/3.png</file>
+    <file>res/mode_author/4-选中.png</file>
+    <file>res/mode_author/4.png</file>
+    <file>res/mode_author/5-选中.png</file>
+    <file>res/mode_author/5.png</file>
+    <file>res/mode_author/6-选中.png</file>
+    <file>res/mode_author/6.png</file>
+    <file>res/mode_author/7-选中.png</file>
+    <file>res/mode_author/7.png</file>
+    <file>res/mode_author/8-选中.png</file>
+    <file>res/mode_author/8.png</file>
+    <file>res/mode_author/9-选中.png</file>
+    <file>res/mode_author/9.png</file>
+    <file>res/mode_author/Qr.png</file>
+    <file>res/mode_author/删除-选中.png</file>
+    <file>res/mode_author/删除.png</file>
+    <file>res/mode_author/未输入.png</file>
+    <file>res/mode_author/清除-选中.png</file>
+    <file>res/mode_author/清除.png</file>
+    <file>res/mode_author/输入.png</file>
+  </qresource>
+  <qresource prefix="mode_check">
+    <file>res/mode_check/小远.png</file>
+    <file>res/mode_check/扑拉飞呀导入版本.gif</file>
+    <file>res/mode_check/自检进度条-灰.png</file>
+    <file>res/mode_check/自检进度条-蓝.png</file>
+  </qresource>
+  <qresource prefix="mode_map_select">
+    <file>res/mode_map_select/map1.pgm</file>
+    <file>res/mode_map_select/map2.pgm</file>
+    <file>res/mode_map_select/map3.pgm</file>
+    <file>res/mode_map_select/map4.pgm</file>
+    <file>res/mode_map_select/map5.pgm</file>
+    <file>res/mode_map_select/map6.pgm</file>
+    <file>res/mode_map_select/map7.pgm</file>
+    <file>res/mode_map_select/map8.pgm</file>
+  </qresource>
+  <qresource prefix="mode_mt">
+    <file>res/mode_mt/前进.png</file>
+    <file>res/mode_mt/后退.png</file>
+    <file>res/mode_mt/滑条-灰.png</file>
+    <file>res/mode_mt/滑条-蓝.png</file>
+  </qresource>
+  <qresource prefix="mode_working">
+    <file>res/mode_working/取消-按下.png</file>
+    <file>res/mode_working/取消.png</file>
+    <file>res/mode_working/工作中-灰.png</file>
+    <file>res/mode_working/工作中-蓝.png</file>
+    <file>res/mode_working/暂停-按下.png</file>
+    <file>res/mode_working/暂停.png</file>
+    <file>res/mode_working/继续-按下.png</file>
+    <file>res/mode_working/继续.png</file>
+  </qresource>
+  <qresource prefix="show_box">
+    <file>res/show_box/半透明.png</file>
+    <file>res/show_box/否-点击.png</file>
+    <file>res/show_box/否.png</file>
+    <file>res/show_box/弹窗.png</file>
+    <file>res/show_box/是-点击.png</file>
+    <file>res/show_box/是.png</file>
+  </qresource>
+  <qresource prefix="update">
+    <file>res/Update/扑拉飞呀导入版本.gif</file>
+    <file>res/Update/自检进度条-灰.png</file>
+    <file>res/Update/自检进度条-蓝.png</file>
+  </qresource>
+</RCC>

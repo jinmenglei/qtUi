@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Ubuntu
+Comment=This session logs you into Ubuntu
+#Exec=gnome-session --session=ubuntu
+Exec=/etc/profile.d/start_ui.sh
+TryExec=unity
+Icon=
+Type=Application
+DesktopNames=Unity
+X-Ubuntu-Gettext-Domain=gnome-session-3.0
+Name[en_US]=ubuntu.desktop

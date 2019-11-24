@@ -1,0 +1,77 @@
+#! /bin/bash
+HELP_STRING="\
+Usage: ./start_ui [options]\n
+
+start_ui will start up a ui for this auto cleaning trolley\n
+\n
+Options:\r\n
+\t--help\t\t           show this help message and exit\n\n
+\tstart \t\t        start ui program and video recorder\n\n
+\tstop \t\t      stop all ui program\n\n
+\tinstall\t\t    install this ui program to this computer,\n
+                 \t\t   \t  if success,this computer will reboot\n\n
+\tuninstall\t uninstall this ui program to this computer,\n
+                    \t\t \t if success,this computer will reboot\n\n
+\n
+\n
+\tSee www.baidu.com\n
+"
+fun_start()
+{
+    RET=`ps -ef|grep -v grep|grep ui_main`
+    if ["" == "$RET"]
+    then
+        echo "start uio"
+        cd /home/utry/release/bin/ui
+        ./ui_main&
+    fi
+}
+fun_stop()
+{
+    sudo kill -9 $(ps -ef |grep ui_main|grep -v grep|awk '{print $2}')
+}
+fun_install()
+{
+    EXE_PATH=`pwd`
+    cd ~/release/utry_shell/
+    ./install_program.sh
+    cd $EXE_PATH
+}
+fun_uninstall()
+{
+    EXE_PATH=`pwd`
+    cd ~/release/utry_shell/
+    ./uninstall_program.sh
+    cd $EXE_PATH
+}
+fun_showhelp()
+{
+    echo -e $HELP_STRING
+}
+fun_showerror()
+{
+    echo "$1 command is not support!"
+    fun_showhelp
+}
+if [ "" == "$1" ]; then
+    echo "begin to start ui"
+    fun_start
+elif [ "start" == "$1" ];then
+    echo "begin to start ui"
+    fun_start
+elif [ "stop" == "$1" ];then
+    echo "begin to stop ui"
+    fun_stop
+elif [ "install" == "$1" ];then
+    echo "begin to install ui"
+    fun_install
+elif [ "uninstall" == "$1" ];then
+    echo "begin to uninstall ui"
+    fun_uninstall
+elif [ "--help" == "$1" ];then
+    fun_showhelp
+else
+    fun_showerror
+fi
+
+
