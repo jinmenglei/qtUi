@@ -35,17 +35,17 @@ Label_tail_water_percent, Label_tail_water_name,  Label_tail_odom_percent, Label
 Title_index_name, Title_index_point, Title_index_font_size, Title_index_border = range(4)
 # 这个字典保存着初始化的位置和属性等等
 list_title_string = [
-    ['4G', QRect(50, 11, 29, 18), 16, 90],
-    ['08:08', QRect(90, 11, 70, 18), 16, 90],
-    ['模式选择', QRect(345, 5, 108, 30), 20, 90],
-    ['88%', QRect(680, 11, 60, 18), 16, 90]
+    ['4G', QRect(50, 9, 29, 22), 22, 90],
+    ['08:08', QRect(90, 9, 70, 22), 22, 90],
+    ['模式选择', QRect(345, 7, 108, 26), 26, 90],
+    ['88%', QRect(680, 9, 60, 22), 22, 90]
 ]
 
 list_tail_string = [
-    ['88%', QRect(115, 19, 70, 25), 21, 90],
-    ['水量', QRect(120, 55, 59, 30), 21, 90],
-    ['88%', QRect(658, 19, 120, 25), 21, 90],
-    ['里程', QRect(676, 55, 59, 30), 21, 90]
+    ['88%', QRect(115, 14, 70, 28), 28, 90],
+    ['水量', QRect(120, 54, 59, 28), 28, 90],
+    ['88%', QRect(658, 14, 120, 28), 28, 90],
+    ['里程', QRect(676, 54, 59, 28), 28, 90]
 ]
 # add panel index
 Page_mt_mode, Page_author, Page_check, Page_map_select, Page_working, Page_show_box, Page_Update, Page_num = range(8)  # 6个页面
@@ -69,15 +69,15 @@ Mt_brush_id, Mt_water_id, Mt_direction_id = range(10010, 10010 + 3)
 Mt_button_id_delta = 10010
 Mt_button_forward, Mt_button_back = range(2)
 list_button_mt_string = [
-    ['滑条-灰.png', '滑条-蓝.png', QRect(85, 121, 206, 106), Mt_brush_id],
-    ['滑条-灰.png', '滑条-蓝.png', QRect(344, 121, 206, 106), Mt_water_id],
-    ['前进.png', '后退.png', QRect(593, 120, 108, 206), Mt_direction_id]
+    ['滑条-灰.png', '滑条-蓝.png', QRect(97, 125, 190, 90), Mt_brush_id],
+    ['滑条-灰.png', '滑条-蓝.png', QRect(346, 125, 190, 90), Mt_water_id],
+    ['前进.png', '后退.png', QRect(605, 125, 90, 190), Mt_direction_id]
 ]
 
 list_label_mt_string = [
-    ['刷盘', QRect(170, 69, 60, 30)],
-    ['吸水', QRect(430, 69, 60, 30)],
-    ['方向', QRect(620, 69, 60, 30)],
+    ['刷盘', QRect(163, 75, 60, 28)],
+    ['吸水', QRect(413, 75, 60, 28)],
+    ['方向', QRect(615, 75, 60, 28)],
 ]
 
 Author_radio_off, Author_radio_on, = range(2)
@@ -133,16 +133,16 @@ Map_select_1, Map_select_2, Map_select_3, Map_select_4, Map_select_5, Map_select
 Map_select_id1, Map_select_id2, Map_select_id3, Map_select_id4, Map_select_id5, Map_select_id6, Map_select_id7,\
     Map_select_id8 = range(Map_button_id_delta, Map_button_id_delta + 8)
 
-Map_button_path, Map_button_id, Map_button_point, Map_label_string, Map_label_point, Map_back_point = range(6)
+Map_button_path, Map_button_id, Map_label_string, Map_label_point, Map_back_point = range(5)
 list_button_map_string = [
-    ['map1.pgm', Map_select_id1, QRect(100, 10, 120, 120), '地图1', QRect(100, 139, 120, 26), QRect(97, 7, 126, 126),],
-    ['map2.pgm', Map_select_id2, QRect(260, 10, 120, 120), '地图2', QRect(260, 139, 120, 26), QRect(257, 7, 126, 126)],
-    ['map3.pgm', Map_select_id3, QRect(420, 10, 120, 120), '地图3', QRect(420, 139, 120, 26), QRect(417, 7, 126, 126)],
-    ['map4.pgm', Map_select_id4, QRect(580, 10, 120, 120), '地图4', QRect(580, 139, 120, 26), QRect(577, 7, 126, 126)],
-    ['map5.pgm', Map_select_id5, QRect(100, 178, 120, 120), '地图5', QRect(100, 307, 120, 26), QRect(97, 175, 126, 126)],
-    ['map6.pgm', Map_select_id6, QRect(260, 178, 120, 120), '地图6', QRect(260, 307, 120, 26), QRect(257, 175, 126, 126)],
-    ['map7.pgm', Map_select_id7, QRect(420, 178, 120, 120), '地图7', QRect(420, 307, 120, 26), QRect(417, 175, 126, 126)],
-    ['map8.pgm', Map_select_id8, QRect(580, 178, 120, 120), '地图8', QRect(580, 307, 120, 26), QRect(577, 175, 126, 126)]
+    ['map1.pgm', Map_select_id1, '地图1', QRect(83, 139, 154, 26), QRect(97, 7, 126, 126),],
+    ['map2.pgm', Map_select_id2, '地图2', QRect(243, 139, 154, 26), QRect(257, 7, 126, 126)],
+    ['map3.pgm', Map_select_id3, '地图3', QRect(403, 139, 154, 26), QRect(417, 7, 126, 126)],
+    ['map4.pgm', Map_select_id4, '地图4', QRect(563, 139, 154, 26), QRect(577, 7, 126, 126)],
+    ['map5.pgm', Map_select_id5, '地图5', QRect(83, 307, 154, 26), QRect(97, 175, 126, 126)],
+    ['map6.pgm', Map_select_id6, '地图6', QRect(243, 307, 154, 26), QRect(257, 175, 126, 126)],
+    ['map7.pgm', Map_select_id7, '地图7', QRect(403, 307, 154, 26), QRect(417, 175, 126, 126)],
+    ['map8.pgm', Map_select_id8, '地图8', QRect(563, 307, 154, 26), QRect(577, 175, 126, 126)]
 ]
 
 check_panel_size = 380
@@ -181,11 +181,11 @@ show_box_tip, show_box_point, show_box_yes, show_box_no = range(4)
 show_box_turn_mt, show_box_turn_at, show_box_map_select, show_box_work_cancel, show_box_loss, show_box_update, \
     show_box_no_map = range(7)
 list_show_box_string = [
-    ['是否要切换为\n 手动驾驶模式', QRect(173, 158, 438, 50), Page_mt_mode, None],
-    ['是否要切换为\n 自动驾驶模式', QRect(173, 158, 438, 50), Page_author, None],
+    ['是否要切换为\n手动驾驶模式', QRect(173, 158, 438, 50), Page_mt_mode, None],
+    ['是否要切换为\n自动驾驶模式', QRect(173, 158, 438, 50), Page_author, None],
     ['是否开始清扫', QRect(258, 123, 279, 100), Page_working, None],
-    ['是否要取当前任务，\n并且切换到手动驾驶？', QRect(227, 129, 380, 100), Page_mt_mode, None],
-    ['失去底层连接\n 请联系售后', QRect(227, 129, 380, 100), None, None],
-    ['检测到新版本\n 是否升级', QRect(227, 129, 380, 100), Page_Update, None],
-    ['地图不存在或不可用\n 是否重新选择', QRect(227, 129, 380, 100), Page_map_select, Page_mt_mode],
+    ['是否要取当前任务，\n切换到手动驾驶？', QRect(227, 129, 380, 100), Page_mt_mode, None],
+    ['失去底层连接\n请联系售后', QRect(227, 129, 380, 100), None, None],
+    ['检测到新版本\n是否升级', QRect(227, 129, 380, 100), Page_Update, None],
+    ['地图不存在或不可用\n是否重新选择', QRect(227, 129, 380, 100), Page_map_select, Page_mt_mode],
 ]

@@ -1,26 +1,17 @@
 from config.setting import *
 import os
 import base.U_util as Util
-from base.U_app_qt import Q_App
+import base.U_app_qt as AppQt
 from base.U_log import get_logger
-from PyQt5 import QtWidgets, QtGui, QtCore, Qt
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
+from PyQt5 import QtGui, QtCore
 
 
-class ModeUpdate(Q_App):
+class ModeUpdate(AppQt.Q_App):
     """手动驾驶的panel"""
-    start_timer_show_signal = pyqtSignal()
-    stop_timer_show_signal = pyqtSignal()
-    start_timer_process_signal = pyqtSignal()
-    stop_timer_process_signal = pyqtSignal()
-
     def __init__(self, base_frame):
         self.module_name = 'Update'
-        Q_App.__init__(self, self.module_name, base_frame)
+        AppQt.Q_App.__init__(self, self.module_name, base_frame, AppQt.QRect(0, 40, 800, 340))
         self.logger = get_logger(self.module_name)
-
-        # frame init
-        self.setGeometry(QRect(0, 40, 800, 340))
 
         self.res_path = Util.get_res_path(self.module_name)
 
@@ -35,34 +26,26 @@ class ModeUpdate(Q_App):
         self.update_status = False
         self.process_percent = 0
 
-        self.movie = QtGui.QMovie(':/update/Update/扑拉飞呀导入版本.gif')
-        self.gif_play = QtWidgets.QLabel('', self)
-        self.gif_play.setMovie(self.movie)
-        self.gif_play.setGeometry(QRect(335, 20, 130, 140))
-        self.movie.start()
+        # gif 动图
+        AppQt.get_label_picture(self, QRect(335, 20, 130, 140), ':/update/Update/扑拉飞呀导入版本.gif')
 
-        self.gray = QtWidgets.QLabel('', self)
-        self.gray.setGeometry(QRect(213, 178, 380, 34))
-        self.gray.setPixmap(QtGui.QPixmap(':/update/Update/自检进度条-灰.png'))
+        AppQt.get_label_picture(self, QRect(210, 174, 380, 34), ':/update/Update/自检进度条-灰.png')
 
-        self.cover_panel = QtWidgets.QFrame(self)
-        self.cover_panel.setGeometry(QRect(213, 178, 0, 34))
+        cover_panel = AppQt.get_sub_frame(self, QRect(213, 178, 0, 41))
 
-        self.blue = QtWidgets.QLabel('', self.cover_panel)
-        self.blue.setGeometry(QRect(0, 0, 380, 34))
-        self.blue.setPixmap(QtGui.QPixmap(':/update/Update/自检进度条-蓝.png'))
+        AppQt.get_label_picture(cover_panel, QRect(0, 0, 380, 34), ':/update/Update/自检进度条-蓝.png')
 
-        self.m_static_check_title = QtWidgets.QLabel('test', self)
-        self.m_static_check_title.setGeometry(QRect(215, 237, 100, 24))
-        self.m_static_check_title.setStyleSheet('color: #333333;\n font: 24px \"MicrosoftYaHei\" ')
+        self.m_static_check_title = AppQt.get_label_text(self, QRect(215, 237, 150, 24), False, 'test',
+                                                         24, 'MicrosoftYaHei', '#333333')
+        self.m_static_check_title.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
 
-        self.m_static_check_result = QtWidgets.QLabel('test', self)
-        self.m_static_check_result.setGeometry(QRect(480, 270, 100, 24))
-        self.m_static_check_result.setStyleSheet('color: #333333;\n font: 24px \"MicrosoftYaHei\" ')
+        self.m_static_check_subtitle = AppQt.get_label_text(self, QRect(430, 237, 150, 24), False, 'test',
+                                                            24, 'MicrosoftYaHei', '#333333')
+        self.m_static_check_subtitle.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
 
-        self.m_static_check_subtitle = QtWidgets.QLabel('test', self)
-        self.m_static_check_subtitle.setGeometry(QRect(480, 237, 100, 24))
-        self.m_static_check_subtitle.setStyleSheet('color: #333333;\n font: 24px \"MicrosoftYaHei\" ')
+        self.m_static_check_result = AppQt.get_label_text(self, QRect(430, 270, 150, 24), False, 'test',
+                                                          24, 'MicrosoftYaHei', '#333333')
+        self.m_static_check_result.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
 
         self.__check_list_init__()
 
@@ -71,11 +54,6 @@ class ModeUpdate(Q_App):
 
         self.timer_process = QtCore.QTimer(parent=self)  # 创建定时器
         self.timer_process.timeout.connect(lambda: self.on_timer_process())
-
-        self.start_timer_show_signal.connect(lambda: self.timer_show.start(100))
-        self.start_timer_process_signal.connect(lambda: self.timer_process.start(2))
-        self.stop_timer_show_signal.connect(lambda: self.timer_show.stop())
-        self.stop_timer_process_signal.connect(lambda: self.timer_process.stop())
 
         self.__init_callback()
 
@@ -145,12 +123,12 @@ class ModeUpdate(Q_App):
         self.check_process_target = 0
         self.current_process = 0
         self.check_last_status = Check_status_idle
-        self.start_timer_show_signal.emit()
-        self.start_timer_process_signal.emit()
+        self.timer_show.start(100)
+        self.timer_process.start(2)
 
     def stop(self):
-        self.stop_timer_show_signal.emit()
-        self.stop_timer_process_signal.emit()
+        self.timer_show.stop()
+        self.timer_process.stop()
 
     def set_check_label_show(self, index, str_show):
         """显示提示内容"""

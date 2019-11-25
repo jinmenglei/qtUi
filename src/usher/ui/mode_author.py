@@ -1,27 +1,23 @@
 from config.setting import *
 import base.U_util as Util
-from base.U_app_qt import Q_App
+from base.U_app_qt import *
 from base.U_log import get_logger
 import time
 import requests
 import shutil
 import base64
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5 import QtGui, QtCore
 
 
 class ModeAuthorPanel(Q_App):
     """手动驾驶的panel"""
-    start_timer_show_signal = QtCore.pyqtSignal()
-    stop_timer_show_signal = QtCore.pyqtSignal()
-    start_timer_error_signal = QtCore.pyqtSignal()
-    stop_timer_error_signal = QtCore.pyqtSignal()
-
     def __init__(self, base_frame):
         self.module_name = 'mode_author'
         self.logger = get_logger(self.module_name)
-        Q_App.__init__(self, self.module_name, base_frame)
+        Q_App.__init__(self, self.module_name, base_frame, QRect(0, 40, 800, 340))
 
-        self.setGeometry(QRect(0, 40, 800, 340))
+        self.show_callback = self.start
+        self.hide_callback = self.stop
 
         self.res_path = Util.get_res_path(self.module_name)
         self.input_cnt = 0
@@ -38,20 +34,18 @@ class ModeAuthorPanel(Q_App):
         self.qr_code_path = self.res_path + 'Qr.png'
         self.process_percent = 0
 
-        self.Qrbitmap = QtGui.QPixmap(self.qr_code_path).scaled(161, 161)
-        self.m_bitmap_qr = QtWidgets.QLabel(self)
-        self.m_bitmap_qr.setGeometry(QRect(18, 120, 161, 161))
-        self.m_bitmap_qr.setText('')
-        self.m_bitmap_qr.setPixmap(self.Qrbitmap)
+        self.m_bitmap_qr = get_label_picture(self, QRect(18, 120, 161, 161), self.qr_code_path)
 
         tmp_list = list_button_author_info
         self.list_key_button = []
         for index in range(12):
-            button = QtWidgets.QPushButton(self)
-            button.setGeometry(tmp_list[index][Author_button_point])
+            rect = tmp_list[index][Author_button_point]
+            style_sheet = 'border-image: url(:/mode_author/mode_author/' + \
+                          str(tmp_list[index][Author_button_unselect]) + ");"
+
+            button = get_pushbutton(self, rect, style_sheet)
+
             button.setObjectName(str(tmp_list[index][Author_button_id]))
-            button.setStyleSheet("border-image: url(:/mode_author/mode_author/" +
-                                 str(tmp_list[index][Author_button_unselect]) + ");")
 
             button.pressed.connect(lambda: self.on_click_key_down(self.sender().objectName()))
             button.released.connect(lambda: self.on_click_key(self.sender().objectName()))
@@ -62,40 +56,27 @@ class ModeAuthorPanel(Q_App):
         self.radio_list = []
         self.radio_bitmap_list = []
 
-        bitmap = QtGui.QPixmap(self.res_path + tmp_list[Author_radio_off])
+        bitmap = QtGui.QPixmap(':/mode_author/mode_author/' + tmp_list[Author_radio_off])
         self.radio_bitmap_list.append(bitmap)
-        bitmap = QtGui.QPixmap(self.res_path + tmp_list[Author_radio_on])
+        bitmap = QtGui.QPixmap(':/mode_author/mode_author/' + tmp_list[Author_radio_on])
         self.radio_bitmap_list.append(bitmap)
 
         # 设置属性,位置
         for index in range(6):
-            radio_button = QtWidgets.QLabel(self)
-            radio_button.setGeometry(QRect(307 + (26 + 37) * index, 57, 26, 26))
-            radio_button.setText('')
-            radio_button.setPixmap(self.radio_bitmap_list[Author_radio_off])
+            rect = QRect(307 + (26 + 37) * index, 57, 26, 26)
+            path = ':/mode_author/mode_author/' + tmp_list[Author_radio_off]
+            radio_button= get_label_picture(self, rect, path)
 
             self.radio_list.append(radio_button)
 
-        self.m_static_password_tip = QtWidgets.QLabel(self)
-        self.m_static_password_tip.setGeometry(QRect(350, 8, 293, 28))
-        font = QtGui.QFont()
-        font.setFamily("MicrosoftYaHei-Bold")
-        font.setPointSize(21)
-        font.setBold(False)
-        font.setItalic(False)
-        font.setWeight(50)
-        self.m_static_password_tip.setFont(font)
-        self.m_static_password_tip.setStyleSheet("color: rgb(51, 51, 51);")
-        self.m_static_password_tip.setText("密码错误,请重新输入")
+        self.m_static_password_tip = get_label_text(self, QRect(191, 14, 418, 28), True, '请扫描二维码或 输入管理员密码', 28,
+                                                    'MicrosoftYaHei-Bold','#333333')
 
         self.timer_show = QtCore.QTimer(parent=self)  # 创建定时器
         self.timer_show.timeout.connect(self.on_timer_show)
-        self.start_timer_show_signal.connect(lambda: self.timer_show.start(200))
-        self.stop_timer_show_signal.connect(lambda: self.timer_show.stop())
 
         self.timer_error_show = QtCore.QTimer(parent=self)  # 创建定时器
         self.timer_error_show.timeout.connect(self.on_timer_error_show)
-        self.stop_timer_error_signal.connect(lambda: self.timer_error_show.stop())
 
         self.timer_delay = QtCore.QTimer(parent=self)  # 创建定时器
         self.timer_delay.timeout.connect(self.on_timer_delay)
@@ -224,7 +205,7 @@ class ModeAuthorPanel(Q_App):
         x_point = 329
         if self.error_show_cnt >= 10:
             self.timer_error_show.stop()
-            self.m_static_password_tip.hide()
+            self.m_static_password_tip.setText('请扫描二维码或 输入管理员密码')
             self.error_show_cnt = 0
         else:
             if self.error_show_cnt % 2 == 0:
@@ -292,7 +273,7 @@ class ModeAuthorPanel(Q_App):
                         self.mode_dispatcher(Page_check)
                     else:
                         # 错误对话跨国
-                        self.m_static_password_tip.show()
+                        self.m_static_password_tip.setText('密码错误，请重新输入')
                         self.timer_error_show.stop()
                         self.timer_error_show.start(100)
 
@@ -302,16 +283,15 @@ class ModeAuthorPanel(Q_App):
             self.radio_show()
 
     def start(self):
-        self.start_timer_show_signal.emit()
+        self.timer_show.start(200)
         self.input_cnt = 0
         self.error_show_cnt = 0
         self.input_password = ''
-        self.stop_timer_error_signal.emit()
-        self.m_static_password_tip.hide()
+        self.timer_error_show.stop()
+        self.m_static_password_tip.setText('请扫描二维码或 输入管理员密码')
         self.unlock_status = False
         self.lock_status = False
-        # self.clear_button_status()
 
     def stop(self):
-        self.stop_timer_show_signal.emit()
-        self.stop_timer_error_signal.emit()
+        self.timer_show.stop()
+        self.timer_error_show.stop()

@@ -13,7 +13,7 @@ from usher.ui.mode_show_box import ModeShowBox
 from usher.ui.mode_update import ModeUpdate
 
 from config.setting import *
-from base.U_app import App
+from base.U_app_qt import App
 from base.U_log import get_logger
 import base.U_util as Util
 import time
@@ -37,14 +37,13 @@ module_relations = {
 class UiManager(QObject, App):
     def __init__(self, manager_pipe):
         self.__module_name = 'ui_manager'
-
+        self.__app = QtWidgets.QApplication([])
         App.__init__(self, self.__module_name)
         # QtWidgets.QWidget.__init__(self, None)
         self.__logger = get_logger(self.__module_name)
         self.ui_dispatcher = UDispatcher(self.msg_id.ui_dispatcher, manager_pipe)
         self.__old_panel = None
         self.__frame = None
-        self.__app = None
         self.__default_page = Page_mt_mode
         self.robot_status = 'mt'
 
@@ -131,31 +130,30 @@ class UiManager(QObject, App):
             self.page_dict[Page_show_box] = module_relations[Page_show_box](self.__frame)
         self.page_dict[Page_show_box].show()
         self.page_dict[Page_show_box].show_box_tip(index, tip)
+        QtWidgets.QApplication.processEvents()
 
     def test_ui_stable(self):
         count = 0
         time.sleep(5)
+        index = 0
         while True:
             time.sleep(1)
-            self.__change_page(Page_mt_mode)
-            time.sleep(1)
-            self.__change_page(Page_author)
+            if index in range(Page_num):
+                self.mode_dispatcher(index)
+                index += 1
+            else:
+                index = 0
             self.__logger.info('change conut : ' + str(count))
             count += 1
 
     def __change_page(self, index):
         self.__logger.info('change panel to index : ' + str(index))
 
-        for index_page in range(Page_num):
-            if index_page == index:
-                self.page_dict[index_page].show()
-                self.page_dict[index_page].start()
-            else:
-                self.page_dict[index_page].hide()
-                self.page_dict[index_page].stop()
-        # self.__old_panel = module_relations[index](self.__frame)
-        # self.__old_panel.start()
-        # self.__old_panel.Show(True)
+        if self.__old_panel is not None and self.__old_panel in range(Page_num):
+            self.page_dict[self.__old_panel].hide()
+        if index in range(Page_num):
+            self.page_dict[index].show()
+            self.__old_panel = index
 
         self.__update_button_status(index)
         pass
@@ -165,8 +163,6 @@ class UiManager(QObject, App):
         self.send_msg_dispatcher(self.msg_id.base_frame_update_button_status, msg_data)
 
     def start(self):
-        # task = Thread(target=self.__run)
-        # task.start()
         self.__run()
 
     def init_all_page(self):
@@ -178,18 +174,18 @@ class UiManager(QObject, App):
         """__run__ is parent function dont rewrite"""
         self.__logger.info('begin to init pyqt5 app for this project!')
         # init
-        self.__app = QtWidgets.QApplication([])
+        # self.__app = QtWidgets.QApplication([])
         self.widgets = QtWidgets.QWidget()
         self.widgets.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.widgets.move(0, 0)
         self.widgets.resize(800, 480)
         self.__frame = BaseFrame(self.widgets)
-        self.__frame.start()
+        # self.__frame.start()
         self.init_all_page()
 
         # add panel here
-        # self.__change_page(self.__default_page)
-        self.__change_page(6)
+        self.__change_page(self.__default_page)
+        # self.__change_page(0)
 
 
         # show main frame
@@ -201,26 +197,6 @@ class UiManager(QObject, App):
         except Exception as e:
             print(str(e))
             time.sleep(1)
-
-    # def on_timer_delay(self,event):
-    #     if event:
-    #         pass
-    #
-    #     if self.old_page_index != self.page_index:
-    #         self.__change_page(self.page_index)
-    #
-    #     elif self.show_box_flag:
-    #         if self.old_show_box_index != self.show_box_index or self.old_show_box_tip != self.show_box_tip:
-    #             self.__show_box(self.show_box_index, self.show_box_tip)
-    #
-    #     elif not self.show_box_flag and self.page_dict[Page_show_box].IsShownOnScreen():
-    #         if self.page_dict[Page_show_box] is not None:
-    #             self.page_dict[Page_show_box].stop()
-    #             self.page_dict[Page_show_box].Show(False)
-    #             self.old_show_box_index = None
-    #             self.old_show_box_tip = None
-
-
 
 
 if __name__ == '__main__':

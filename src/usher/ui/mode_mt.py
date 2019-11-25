@@ -1,23 +1,19 @@
 from config.setting import *
 import time
 import base.U_util as Util
-from base.U_app_qt import Q_App
+import base.U_app_qt as AppQt
 from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
+from PyQt5.QtCore import pyqtSignal
 from base.U_log import get_logger
 
 
-class ModeMtPanel(Q_App):
+class ModeMtPanel(AppQt.Q_App):
     """手动驾驶的panel"""
-    start_timer_signal = pyqtSignal()
-    stop_timer_signal = pyqtSignal()
-
     def __init__(self, base_frame):
         self.module_name = 'mode_mt'
         self.logger = get_logger(self.module_name)
-        Q_App.__init__(self, self.module_name, base_frame)
+        AppQt.Q_App.__init__(self, self.module_name, base_frame, AppQt.QRect(0, 40, 800, 340))
         # frame init
-        self.setGeometry(QRect(0, 40, 800, 340))
 
         self.res_path = Util.get_res_path('mode_mt')
         self.list_msg_info = [['close', 'open', 'brush_req'], ['close', 'open', 'water_req'], ['forward', 'back'
@@ -29,17 +25,9 @@ class ModeMtPanel(Q_App):
 
         tmp_list = list_label_mt_string
         for index in range(Mt_button_num):
-            mt_label = QtWidgets.QLabel(self)
-            mt_label.setGeometry(tmp_list[index][list_label_point])
-            font = QtGui.QFont()
-            font.setFamily("MicrosoftYaHei-Bold")
-            font.setPointSize(23)
-            font.setBold(True)
-            font.setItalic(False)
-            font.setWeight(70)
-            mt_label.setFont(font)
-            mt_label.setStyleSheet("color: rgb(0, 0, 0);")
-            mt_label.setText(tmp_list[index][list_label_info])
+            rect = tmp_list[index][list_label_point]
+            name = tmp_list[index][list_label_info]
+            AppQt.get_label_text(self, rect, True, name, 28, 'MicrosoftYaHei-Bold', '#000000')
 
         self.list_mt_button_bitmap = []
         self.list_mt_button = []
@@ -52,25 +40,29 @@ class ModeMtPanel(Q_App):
             list_tmp.append(bitmap)
             self.list_mt_button_bitmap.append(list_tmp)
 
-            mt_bpbutton = QtWidgets.QPushButton(self)
-            mt_bpbutton.setGeometry(tmp_list[index][Mt_button_point])
-            mt_bpbutton.setStyleSheet(list_tmp[self.list_mt_button_status[index]])
-            # mt_bpbutton.setCheckable(False)
-            mt_bpbutton.setText('')
-            mt_bpbutton.setObjectName(str(tmp_list[index][Mt_button_id]))
-            mt_bpbutton.clicked.connect(lambda: self.on_click_mt_button(self.sender().objectName()))
+            rect = tmp_list[index][Mt_button_point]
+            style_sheet = list_tmp[self.list_mt_button_status[index]]
+            mt_button = AppQt.get_pushbutton(self, rect, style_sheet)
 
-            self.list_mt_button.append(mt_bpbutton)
+            mt_button.setObjectName(str(tmp_list[index][Mt_button_id]))
+            mt_button.clicked.connect(lambda: self.on_click_mt_button(self.sender().objectName()))
+
+            self.list_mt_button.append(mt_button)
 
         self.timer_show = QtCore.QTimer(parent=self)  # 创建定时器
         self.timer_show.timeout.connect(self.on_timer_show)
-        self.start_timer_signal.connect(lambda: self.timer_show.start(1000))
-        self.stop_timer_signal.connect(lambda: self.timer_show.stop())
 
         self.timer_delay = QtCore.QTimer(parent=self)  # 创建定时器
         self.timer_delay.timeout.connect(self.on_timer_delay)
 
         self.__init_callback()
+
+    def start(self):
+        self.timer_show.start(1000)
+        self.show_all_button()
+
+    def stop(self):
+        self.timer_show.stop()
 
     def __init_callback(self):
         self.subscribe_msg(self.msg_id.mode_mt_update_link_status, self.update_link_status_callback)
@@ -140,13 +132,6 @@ class ModeMtPanel(Q_App):
     def on_timer_delay(self):
         self.timer_delay.stop()
 
-    def start(self):
-        self.start_timer_signal.emit()
-        self.show_all_button()
-
-    def stop(self):
-        self.stop_timer_signal.emit()
-
     def ui_control_ros(self, index):
         tmp_list = self.list_msg_info[index]
         msg_id_index = 2
@@ -172,9 +157,11 @@ class ModeMtPanel(Q_App):
         list_button = self.list_mt_button
         list_bitmap = self.list_mt_button_bitmap
 
+        # print(self.list_mt_button_status)
+
         self.timer_delay.start(200)
         list_status[button_index] = list_status[button_index] ^ 1
-
+        # print(self.list_mt_button_status)
         list_button[button_index].setStyleSheet(list_bitmap[button_index][list_status[button_index]])
 
         self.ui_control_ros(button_index)
@@ -191,4 +178,4 @@ class ModeMtPanel(Q_App):
     def on_timer_show(self):
         """标题栏刷新定时器"""
         if not self.timer_delay.isActive() and self.isVisible():
-           self.show_all_button()
+            self.show_all_button()

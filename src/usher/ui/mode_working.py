@@ -1,28 +1,18 @@
 from config.setting import *
-import time
 import random
 import base.U_util as Util
-from base.U_app_qt import Q_App
+import base.U_app_qt as AppQt
 from base.U_log import get_logger
-from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
+from PyQt5 import QtGui, QtCore
 import os
 
 
-class ModeWorkingPanel(Q_App):
+class ModeWorkingPanel(AppQt.Q_App):
     """手动驾驶的panel"""
-    start_timer_show_signal = pyqtSignal()
-    stop_timer_show_signal = pyqtSignal()
-    start_timer_process_signal = pyqtSignal()
-    stop_timer_process_signal = pyqtSignal()
-
     def __init__(self, base_frame):
         self.module_name = 'mode_working'
         self.logger = get_logger(self.module_name)
-        Q_App.__init__(self, self.module_name, base_frame)
-
-        # frame init
-        self.setGeometry(QRect(0, 40, 800, 340))
+        AppQt.Q_App.__init__(self, self.module_name, base_frame, QRect(0, 40, 800, 340))
 
         self.res_path = Util.get_res_path(self.module_name)
         self.current_process = [0, 0, 0]
@@ -33,97 +23,46 @@ class ModeWorkingPanel(Q_App):
         self.map_select_name = None
         self.working_status = 0
 
-        self.label_back = QtWidgets.QFrame(self)
-        self.label_back.setGeometry(QRect(28, 26, 228, 228))
-        self.label_back.setStyleSheet("background-color: #FFFFFF;")
+        self.label_back = AppQt.get_sub_frame(self, AppQt.QRect(28, 26, 228, 228), 'background-color: #FFFFFF;')
 
-        self.m_bitmap_map_working = QtWidgets.QLabel(self)
-        self.m_bitmap_map_working.setGeometry(QRect(34, 31, 217, 217))
-        self.m_bitmap_map_working.setStyleSheet('color: #FFFFFF')
+        self.m_bitmap_map_working = AppQt.get_label_picture(self.label_back, AppQt.QRect(5, 5, 218, 218))
 
-        self.map_label_name = QtWidgets.QLabel(self)
-        self.map_label_name.setGeometry(QRect(8, 276, 270, 26))
-        font = QtGui.QFont()
-        font.setFamily("MicrosoftYaHei-Bold")
-        font.setPointSize(19)
-        font.setBold(False)
-        font.setItalic(False)
-        font.setWeight(50)
-        self.map_label_name.setFont(font)
-        self.map_label_name.setText('test name')
-        self.map_label_name.setStyleSheet("color: #000000;")
-        self.map_label_name.setAlignment(QtCore.Qt.AlignCenter)
+        self.map_label_name = AppQt.get_label_text(self, AppQt.QRect(8, 276, 270, 26), False, '', 26)
 
         tmp_list = list_working_label_info
         for index in range(4):
-            str_name = tmp_list[index][list_working_name]
-            label_point = tmp_list[index][list_working_point]
-            working_label = QtWidgets.QLabel(self)
-            working_label.setText(str_name)
-            working_label.setGeometry(label_point)
-            font = QtGui.QFont()
-            font.setFamily("MicrosoftYaHei-Bold")
-            font.setPointSize(19)
-            font.setBold(True)
-            font.setItalic(False)
-            font.setWeight(70)
-            working_label.setFont(font)
-            working_label.setStyleSheet('color: #333333')
-            working_label.setAlignment(QtCore.Qt.AlignCenter)
+            rect = tmp_list[index][list_working_point]
+            name = tmp_list[index][list_working_name]
+            AppQt.get_label_text(self, rect, True, name, 26, 'MicrosoftYaHei-Bold', '#333333')
 
         self.list_working_label_point_show = []
         for index in range(Working_point_num):
-            working_label = QtWidgets.QLabel(self)
-            working_label.setText('')
-            working_label.setGeometry(QRect(380 + 130 * index, 195, 90, 20))
-            font = QtGui.QFont()
-            font.setFamily("MicrosoftYaHei-Bold")
-            font.setPointSize(19)
-            font.setBold(False)
-            font.setItalic(False)
-            font.setWeight(50)
-            working_label.setFont(font)
-            working_label.setStyleSheet('color: #333333')
+            rect = AppQt.QRect(380 + 130 * index, 192, 90, 24)
+            working_label = AppQt.get_label_text(self, rect, False, '', 24, 'MicrosoftYaHei', '#333333')
 
             self.list_working_label_point_show.append(working_label)
+
         self.working_set_point(0, 0, 0)
 
         tmp_list = list_working_process_info
         self.list_working_cover_panel = []
         self.list_working_cover_text = []
         for index in range(Working_gauge_num):
-            gray_point = tmp_list[index][list_working_gray_point]
-            text_point = tmp_list[index][list_working_text_point]
+            rect = tmp_list[index][list_working_gray_point]
+            path = ':/mode_working/mode_working/工作中-灰.png'
+            AppQt.get_label_picture(self, rect, path)
 
-            gray = QtWidgets.QLabel(self)
-            gray.setGeometry(gray_point)
-            gray.setPixmap(QtGui.QPixmap(self.res_path + '工作中-灰.png'))
-            gray.setText('')
+            cover_panel = AppQt.get_sub_frame(self, rect)
 
-            cover_panel = QtWidgets.QFrame(self)
-            cover_panel.setGeometry(gray_point)
-            cover_panel.setFixedSize(0, 38)
+            path = ':/mode_working/mode_working/工作中-蓝.png'
+            AppQt.get_label_picture(cover_panel, AppQt.QRect(0, 0, 380, 38), path)
 
-            blue = QtWidgets.QLabel('', cover_panel)
-            blue.setGeometry(QRect(0, 0, 380, 38))
-            blue.setPixmap(QtGui.QPixmap(self.res_path + '工作中-蓝.png'))
+            rect = tmp_list[index][list_working_text_point]
+            text_panel = AppQt.get_sub_frame(self, rect, 'background: transparent;')
 
-            text_panel = QtWidgets.QFrame(self)
-            text_panel.setGeometry(text_point)
-            text_panel.setStyleSheet('background: transparent;')
-
-            cover_text = QtWidgets.QLabel(text_panel)
+            cover_text = AppQt.get_label_text(text_panel, AppQt.QRect(0, 0, rect.width(), rect.height()), True, '', 26,
+                                              'MicrosoftYaHei-Bold', '#0E0E32')
             cover_text.setStyleSheet('background: transparent;')
-            cover_text.setGeometry(QRect(0, 0, text_point.width(), text_point.height()))
-            cover_text.setAlignment(QtCore.Qt.AlignCenter)
-            font = QtGui.QFont()
-            font.setFamily("MicrosoftYaHei-Bold")
-            font.setPointSize(19)
-            font.setBold(True)
-            font.setItalic(False)
-            font.setWeight(60)
-            cover_text.setFont(font)
-            cover_text.setStyleSheet('color: #0E0E31')
 
             self.list_working_cover_panel.append(cover_panel)
             self.list_working_cover_text.append(cover_text)
@@ -135,27 +74,25 @@ class ModeWorkingPanel(Q_App):
         bitmap = "border-image: url(:/mode_working/mode_working/继续.png);"
         self.list_working_button_bitmap.append(bitmap)
 
-        self.m_button_pause_continue = QtWidgets.QPushButton(self)
-        self.m_button_pause_continue.setGeometry(QRect(286, 236, 224, 84))
-        self.m_button_pause_continue.setStyleSheet(self.list_working_button_bitmap[self.working_status])
+        rect = AppQt.QRect(286, 236, 224, 84)
+        style_sheet = self.list_working_button_bitmap[self.working_status]
+        self.m_button_pause_continue = AppQt.get_pushbutton(self, rect, style_sheet)
+
         self.m_button_pause_continue.released.connect(lambda: self.on_click_pause_continue())
         self.m_button_pause_continue.pressed.connect(lambda: self.on_click_pause_continue_down())
 
-        self.m_button_cancel = QtWidgets.QPushButton(self)
-        self.m_button_cancel.setGeometry(QRect(524, 236, 224, 84))
-        self.m_button_cancel.setStyleSheet("border-image: url(:/mode_working/mode_working/取消.png);")
+        rect = AppQt.QRect(524, 236, 224, 84)
+        style_sheet = 'border-image: url(:/mode_working/mode_working/取消.png);'
+        self.m_button_cancel = AppQt.get_pushbutton(self, rect, style_sheet)
+
         self.m_button_cancel.released.connect(lambda: self.on_click_cancel())
         self.m_button_cancel.pressed.connect(lambda: self.on_click_cancel_down())
 
         self.timer_show = QtCore.QTimer(parent=self)  # 创建定时器
         self.timer_show.timeout.connect(lambda: self.on_timer_show())
-        self.start_timer_show_signal.connect(lambda: self.timer_show.start(100))
-        self.stop_timer_show_signal.connect(lambda: self.timer_show.stop())
 
         self.timer_process = QtCore.QTimer(parent=self)  # 创建定时器
         self.timer_process.timeout.connect(lambda: self.on_timer_process())
-        self.start_timer_process_signal.connect(lambda: self.timer_process.start(2))
-        self.stop_timer_process_signal.connect(lambda: self.timer_process.stop())
 
         self.timer_delay = QtCore.QTimer(parent=self)  # 创建定时器
         self.timer_delay.timeout.connect(lambda: self.on_timer_process())
@@ -275,10 +212,6 @@ class ModeWorkingPanel(Q_App):
         self.list_working_label_point_show[Working_point_z].setText('Z:' + '{:4.1f}'.format(z))
 
     def start(self):
-        # test
-        self.map_select_name = '地图1'
-        self.map_select_path = ":/mode_map_select/mode_map_select/map1.pgm"
-        # test
         if self.map_select_name is not None and self.map_select_path is not None:
             map_bitmap = QtGui.QPixmap(self.map_select_path).scaled(217, 217)
 
@@ -295,7 +228,7 @@ class ModeWorkingPanel(Q_App):
 
             self.working_status = 0
 
-            self.start_timer_show_signal.emit()
+            self.timer_show.start(100)
             self.m_button_cancel.setEnabled(False)
         else:
             self.show_box(show_box_no_map, '')
@@ -307,7 +240,7 @@ class ModeWorkingPanel(Q_App):
         self.send_msg_dispatcher(self.msg_id.base_frame_set_button_enable, data_dict)
 
     def stop(self):
-        self.stop_timer_show_signal.emit()
+        self.timer_show.stop()
         self.map_select_path = None
         self.map_select_name = None
 

@@ -1,24 +1,16 @@
 from config.setting import *
 import base.U_util as Util
-from base.U_app_qt import Q_App
+import base.U_app_qt as AppQt
 from base.U_log import get_logger
-from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
+from PyQt5 import QtGui, QtCore
 
-class ModeCheckPanel(Q_App):
+
+class ModeCheckPanel(AppQt.Q_App):
     """手动驾驶的panel"""
-    start_timer_show_signal = pyqtSignal()
-    stop_timer_show_signal = pyqtSignal()
-    start_timer_process_signal = pyqtSignal()
-    stop_timer_process_signal = pyqtSignal()
-
     def __init__(self, base_frame):
         self.module_name = 'mode_check'
         self.logger = get_logger(self.module_name)
-        Q_App.__init__(self, self.module_name, base_frame)
-
-        # frame init
-        self.setGeometry(QRect(0, 40, 800, 340))
+        AppQt.Q_App.__init__(self, self.module_name, base_frame, AppQt.QRect(0, 40, 800, 340))
 
         self.res_path = Util.get_res_path(self.module_name)
 
@@ -28,75 +20,6 @@ class ModeCheckPanel(Q_App):
         self.check_process_target = 0
         self.current_process = 0
         self.degree = 0
-
-        self.gif = QtGui.QMovie(self.res_path + '扑拉飞呀导入版本.gif')
-        self.gif.setCacheMode(QtGui.QMovie.CacheAll)
-        self.gif_paly = QtWidgets.QLabel('', self)
-        self.gif_paly.setGeometry(QRect(335, 20, 130, 140))
-        self.gif_paly.setMovie(self.gif)
-        self.gif.start()
-
-        self.gray = QtWidgets.QLabel()
-        self.gray.setGeometry(QRect(213, 178, 380, 34))
-        self.gray.setText('')
-        self.gray.setPixmap(QtGui.QPixmap(self.res_path + '自检进度条-灰.png'))
-
-        self.cover_panel = QtWidgets.QFrame(self)
-        self.cover_panel.setGeometry(QRect(213, 178, 0, 34))
-
-        self.blue = QtWidgets.QLabel(self.cover_panel)
-        self.blue.setGeometry(QRect(0, 0, 380, 34))
-        self.blue.setText('')
-        self.blue.setPixmap(QtGui.QPixmap(self.res_path + '自检进度条-蓝.png'))
-
-        self.m_static_check_title = QtWidgets.QLabel(self)
-        self.m_static_check_title.setGeometry(QRect(215, 237, 150, 30))
-        self.m_static_check_title.setText('')
-        font = QtGui.QFont()
-        font.setFamily("MicrosoftYaHei")
-        font.setPointSize(20)
-        font.setBold(False)
-        font.setItalic(False)
-        font.setWeight(50)
-        self.m_static_check_title.setFont(font)
-        self.m_static_check_title.setStyleSheet('color: #333333')
-
-        self.m_static_check_subtitle = QtWidgets.QLabel(self)
-        self.m_static_check_subtitle.setGeometry(QRect(480, 237, 150, 30))
-        self.m_static_check_subtitle.setText('')
-        font = QtGui.QFont()
-        font.setFamily("MicrosoftYaHei")
-        font.setPointSize(20)
-        font.setBold(False)
-        font.setItalic(False)
-        font.setWeight(50)
-        self.m_static_check_subtitle.setFont(font)
-        self.m_static_check_subtitle.setStyleSheet('color: #333333')
-
-        self.m_static_check_result = QtWidgets.QLabel(self)
-        self.m_static_check_result.setGeometry(QRect(480, 270, 150, 30))
-        self.m_static_check_result.setText('')
-        font = QtGui.QFont()
-        font.setFamily("MicrosoftYaHei")
-        font.setPointSize(20)
-        font.setBold(False)
-        font.setItalic(False)
-        font.setWeight(50)
-        self.m_static_check_result.setFont(font)
-        self.m_static_check_result.setStyleSheet('color: #333333')
-
-        self.__check_list_init__()
-
-        self.timer_show = QtCore.QTimer()  # 创建定时器
-        self.timer_show.timeout.connect(lambda: self.on_timer_show())
-        self.start_timer_show_signal.connect(lambda: self.timer_show.start(100))
-        self.stop_timer_show_signal.connect(lambda: self.timer_show.stop())
-
-        self.timer_process = QtCore.QTimer() # 创建定时器
-        self.timer_process.timeout.connect(lambda: self.on_timer_process())
-        self.start_timer_process_signal.connect(lambda: self.timer_process.start(2))
-        self.stop_timer_process_signal.connect(lambda: self.timer_process.stop())
-
         self.link_4G = True
         self.link_ros = True
         self.link_mcu = True
@@ -105,6 +28,35 @@ class ModeCheckPanel(Q_App):
         self.release_stop = True
         self.fault_status = True
         self.origin_status = True
+
+        AppQt.get_label_picture(self, AppQt.QRect(344, 30, 130, 140), ':/mode_check/mode_check/扑拉飞呀导入版本.gif')
+
+        AppQt.get_label_picture(self, AppQt.QRect(210, 174, 380, 41), ':/mode_check/mode_check/自检进度条-灰.png')
+
+        self.cover_panel = AppQt.get_sub_frame(self, AppQt.QRect(213, 178, 0, 34))
+
+        AppQt.get_label_picture(self.cover_panel, AppQt.QRect(0, 0, 380, 34), ':/mode_check/mode_check/自检进度条-蓝.png')
+
+        rect = AppQt.QRect(215, 237, 150, 24)
+        self.m_static_check_title = AppQt.get_label_text(self, rect, False, '', 24, 'MicrosoftYaHei', '#333333')
+        self.m_static_check_title.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+
+        rect = AppQt.QRect(430, 237, 150, 24)
+        self.m_static_check_subtitle = AppQt.get_label_text(self, rect, False, '', 24, 'MicrosoftYaHei', '#333333')
+        self.m_static_check_subtitle.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+
+        rect = AppQt.QRect(430, 270, 150, 24)
+        self.m_static_check_result = AppQt.get_label_text(self, rect, False, '', 24, 'MicrosoftYaHei', '#333333')
+        self.m_static_check_result.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+
+        self.__check_list_init__()
+
+        self.timer_show = QtCore.QTimer()  # 创建定时器
+        self.timer_show.timeout.connect(lambda: self.on_timer_show())
+
+        self.timer_process = QtCore.QTimer() # 创建定时器
+        self.timer_process.timeout.connect(lambda: self.on_timer_process())
+
 
     def __check_list_init__(self):
         """检测列表初始化"""
@@ -123,12 +75,12 @@ class ModeCheckPanel(Q_App):
         self.current_process = 0
         self.check_last_status = Check_status_idle
 
-        self.start_timer_show_signal.emit()
-        self.start_timer_process_signal.emit()
+        self.timer_show.start(100)
+        self.timer_process.start(2)
 
     def stop(self):
-        self.stop_timer_show_signal.emit()
-        self.stop_timer_process_signal.emit()
+        self.timer_show.stop()
+        self.timer_process.stop()
 
     def set_check_label_show(self, index, str_show):
         """显示提示内容"""

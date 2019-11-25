@@ -45,7 +45,7 @@ class App(object):
         self.__start__()
 
     def add_dispatcher_pipe(self, dispatcher_name, pipe):
-        # 进程间使用pipe，线程间使用queue.Queue
+        # 进程间使用pipe，线程间使用pysignal
         self.__ins.add_module_queue(dispatcher_name, pipe)
 
     def add_manager_dispatcher_pipe(self, pipe):

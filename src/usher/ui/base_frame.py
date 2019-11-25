@@ -6,19 +6,20 @@
 import time
 from config.setting import *
 import base.U_util as Util
-from base.U_app_qt import Q_App
+import base.U_app_qt as AppQt
 from PyQt5 import  QtCore, QtGui, QtWidgets
 import res.image_rc
 from base.U_log import get_logger
 
 
-class BaseFrame(Q_App):
+class BaseFrame(AppQt.Q_App):
     """whole ui base class"""
 
     def __init__(self, parent):
         self.module_name = 'base_frame'
         # init frame
-        Q_App.__init__(self, self.module_name, parent=parent)
+        AppQt.Q_App.__init__(self, self.module_name, parent=parent, geometry=AppQt.QRect(0, 0, 800, 480),
+                             style_sheet='background-color: #D6D5D6;')
 
         # init variable
         self.res_path = Util.get_res_path('frame')
@@ -38,98 +39,60 @@ class BaseFrame(Q_App):
 
         self.list_mt_button_status = [Mt_button_off, Mt_button_off, Mt_button_forward]
 
-        # init self
-        self.setGeometry(QtCore.QRect(0, 0, 800, 480))
-        self.setStyleSheet("background-color: rgb(214, 213, 214);")
-        self.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.setLineWidth(0)
-        self.show()
         # title panel init
-        self.title_panel = QtWidgets.QFrame(self)
-        self.title_panel.setGeometry(QtCore.QRect(0, 0, 800, 40))
-        self.title_panel.setStyleSheet("background-color: rgb(225, 225, 225);")
-        self.title_panel.setFrameShape(QtWidgets.QFrame.NoFrame)
-
+        self.title_panel = AppQt.get_sub_frame(self, AppQt.QRect(0, 0, 800, 40), 'background-color: #E1E1E1;')
 
         # tail panel init
-        self.tail_panel = QtWidgets.QFrame(self)
-        self.tail_panel.setGeometry(QtCore.QRect(0, 380, 800, 100))
-        self.tail_panel.setStyleSheet("background-color: rgb(240, 240, 240);")
-        self.tail_panel.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.tail_panel = AppQt.get_sub_frame(self, AppQt.QRect(0, 380, 800, 100), 'background-color: #F0F0F0;')
 
         # init title 4G
-        self.m_bitmap_4G = QtWidgets.QLabel(self.title_panel)
-        self.m_bitmap_4G.setGeometry(QtCore.QRect(13, 12, 28, 17))
-        self.m_bitmap_4G.setText("")
-        self.m_bitmap_4G.setPixmap(QtGui.QPixmap(":/frame/frame/信号4.png"))
+        self.m_bitmap_4G = AppQt.get_label_picture(self.title_panel, AppQt.QRect(13, 12, 28, 17),
+                                                   ':/frame/frame/信号4.png')
 
         # init title battery
-        self.m_bitmap_battery = QtWidgets.QLabel(self.title_panel)
-        self.m_bitmap_battery.setGeometry(QtCore.QRect(745, 11, 43, 18))
-        self.m_bitmap_battery.setText("")
-        self.m_bitmap_battery.setPixmap(QtGui.QPixmap(":/frame/frame/电池1.png"))
+        self.m_bitmap_battery = AppQt.get_label_picture(self.title_panel, AppQt.QRect(745, 11, 43, 18),
+                                                        ':/frame/frame/电池1.png')
 
         # init tail water percent
-        self.m_bitmap_water = QtWidgets.QLabel(self.tail_panel)
-        self.m_bitmap_water.setGeometry(QtCore.QRect(47, 26, 40, 54))
-        self.m_bitmap_water.setText("")
-        self.m_bitmap_water.setPixmap(QtGui.QPixmap(":/frame/frame/水量.png"))
+        self.m_bitmap_water = AppQt.get_label_picture(self.tail_panel, AppQt.QRect(47, 26, 40, 54),
+                                                      ':/frame/frame/水量.png')
 
         # init tail odom
-        self.m_bitmap_odom = QtWidgets.QLabel(self.tail_panel)
-        self.m_bitmap_odom.setGeometry(QtCore.QRect(597, 26, 44, 54))
-        self.m_bitmap_odom.setText("")
-        self.m_bitmap_odom.setPixmap(QtGui.QPixmap(":/frame/frame/lichen.png"))
+        self.m_bitmap_odom = AppQt.get_label_picture(self.tail_panel, AppQt.QRect(597, 26, 44, 54),
+                                                     ':/frame/frame/lichen.png')
 
         # 剩下的label 批量处理,省地方
         self.m_title_label_list = []
         tmp_list = list_title_string
         for index in range(len(tmp_list)):
             # Label初始化
-            title_label = QtWidgets.QLabel(self.title_panel)
-            title_label.setGeometry(tmp_list[index][Title_index_point])
-            font = QtGui.QFont()
-            font.setFamily("MicrosoftYaHei")
-            font.setPointSize(tmp_list[index][Title_index_font_size])
-            font.setBold(True)
-            font.setItalic(False)
-            font.setWeight(50)
-            title_label.setFont(font)
-            title_label.setStyleSheet("color: rgb(0, 0, 0);")
-            title_label.setText(tmp_list[index][Title_index_name])
-            title_label.setAutoFillBackground(True)
+            rect = tmp_list[index][Title_index_point]
+            name = tmp_list[index][Title_index_name]
+            font_px = tmp_list[index][Title_index_font_size]
+            title_label = AppQt.get_label_text(self.title_panel, rect, False, name, font_px, 'MicrosoftYaHei', '#000000')
+            # title_label.setAutoFillBackground(True)
             self.m_title_label_list.append(title_label)
 
         # 剩下的label 批量处理,省地方
         self.m_tail_label_list = []
         tmp_list = list_tail_string
         for index in range(len(tmp_list)):
-            title_label = QtWidgets.QLabel(self.tail_panel)
-            title_label.setGeometry(tmp_list[index][Title_index_point])
-            font = QtGui.QFont()
-            font.setFamily("MicrosoftYaHei")
-            font.setPointSize(tmp_list[index][Title_index_font_size])
-            font.setBold(True)
-            font.setItalic(False)
-            font.setWeight(50)
-            title_label.setFont(font)
-            title_label.setStyleSheet("color: rgb(0, 0, 0);")
-            title_label.setText(tmp_list[index][Title_index_name])
-            self.m_tail_label_list.append(title_label)
+            rect = tmp_list[index][Title_index_point]
+            name = tmp_list[index][Title_index_name]
+            font_px = tmp_list[index][Title_index_font_size]
+            tail_label = AppQt.get_label_text(self.tail_panel, rect, False, name, font_px, 'MicrosoftYaHei', '#000000')
 
-        # init at or mt button
+            self.m_tail_label_list.append(tail_label)
 
-        self.m_bpButtonAt_mini = QtWidgets.QPushButton(self.tail_panel)
-        self.m_bpButtonAt_mini.setGeometry(QtCore.QRect(235, 0, 331, 100))
-        self.m_bpButtonAt_mini.setStyleSheet("border-image: url(:/frame/frame/切换到 自动驾驶.png);")
-        self.m_bpButtonAt_mini.setText("")
+        # init at or mt button 垃圾逻辑,改掉
+        style_sheet = 'border-image: url(:/frame/frame/切换到 自动驾驶.png);'
+        self.m_bpButtonAt_mini = AppQt.get_pushbutton(self.tail_panel, AppQt.QRect(235, 0, 331, 100), style_sheet)
+        self.m_bpButtonAt_mini.clicked.connect(lambda: self.on_click_mini_at())
         self.m_bpButtonAt_mini.hide()
 
-        self.m_bpButtonMt_mini = QtWidgets.QPushButton(self.tail_panel)
-        self.m_bpButtonMt_mini.setGeometry(QtCore.QRect(235, 0, 331, 100))
-        self.m_bpButtonMt_mini.setStyleSheet("border-image: url(:/frame/frame/切换到 手动驾驶.png);")
-        self.m_bpButtonMt_mini.setText("")
+        style_sheet = 'border-image: url(:/frame/frame/切换到 手动驾驶.png);'
+        self.m_bpButtonMt_mini = AppQt.get_pushbutton(self.tail_panel, AppQt.QRect(235, 0, 331, 100), style_sheet)
+        self.m_bpButtonMt_mini.clicked.connect(lambda: self.on_click_mini_mt())
         self.m_bpButtonMt_mini.hide()
 
 
@@ -139,6 +102,8 @@ class BaseFrame(Q_App):
         QtCore.QMetaObject.connectSlotsByName(parent)
 
         self.__init_callback()
+
+        self.show()
 
     def __init_callback(self):
         """
@@ -287,25 +252,21 @@ class BaseFrame(Q_App):
 
             self.m_title_label_list[Lable_title_mode_select].setText(list_page_string[tab_name][Page_index_title])
 
-    def on_click_mini_at(self, event):
+    def on_click_mini_at(self):
         """这里是点击切换到到自动驾驶"""
-        if event:
-            pass
 
         if not self.link_mcu or not self.link_ros:
             self.show_box(show_box_loss, '')
         else:
-            if self.m_bpButtonAt_mini.IsEnabled():
+            if self.m_bpButtonAt_mini.isEnabled():
                 self.show_box(show_box_turn_at, '')
 
-    def on_click_mini_mt(self, event):
+    def on_click_mini_mt(self):
         """这里是点击切换到到手动驾驶"""
-        if event:
-            pass
         if not self.link_mcu or not self.link_ros:
             self.show_box(show_box_loss, '')
         else:
-            if self.m_bpButtonMt_mini.IsEnabled():
+            if self.m_bpButtonMt_mini.isEnabled():
                 self.show_box(show_box_turn_mt, '')
 
     def on_timer_show(self):
