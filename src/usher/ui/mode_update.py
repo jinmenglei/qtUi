@@ -31,9 +31,9 @@ class ModeUpdate(AppQt.Q_App):
 
         AppQt.get_label_picture(self, QRect(210, 174, 380, 41), ':/update/Update/自检进度条-灰.png')
 
-        cover_panel = AppQt.get_sub_frame(self, QRect(213, 178, 0, 34))
+        self.cover_panel = AppQt.get_sub_frame(self, QRect(213, 178, 0, 34))
 
-        AppQt.get_label_picture(cover_panel, QRect(0, 0, 380, 34), ':/update/Update/自检进度条-蓝.png')
+        AppQt.get_label_picture(self.cover_panel, QRect(0, 0, 380, 34), ':/update/Update/自检进度条-蓝.png')
 
         self.m_static_check_title = AppQt.get_label_text(self, QRect(215, 237, 150, 24), False, 'test',
                                                          24, 'MicrosoftYaHei', '#333333')
@@ -142,11 +142,11 @@ class ModeUpdate(AppQt.Q_App):
             self.cover_panel.setFixedSize(int(self.check_process_target), 38)
         elif self.check_process_target > self.current_process:
             self.current_process = self.current_process + self.degree
-            self.cover_panel.setFixdSize(self.current_process, 38)
+            self.cover_panel.setFixedSize(self.current_process, 38)
 
         elif self.check_process_target < self.current_process:
             self.current_process = self.current_process - self.degree
-            self.cover_panel.setFixdSize(self.current_process, 38)
+            self.cover_panel.setFixedSize(self.current_process, 38)
 
     def on_timer_process(self):
         """标题栏刷新定时器"""
