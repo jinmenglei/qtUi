@@ -75,7 +75,7 @@ class App(object):
         self.stop_message()
 
     def __start__(self):
-        self.process = Thread(target=self.__run__)
+        self.process = Thread(target=self.__run__app)
         self.process.start()
         if self.__pipe_dispatcher_rec is not None:
             self.multi_process = Thread(target=self.__run__multi__)
@@ -90,7 +90,7 @@ class App(object):
 
             time.sleep(0.0001)
 
-    def __run__(self):
+    def __run__app(self):
         self.__logger.info(self.__app_name + ' callback_msg subscribe')
         while not self.__is_shutdown:
             if not self.__queue.empty():
@@ -105,6 +105,7 @@ class App(object):
                             self.__default_callback(data_dict)
             time.sleep(0.0001)
         #
+        print(self.__app_name + ' quit by user')
         self.__logger.info(self.__app_name + ' quit by user')
 
     def stop_message(self):

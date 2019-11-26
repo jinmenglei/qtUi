@@ -118,8 +118,8 @@ class ModeAuthorPanel(Q_App):
                 else:
                     self.logger.debug('device is locked!')
                     return False
-        except Exception as e:
-            self.logger.warning('find error : ', str(e))
+        except:
+            self.logger.warning('find error')
             return  False
 
     def update_qr_code_function(self):
@@ -131,8 +131,8 @@ class ModeAuthorPanel(Q_App):
                     return
                 else:
                     time.sleep(60)
-            except Exception as e:
-                self.logger.fatal('fail update qr_code :' + str(e))
+            except:
+                self.logger.fatal('fail update qr_code')
                 time.sleep(60)
 
     def get_packet(self):

@@ -22,6 +22,43 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QObject
 # from PyQt5.QtWidgets.
 import image_rc
+#
+import tracemalloc
+from threading import Thread
+from http.server import HTTPServer, BaseHTTPRequestHandler
+host_ui = ('0.0.0.0', 8889)
+
+
+# mem test
+def get_mem_snap():
+    # test mem
+    server = HTTPServer(host_ui, Resquest_ui)
+    print("Starting server, listen at: %s:%s" % host_ui)
+    task = Thread(target=server.serve_forever)
+    task.start()
+    global snap_finsh
+    snap_finsh = False
+    time.sleep(20)
+
+    global snapshot_ui
+    tracemalloc.start()
+    snapshot_ui = tracemalloc.take_snapshot()
+    snap_finsh = True
+
+
+class Resquest_ui(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if snap_finsh:
+            snapshot2 = tracemalloc.take_snapshot()
+            top_stats = snapshot2.compare_to(snapshot_ui, 'lineno')
+            self.send_response(200)
+            # self.send_header('Content-type', 'application/json')
+            data = str(top_stats).replace('>, <', '> \r\n <')
+        else:
+            data = 'not init'
+        self.wfile.write(bytes(data.encode('utf-8')))
+# mem test
+
 
 module_relations = {
     Page_mt_mode: ModeMtPanel,
@@ -191,12 +228,10 @@ class UiManager(QObject, App):
         # show main frame
         self.widgets.show()
         # Util.add_thread(target=self.test_ui_stable)
-        try:
-            self.__app.exec_()
-            print('end')
-        except Exception as e:
-            print(str(e))
-            time.sleep(1)
+        # Util.add_thread(target=get_mem_snap)
+
+        self.__app.exec_()
+        print('end')
 
 
 if __name__ == '__main__':

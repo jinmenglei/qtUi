@@ -29,9 +29,9 @@ class ModeUpdate(AppQt.Q_App):
         # gif 动图
         AppQt.get_label_picture(self, QRect(335, 20, 130, 140), ':/update/Update/扑拉飞呀导入版本.gif')
 
-        AppQt.get_label_picture(self, QRect(210, 174, 380, 34), ':/update/Update/自检进度条-灰.png')
+        AppQt.get_label_picture(self, QRect(210, 174, 380, 41), ':/update/Update/自检进度条-灰.png')
 
-        cover_panel = AppQt.get_sub_frame(self, QRect(213, 178, 0, 41))
+        cover_panel = AppQt.get_sub_frame(self, QRect(213, 178, 0, 34))
 
         AppQt.get_label_picture(cover_panel, QRect(0, 0, 380, 34), ':/update/Update/自检进度条-蓝.png')
 

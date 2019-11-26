@@ -43,7 +43,7 @@ def json_to_dict(json_str) -> (str, dict):
     try:
         dict_ret = json.loads(json_str)
         return 'ok', dict_ret
-    except Exception as e:
+    except json.JSONDecodeError as e:
         return e, {}
 
 
@@ -55,7 +55,7 @@ def dict_to_json(dict_data) -> (str, dict):
     try:
         json_str = json.dumps(dict_data)
         return 'ok', json_str
-    except Exception as e:
+    except json.JSONDecodeError as e:
         return e, {}
 
 

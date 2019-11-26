@@ -69,8 +69,8 @@ class UpdateTask(App):
         try:
             self.check_out_version()
             self.logger.info('do update_task end!!')
-        except Exception as e:
-            self.logger.fatal('find Exception :' +  str(e))
+        except:
+            self.logger.fatal('find Exception')
 
     def start(self):
         Util.add_thread(target=self.__run__)

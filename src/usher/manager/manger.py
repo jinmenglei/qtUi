@@ -6,8 +6,11 @@ from usher.service.service_manager import ServiceManger
 from base.U_dispatcher import UDispatcher
 from base.U_msg import UMsg
 import sys
+import os
+import signal
 
-class Manager():
+
+class Manager:
     def __init__(self):
         self.logger = get_logger('Manager')
         self.manager_dispatcher = UDispatcher(UMsg.manager_dispatcher)
@@ -17,11 +20,12 @@ class Manager():
         self.process_service = None
 
     def run_service_process(self, manager_pipe):
+        self.logger.info('begin to start run_service_process')
         manager = ServiceManger(manager_pipe)
         manager.start()
 
     def run_ui_process(self, manager_pipe):
-        self.logger.info('begin to start run_main_process')
+        self.logger.info('begin to start run_ui_process')
         manager = UiManager(manager_pipe)
         manager.start()
 
@@ -37,10 +41,15 @@ class Manager():
             self.logger.info('process_service start_ok')
             while True:
                 time.sleep(1)
-        except Exception as e:
-            self.logger.fatal('exit by :' + str(e))
-            self.process_ui.kill()
-            self.process_service.kill()
+        except KeyboardInterrupt as e:
+            self.logger.fatal(' ########################## exit by : ' + str(e))
+            self.logger.info('########################## kill process_ui.pid : ' + str(self.process_ui.pid))
+            os.kill(self.process_ui.pid, signal.SIGKILL)
+            self.logger.info('########################## kill process_service.pid : ' + str(self.process_service.pid))
+            os.kill(self.process_service.pid, signal.SIGKILL)
+            self.logger.info('########################## kill self.pid : ' + str(os.getpid()))
+            time.sleep(1)
+            os.kill(os.getpid(), signal.SIGKILL)
             sys.exit(0)
 
 
