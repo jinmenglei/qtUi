@@ -213,7 +213,7 @@ class UiManager(QObject, App):
         # init
         # self.__app = QtWidgets.QApplication([])
         self.widgets = QtWidgets.QWidget()
-        self.widgets.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.widgets.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
         self.widgets.move(0, 0)
         self.widgets.resize(800, 480)
         self.__frame = BaseFrame(self.widgets)
