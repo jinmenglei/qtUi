@@ -1,3 +1,8 @@
+"""
+这个是基本的app模块,包含2个通信部分
+对外的pipe
+对内的queue
+"""
 from threading import Thread,Lock
 import time
 from base.U_log import get_logger
@@ -45,26 +50,55 @@ class App(object):
         self.__start__()
 
     def add_dispatcher_pipe(self, dispatcher_name, pipe):
-        # 进程间使用pipe，线程间使用pysignal
+        """
+        进程间使用pipe，线程间使用pysignal
+        :param dispatcher_name:
+        :param pipe:
+        :return:
+        """
         self.__ins.add_module_queue(dispatcher_name, pipe)
 
     def add_manager_dispatcher_pipe(self, pipe):
+        """
+        添加进程级通讯pipe对应关系,对外发
+        :param pipe:
+        :return:
+        """
         self.__ins.add_module_queue('manager_dispatcher', pipe)
 
     def get_self_pipe(self):
-        if self.__pipe_dispatcher_send:
+        """
+        获取pipe
+        :return:
+        """
+        if self.__pipe_dispatcher_send is not None:
             return self.__pipe_dispatcher_send
         else:
             return self.__queue
 
     def subscribe_default(self, callback):
+        """
+        默认回调,给dispatcher 模块用
+        :param callback:
+        :return:
+        """
         self.__default_callback = callback
 
     def subscribe_multi_default_callback(self, callback):
+        """
+        这个给进程间dispatcher用
+        :param callback:
+        :return:
+        """
         self.__multi_default_callback = callback
 
     def subscribe_msg(self, msg_id, callback):
-
+        """
+        订阅回调,主要是内部queue的回调
+        :param msg_id:
+        :param callback:
+        :return:
+        """
         self.__subscriber_dict[msg_id] = callback
         msg_data = {'msg_id': msg_id, 'module_name': self.__app_name}
         if self.msg_id.inner_dispatcher is not None and self.msg_id.inner_register_id is not None:
@@ -72,9 +106,17 @@ class App(object):
             self.send_msg_dispatcher(self.msg_id.inner_register_id, msg_data)
 
     def __del__(self):
+        """
+        释放本模块
+        :return:
+        """
         self.stop_message()
 
     def __start__(self):
+        """
+        启动模块通讯监听
+        :return:
+        """
         self.process = Thread(target=self.__run__app)
         self.process.start()
         if self.__pipe_dispatcher_rec is not None:
@@ -82,6 +124,10 @@ class App(object):
             self.multi_process.start()
 
     def __run__multi__(self):
+        """
+        负责进程间的pipe监听
+        :return:
+        """
         self.__logger.info(self.__app_name + ' __run__multi__ subscribe')
         while not self.__is_shutdown:
             data_dict = self.__pipe_dispatcher_rec.recv()
@@ -91,6 +137,10 @@ class App(object):
             time.sleep(0.0001)
 
     def __run__app(self):
+        """
+        负责queue的监听
+        :return:
+        """
         self.__logger.info(self.__app_name + ' callback_msg subscribe')
         while not self.__is_shutdown:
             if not self.__queue.empty():
@@ -109,7 +159,11 @@ class App(object):
         self.__logger.info(self.__app_name + ' quit by user')
 
     def stop_message(self):
-        # self.__logger.info(self.__app_name + 'stop')
+        """
+        进程状态切换
+        :return:
+        """
+        self.__logger.info(self.__app_name + 'stop')
         self.__is_shutdown = True
         self.__ins.delete_module(self.__app_name)
 

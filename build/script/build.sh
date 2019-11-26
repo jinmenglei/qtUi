@@ -1,53 +1,56 @@
 #! /bin/sh
-UTRY_SCRIPT_PATH=`pwd`
-
 cd ../../
-UTRY_ROOT_PATH=`pwd`
+UTRY_ROOT_PATH=$(pwd)
 
 # test output
-if ! test -d $UTRY_ROOT_PATH/utry_output
+if ! test -d "$UTRY_ROOT_PATH"/utry_output
 then
-  mkdir -p $UTRY_ROOT_PATH/utry_output
+  mkdir -p "$UTRY_ROOT_PATH"/utry_output
 fi
 # get release path
-cd $UTRY_ROOT_PATH/utry_output
-UTRY_RELEASE_PATH=`pwd`
+# shellcheck disable=SC2164
+cd "$UTRY_ROOT_PATH"/utry_output
+UTRY_RELEASE_PATH=$(pwd)
 
-currentfile=linux_`date +%Y%m%d%H%M%S`
-mkdir $UTRY_RELEASE_PATH/$currentfile
+currentfile=linux_$(date +%Y%m%d%H%M%S)
+mkdir "$UTRY_RELEASE_PATH"/"$currentfile"
 
-if ! test -d $UTRY_ROOT_PATH/release/bin/ui
+if ! test -d "$UTRY_ROOT_PATH"/release/bin/ui
 then
-  mkdir -p $UTRY_ROOT_PATH/release/bin/ui
+  mkdir -p "$UTRY_ROOT_PATH"/release/bin/ui
 fi
-cd $UTRY_ROOT_PATH/release/bin/ui
-PATH_BIN=`pwd`
+# shellcheck disable=SC2164
+cd "$UTRY_ROOT_PATH"/release/bin/ui
+PATH_BIN=$(pwd)
 
-PATH_RELEASE=$UTRY_ROOT_PATH/release
+# shellcheck disable=SC2034
+PATH_RELEASE="$UTRY_ROOT_PATH"/release
 
 
-if ! test -d $UTRY_ROOT_PATH/release/res
+if ! test -d "$UTRY_ROOT_PATH"/release/res
 then
-  mkdir -p $UTRY_ROOT_PATH/release/res
+  mkdir -p "$UTRY_ROOT_PATH"/release/res
 fi
-cd $UTRY_ROOT_PATH/release/res
-PATH_RES_TO=`pwd`
+# shellcheck disable=SC2164
+cd "$UTRY_ROOT_PATH"/release/res
+PATH_RES_TO=$(pwd)
 
-PATH_RES_FROM=$UTRY_ROOT_PATH/res
+PATH_RES_FROM="$UTRY_ROOT_PATH"/res
 
-UTRY_SRC_PATH=$UTRY_ROOT_PATH/src/ui
+UTRY_SRC_PATH="$UTRY_ROOT_PATH"/src/usher/
 
-cd $UTRY_SRC_PATH
+# shellcheck disable=SC2164
+cd "$UTRY_SRC_PATH"
 
 echo "start build ui"
 sleep 1
 echo "step 1:  build"
-pyinstaller -F --noconsole ui_main.py
-pyinstaller -F --noconsole launchStart.py
+pyinstaller -F --noconsole main/ui_main.spec
+pyinstaller -F --noconsole ros_start/launchStart.spec
 echo "step 2: mv file"
-rm $PATH_BIN/*
-mv dist/* $PATH_BIN
-cp $PATH_RES_FROM/* $PATH_RES_TO/ -r
+rm "$PATH_BIN"/*
+mv dist/* "$PATH_BIN"
+cp "$PATH_RES_FROM"/* "$PATH_RES_TO"/ -r
 echo "step 3: clear build/"
 rm build/ -r
 echo "step 4: clear dist/"
@@ -55,8 +58,9 @@ rm dist/ -r
 echo "step 5: clear .spec/"
 rm *.spec
 echo "step 6: zip file"
-cd $UTRY_ROOT_PATH
-zip -r $UTRY_RELEASE_PATH/$currentfile/"${currentfile}"_utry.zip release/*
+# shellcheck disable=SC2164
+cd "$UTRY_ROOT_PATH"
+zip -r "$UTRY_RELEASE_PATH"/"$currentfile"/"${currentfile}"_utry.zip release/*
 echo "----------------zip complete----------------"
 
 

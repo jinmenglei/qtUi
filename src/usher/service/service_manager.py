@@ -27,6 +27,7 @@ def get_mem_snap():
     tracemalloc.start()
     snapshot_server = tracemalloc.take_snapshot()
     snap_finsh = True
+    return
 
 
 class Resquest_ui(BaseHTTPRequestHandler):
@@ -40,14 +41,24 @@ class Resquest_ui(BaseHTTPRequestHandler):
         else:
             data = 'not init'
         self.wfile.write(bytes(data.encode('utf-8')))
+        return
 # mem test
 
+
 class ServiceManger(App):
+    """
+    服务的管理模块,显示和业务分开,其实是ros需要主线程,ui也是,所以
+    目前包括:
+    ros
+    行车记录仪
+    更新
+    """
     def __init__(self, manager_pipe):
         self.module_name = 'service_manager'
         App.__init__(self, self.module_name)
         self.dispatcher = UDispatcher(self.msg_id.service_dispatcher, manager_pipe)
         self.__logger = get_logger(self.module_name)
+        return
 
     def start(self):
         self.__logger.info('start service_manger!')

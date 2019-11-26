@@ -23,11 +23,15 @@ class Manager:
         self.logger.info('begin to start run_service_process')
         manager = ServiceManger(manager_pipe)
         manager.start()
+        while True:
+            time.sleep(1)
 
     def run_ui_process(self, manager_pipe):
         self.logger.info('begin to start run_ui_process')
         manager = UiManager(manager_pipe)
         manager.start()
+        while True:
+            time.sleep(1)
 
     def start(self):
 

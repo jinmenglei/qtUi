@@ -44,6 +44,7 @@ class InterfaceRos(App):
         if data:
             pass
         self.send_msg_dispatcher(self.msg_id.snap_req)
+        return
 
     def send_base_frame_info_notify(self, data):
         msg_data = {}
@@ -59,6 +60,7 @@ class InterfaceRos(App):
             msg_data['Position_Y'] = data['Position_Y']
 
         self.send_msg_dispatcher(self.msg_id.base_frame_info_notify, msg_data)
+        return
 
     def send_ui_manager_robot_status(self, data):
         msg_data = {}
@@ -66,6 +68,7 @@ class InterfaceRos(App):
             if data['robot_status'] == 'mt' or data['robot_status'] == 'at':
                 msg_data['robot_status'] = data['robot_status']
         self.send_msg_dispatcher(self.msg_id.ui_manager_robot_status_notify, msg_data)
+        return
 
     def send_mode_mt_update_button_status(self, data):
         msg_data = {}
@@ -79,6 +82,7 @@ class InterfaceRos(App):
             msg_data['direction_status'] = data['direction_status']
 
         self.send_msg_dispatcher(self.msg_id.mode_mt_update_button_status, msg_data)
+        return
 
     def send_info_req_callback(self, data):
         self.received_time = time.time()
@@ -86,6 +90,7 @@ class InterfaceRos(App):
         self.send_base_frame_info_notify(data)
         self.send_ui_manager_robot_status(data)
         self.send_mode_mt_update_button_status(data)
+        return
 
     def interface_ros_send_msg_out(self, data_dict):
         _, msg_data = Util.get_msg_id_data_dict(data_dict)
@@ -97,6 +102,7 @@ class InterfaceRos(App):
                     self.logger.info('/ui_ros_topic is not Subscriber')
             else:
                 self.logger.info('ros_master is not run')
+        return
 
     def send_msg_ros(self, msg_data):
         ret, send_msg = Util.dict_to_ros_msg(msg_data)
@@ -104,9 +110,11 @@ class InterfaceRos(App):
             self.pub.publish(send_msg)
         else:
             self.logger.warning('msg : ' + str(msg_data) + 'to json fail by:' + str(ret))
+        return
 
     def start(self):
         Util.add_thread(target=self.__run)
+        return
 
     def __run(self):
         self.logger.info(self.module_name + ' is started, wait for roscore start')
@@ -116,11 +124,13 @@ class InterfaceRos(App):
         self.logger.info('roscore init success! init sub pub.')
         self.__init_sub_pub()
         self.__main_logic()
+        return
 
     def send_msg_link_status(self, status):
         msg_data = {'link_ros': status, 'link_mcu': status}
         self.send_msg_dispatcher(self.msg_id.base_frame_update_link_status, msg_data)
         self.send_msg_dispatcher(self.msg_id.mode_mt_update_link_status, msg_data)
+        return
 
     def check_ui_ros_topic_is_sub(self):
         pubs, subs, _ = self.master.getSystemState()
@@ -129,6 +139,7 @@ class InterfaceRos(App):
             if '/ui_ros_topic' in index:
                 ui_ros_topic_is_sub = True
         self.ui_ros_topic_is_sub = ui_ros_topic_is_sub
+        return
 
     def __main_logic(self):
         self.master = Master('/rostopic')
@@ -151,14 +162,17 @@ class InterfaceRos(App):
                 self.send_msg_link_status(self.link_ros)
 
             time.sleep(0.1)
+        return
 
     def __init_sub_pub(self):
         self.pub = rospy.Publisher('/ui_ros_topic', String, queue_size=100)
         rospy.Subscriber("/ros_ui_topic", String, self.callback)
+        return
 
     def send_ack_callback(self, msg_id, msg_type):
         msg_data = {'msg_id': msg_id, 'msg_type': msg_type}
         self.send_msg_ros(msg_data)
+        return
 
     def callback(self, data):
         ret, data_dict = Util.ros_msg_to_dict(data)
@@ -180,6 +194,7 @@ class InterfaceRos(App):
                     callback(msg_data)
         else:
             self.logger.warning(str(data_dict) + '--- msg errer : ' + str(ret))
+        return
 
     def init_ros_node(self):
         roslaunch.rlutil._wait_for_master()
@@ -189,3 +204,4 @@ class InterfaceRos(App):
         rospy.init_node('ros_ui_start', anonymous=True)
 
         self.ros_is_running = True
+        return

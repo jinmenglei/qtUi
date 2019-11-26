@@ -32,13 +32,19 @@ class TaskThread(Thread):
         Thread.__init__(self)
         self.name = name
 
+    def check_ros_core(self):
+        rosmaster = masterapi.Master(names.make_caller_id('rosparam-%s' % os.getpid()))
+        if not rosmaster.hasParam('run_id'):
+            return False
+        else:
+            if rosmaster.getParam('run_id') is '':
+                return False
+        return True
+
     def run(self):
         roslaunch.rlutil._wait_for_master()
         # time.sleep(2)
-        rosmaster = masterapi.Master(names.make_caller_id('rosparam-%s'%os.getpid()))
-        while not rosmaster.hasParam('run_id'):
-            time.sleep(1)
-        while rosmaster.getParam('run_id') is '':
+        while not self.check_ros_core():
             time.sleep(1)
 
         logging.basicConfig(filename='/home/utry/xiaoyuan_logger.log', filemode="w",
@@ -70,7 +76,7 @@ class TaskThread(Thread):
 
 
         except Exception as e:
-            print('I am except')
+            print('I am except: ', e)
             rospy.logfatal(e)
             # logging.info("###### Exception occurred")
 
@@ -90,8 +96,9 @@ if __name__ == '__main__':
         time.sleep(2)
     time.sleep(2)
     task = TaskThread('utry_star_roscore')
-    task.start()
-    roslaunch.main(['roscore', '--core'])
+    task.run()
+    if not task.check_ros_core():
+        roslaunch.main(['roscore', '--core'])
 
 
 
