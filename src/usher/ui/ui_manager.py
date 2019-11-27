@@ -226,7 +226,7 @@ class UiManager(QObject, App):
         # show main frame
         self.widgets.show()
         # test auto
-        Util.add_thread(target=self.test_ui_stable)
+        # Util.add_thread(target=self.test_ui_stable)
 
         # test mem
         # Util.add_thread(target=get_mem_snap)
