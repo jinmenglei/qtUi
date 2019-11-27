@@ -3,7 +3,7 @@
 对外的pipe
 对内的queue
 """
-from threading import Thread,Lock
+from threading import Thread
 import time
 from base.U_log import get_logger
 import base.U_util as Util
@@ -23,22 +23,6 @@ class App(object):
         self.__queue = None
         self.__pipe_dispatcher_rec = None
         self.__pipe_dispatcher_send = None
-
-        if 'dispatcher' in self.__app_name:
-
-            self.__pipe_dispatcher_rec, self.__pipe_dispatcher_send = Pipe(False)
-
-            self.__ins.add_module_queue(self.__app_name, self.__pipe_dispatcher_send)
-            self.__queue = Queue(0)
-
-            self.__ins.add_module_queue('dispatcher', self.__queue)
-
-            if self.__app_name != self.msg_id.out_dispatcher:
-                self.send_queue_module_manager()
-        else:
-            self.__queue = Queue(0)
-
-            self.__ins.add_module_queue(self.__app_name, self.__queue)
         self.__logger = get_logger('app_' + self.__app_name)
         self.__subscriber_dict = {}
         self.__logger.info('init model ' + self.__app_name)
@@ -46,8 +30,26 @@ class App(object):
         self.__default_callback = None
         self.__multi_default_callback = None
 
+        self.__init_thread_connect()
+        self.__init_connection()
         # run self
-        self.__start__()
+        # self.__start__()
+
+    def __init_thread_connect(self):
+        self.__queue = Queue(0)
+
+    def __init_connection(self):
+        if 'dispatcher' in self.__app_name:
+            self.__pipe_dispatcher_rec, self.__pipe_dispatcher_send = Pipe(False)
+            self.__ins.add_module_queue(self.__app_name, self.__pipe_dispatcher_send)
+
+            self.__ins.add_module_queue('dispatcher', self.__queue)
+
+            if self.__app_name != self.msg_id.out_dispatcher:
+                self.send_queue_module_manager()
+        else:
+
+            self.__ins.add_module_queue(self.__app_name, self.__queue)
 
     def add_dispatcher_pipe(self, dispatcher_name, pipe):
         """
@@ -136,6 +138,16 @@ class App(object):
 
             time.sleep(0.0001)
 
+    def __deal_data_dict(self,data_dict):
+        msg_id, msg_data = Util.get_msg_id_data_dict(data_dict)
+        if msg_id is not None:
+            callback = self.__subscriber_dict.get(msg_id)
+            if callback is not None:
+                callback(data_dict)
+            else:
+                if self.__default_callback is not None:
+                    self.__default_callback(data_dict)
+
     def __run__app(self):
         """
         负责queue的监听
@@ -145,14 +157,7 @@ class App(object):
         while not self.__is_shutdown:
             if not self.__queue.empty():
                 data_dict = self.__queue.get_nowait()
-                msg_id, msg_data = Util.get_msg_id_data_dict(data_dict)
-                if msg_id is not None:
-                    callback = self.__subscriber_dict.get(msg_id)
-                    if callback is not None:
-                        callback(data_dict)
-                    else:
-                        if self.__default_callback is not None:
-                            self.__default_callback(data_dict)
+                self.__deal_data_dict(data_dict)
             time.sleep(0.0001)
         #
         print(self.__app_name + ' quit by user')
@@ -178,11 +183,15 @@ class App(object):
         send_queue = self.__ins.get_queue_by_module_name(msg_dst)
 
         if send_queue is not None :
-            if isinstance(send_queue, Queue):
-                send_queue.put_nowait(send_msg)
-            elif isinstance(send_queue, connection.Connection):
+            if isinstance(send_queue, connection.Connection):
                 # print('send_queue' + str(send_queue))
                 send_queue.send(send_msg)
+            else:
+                self.send_msg_inner(send_queue, send_msg)
+
+    def send_msg_inner(self, send_queue, data_dict):
+        if isinstance(send_queue, Queue):
+            send_queue.put_nowait(data_dict)
 
     def send_msg_id_manager_dispatcher(self, msg_id):
         msg_data = {'msg_id': msg_id, 'module_name': self.__app_name}
@@ -213,33 +222,3 @@ class App(object):
     def mode_dispatcher(self, page_mode):
         msg_data = {'page_mode': page_mode}
         self.send_msg_dispatcher(self.msg_id.ui_manager_change_page, msg_data)
-
-
-# """test code """
-if __name__ == '__main__':
-    from service.dispatcher import Dispatcher
-    logger = get_logger(__name__)
-
-    message = App('test')
-    print(message.make_session('abc'))
-    # for index in range(20):
-    #     time.sleep(0.1)
-    #     logger.info('send : test')
-    #     message.send_msg('test','test')
-
-    #
-    # # print(message.check_dispatcher_ready.__annotations__)
-    # message.subscriber('test', message.callback_test)
-    # logger.info('message.start()')
-    # print(pub.topicsMap)
-    # if 'test' in pub.topicsMap:
-    #     print('test ok')
-    #
-    # dispatcher = Dispatcher()
-    # dispatcher.start()
-    # dispatcher.init_ros_node()
-    # logger.info('dispatcher.start()')
-
-
-
-

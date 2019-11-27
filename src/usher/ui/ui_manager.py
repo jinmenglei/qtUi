@@ -13,7 +13,7 @@ from usher.ui.mode_show_box import ModeShowBox
 from usher.ui.mode_update import ModeUpdate
 
 from config.setting import *
-from base.U_app_qt import App
+from base.U_app_qt import App, App_Qobject
 from base.U_log import get_logger
 import base.U_util as Util
 from base.U_dispatcher import UDispatcher
@@ -69,11 +69,11 @@ module_relations = {
 }
 
 
-class UiManager(QObject, App):
+class UiManager(App_Qobject):
     def __init__(self, manager_pipe):
         self.__module_name = 'ui_manager'
         self.__app = QtWidgets.QApplication([])
-        App.__init__(self, self.__module_name)
+        App_Qobject.__init__(self, self.__module_name)
 
         self.__logger = get_logger(self.__module_name)
         self.ui_dispatcher = UDispatcher(self.msg_id.ui_dispatcher, manager_pipe)

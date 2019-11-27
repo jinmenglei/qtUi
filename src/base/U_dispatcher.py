@@ -31,7 +31,7 @@ class UDispatcher(App):
             if isinstance(module_name, str):
                 self.send_msg(msg_id, module_name, msg_data)
 
-    def __msg_dispatcher(self,data_dict):
+    def __msg_dispatcher(self, data_dict):
         msg_id, msg_data = Util.get_msg_id_data_dict(data_dict)
 
         if msg_id is not None:

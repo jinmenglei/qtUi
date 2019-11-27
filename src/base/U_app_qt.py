@@ -1,7 +1,8 @@
 from base.U_app import App
 from PyQt5.QtWidgets import QFrame, QWidget, QPushButton, QLabel
-from PyQt5.QtCore import QRect, Qt, pyqtSignal
+from PyQt5.QtCore import QRect, Qt, pyqtSignal, QObject, QThread
 from PyQt5.QtGui import QPixmap, QMovie, QFont
+import time
 
 
 def get_sub_frame(parent, geometry=QRect(0, 0, 800, 480), style_sheet='', need_shape=False):
@@ -59,8 +60,6 @@ def get_label_text(parent, geometry=QRect(0, 0, 800, 480), bold=False, text='',
 
     style_sheet = 'QLabel{color: ' + font_color + '}'
 
-
-
     font = QFont()
     font.setFamily(font_family)
     font.setPixelSize(font_px)
@@ -94,6 +93,53 @@ def get_label_picture(parent, geometry=QRect(0, 0, 800, 480), picture_path=None)
             label.setPixmap(QPixmap(picture_path).scaled(label.width(), label.height()))
 
     return label
+
+
+class MultiThread(QThread):
+    multi_signal = pyqtSignal(dict)
+
+    def __init__(self, multi_pipe):
+        QThread.__init__(self)
+        self.multi_pipe = multi_pipe
+
+    def run(self):
+        while not self.__is_shutdown:
+            data_dict = self.multi_pipe.recv()
+            self.multi_signal.emit(data_dict)
+
+            time.sleep(0.0001)
+
+
+class App_Qobject(QObject, App):
+    qt_signal = pyqtSignal(dict)
+
+    def __init__(self, module_name):
+        App.__init__(self, module_name)
+        self.multi_thread = None
+
+    def __init_thread_connect(self):
+        self.__queue = self.qt_signal
+        self.__queue.connect(self.__deal_data_dict)
+
+    def __start__(self):
+        """
+        rewrite for qt
+        :return:
+        """
+        if self.__pipe_dispatcher_rec is not None:
+            self.multi_thread = MultiThread(self.__pipe_dispatcher_rec)
+            self.multi_thread.multi_signal.connect(self.__slot_multi_callbac)
+            self.multi_thread.start()
+
+    def __slot_multi_callback(self, data_dict):
+        if self.__multi_default_callback is not None:
+            self.__multi_default_callback(data_dict)
+
+    def send_msg_inner(self, send_queue, data_dict):
+        if isinstance(send_queue, pyqtSignal):
+            print('tests')
+            send_queue.emit(data_dict)
+
 
 
 class Q_App(App, QFrame):
@@ -140,39 +186,3 @@ class Q_App(App, QFrame):
         """
         self.stop_signal.emit()
         QWidget.hideEvent(self, QHideEvent)
-
-
-# """test code """
-if __name__ == '__main__':
-    from service.dispatcher import Dispatcher
-    logger = get_logger(__name__)
-
-    message = App('test')
-    print(message.make_session('abc'))
-    # for index in range(20):
-    #     time.sleep(0.1)
-    #     logger.info('send : test')
-    #     message.send_msg('test','test')
-
-    #
-    # # print(message.check_dispatcher_ready.__annotations__)
-    # message.subscriber('test', message.callback_test)
-    # logger.info('message.start()')
-    # print(pub.topicsMap)
-    # if 'test' in pub.topicsMap:
-    #     print('test ok')
-    #
-    # dispatcher = Dispatcher()
-    # dispatcher.start()
-    # dispatcher.init_ros_node()
-    # logger.info('dispatcher.start()')
-
-
-
-
-
-# class Q_App_W(QWidget, App):
-#     def __init__(self, module_name, parent=None):
-#         QWidget.__init__(self)
-#         App.__init__(self, module_name)
-
