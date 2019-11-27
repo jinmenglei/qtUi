@@ -20,23 +20,17 @@ class ModeShowBox(AppQt.Q_App):
         self.m_bitmap_white = AppQt.get_sub_frame(self, QRect(100, 53, 600, 374),
                                                   'border-image: url(:/show_box/show_box/弹窗.png);')
 
-        self.button_no = AppQt.get_pushbutton(self.m_bitmap_white, QRect(41, 223, 240, 70),
-                                              'border-image: url(:/show_box/show_box/否.png);')
+        style_sheet = 'QPushButton{border-image: url(:/show_box/show_box/否.png)}' + \
+                      'QPushButton:pressed{border-image: url(:/show_box/show_box/否-点击.png)}'
+        self.button_no = AppQt.get_pushbutton(self.m_bitmap_white, QRect(41, 223, 240, 70), style_sheet)
 
         self.button_no.clicked.connect(lambda: self.on_click_button_no())
-        self.button_no.pressed.connect(lambda: self.button_no.setStyleSheet(
-            'border-image: url(:/show_box/show_box/否-点击.png);'))
-        self.button_no.released.connect(lambda: self.button_no.setStyleSheet(
-            'border-image: url(:/show_box/show_box/否.png);'))
 
-        self.button_yes = AppQt.get_pushbutton(self.m_bitmap_white, QRect(320, 223, 240, 70),
-                                                                'border-image: url(:/show_box/show_box/是.png);')
+        style_sheet = 'QPushButton{border-image: url(:/show_box/show_box/是.png)}' + \
+                      'QPushButton:pressed{border-image: url(:/show_box/show_box/是-点击.png)}'
+        self.button_yes = AppQt.get_pushbutton(self.m_bitmap_white, QRect(320, 223, 240, 70), style_sheet)
 
         self.button_yes.clicked.connect(lambda: self.on_click_button_yes())
-        self.button_yes.pressed.connect(lambda: self.button_yes.setStyleSheet(
-            'border-image: url(:/show_box/show_box/是-点击.png);'))
-        self.button_yes.released.connect(lambda: self.button_yes.setStyleSheet(
-            'border-image: url(:/show_box/show_box/是.png);'))
 
         self.m_static_show = AppQt.get_label_text(self.m_bitmap_white, QRect(0, 70, 600, 94), True, '', 34,
                                                   'MicrosoftYaHei-Bold', '#333333')

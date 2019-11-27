@@ -1,6 +1,6 @@
 from config.setting import *
 import base.U_util as Util
-from base.U_app_qt import *
+import base.U_app_qt as AppQt
 from base.U_log import get_logger
 import time
 import requests
@@ -9,12 +9,12 @@ import base64
 from PyQt5 import QtGui, QtCore
 
 
-class ModeAuthorPanel(Q_App):
+class ModeAuthorPanel(AppQt.Q_App):
     """手动驾驶的panel"""
     def __init__(self, base_frame):
         self.module_name = 'mode_author'
         self.logger = get_logger(self.module_name)
-        Q_App.__init__(self, self.module_name, base_frame, QRect(0, 40, 800, 340))
+        AppQt.Q_App.__init__(self, self.module_name, base_frame, AppQt.QRect(0, 40, 800, 340))
 
         self.show_callback = self.start
         self.hide_callback = self.stop
@@ -34,21 +34,22 @@ class ModeAuthorPanel(Q_App):
         self.qr_code_path = self.res_path + 'Qr.png'
         self.process_percent = 0
 
-        self.m_bitmap_qr = get_label_picture(self, QRect(18, 120, 161, 161), self.qr_code_path)
+        self.m_bitmap_qr = AppQt.get_label_picture(self, AppQt.QRect(18, 120, 161, 161), self.qr_code_path)
 
         tmp_list = list_button_author_info
         self.list_key_button = []
         for index in range(12):
             rect = tmp_list[index][Author_button_point]
-            style_sheet = 'border-image: url(:/mode_author/mode_author/' + \
-                          str(tmp_list[index][Author_button_unselect]) + ");"
+            style_sheet = 'QPushButton{border-image: url(:/mode_author/mode_author/' + \
+                          str(tmp_list[index][Author_button_unselect]) + ')}' + \
+                          'QPushButton:pressed{border-image: url(:/mode_author/mode_author/' + \
+                          str(tmp_list[index][Author_button_select]) + ')}'
 
-            button = get_pushbutton(self, rect, style_sheet)
+            button = AppQt.get_pushbutton(self, rect, style_sheet)
 
             button.setObjectName(str(tmp_list[index][Author_button_id]))
 
-            button.pressed.connect(lambda: self.on_click_key_down(self.sender().objectName()))
-            button.released.connect(lambda: self.on_click_key(self.sender().objectName()))
+            button.clicked.connect(lambda: self.on_click_key(self.sender().objectName()))
 
             self.list_key_button.append(button)
 
@@ -63,13 +64,13 @@ class ModeAuthorPanel(Q_App):
 
         # 设置属性,位置
         for index in range(6):
-            rect = QRect(307 + (26 + 37) * index, 57, 26, 26)
+            rect = AppQt.QRect(307 + (26 + 37) * index, 57, 26, 26)
             path = ':/mode_author/mode_author/' + tmp_list[Author_radio_off]
-            radio_button= get_label_picture(self, rect, path)
+            radio_button= AppQt.get_label_picture(self, rect, path)
 
             self.radio_list.append(radio_button)
 
-        self.m_static_password_tip = get_label_text(self, QRect(191, 14, 418, 28), True, '请扫描二维码或 输入管理员密码', 28,
+        self.m_static_password_tip = AppQt.get_label_text(self, AppQt.QRect(191, 14, 418, 28), True, '请扫描二维码或 输入管理员密码', 28,
                                                     'MicrosoftYaHei-Bold','#333333')
 
         self.timer_show = QtCore.QTimer(parent=self)  # 创建定时器
@@ -220,25 +221,6 @@ class ModeAuthorPanel(Q_App):
         """错误显示提示"""
         self.timer_error_show_ui()
 
-    def on_click_key_down(self, str_index):
-        """数字键盘点击事件处理"""
-        index = int(str_index)
-        self.set_key_button_bitmap(index, Author_button_select)
-
-    def clear_button_status(self):
-        for select_index in range(12):
-            style_sheet = "border-image: url(:/mode_author/mode_author/"  + str(list_button_author_info[select_index]
-                                                                                [Author_button_unselect]) + ");"
-            self.list_key_button[select_index].setStyleSheet(style_sheet)
-
-    def set_key_button_bitmap(self, index, select):
-        select_index = index - Author_button_id_delta
-
-        if select_index in range(12):
-            style_sheet = "border-image: url(:/mode_author/mode_author/" + str(list_button_author_info[select_index]
-                                                                               [select]) + ");"
-            self.list_key_button[select_index].setStyleSheet(style_sheet)
-
     def on_click_key(self, str_index):
         """数字键盘点击事件处理"""
         # 删除操作
@@ -246,8 +228,6 @@ class ModeAuthorPanel(Q_App):
         if self.unlock_status:
             self.logger.warning('unlock by qr code input disable')
             return
-
-        self.set_key_button_bitmap(index, Author_button_unselect)
 
         if self.timer_delay.isActive():
             return

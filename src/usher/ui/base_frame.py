@@ -19,7 +19,7 @@ class BaseFrame(AppQt.Q_App):
         self.module_name = 'base_frame'
         # init frame
         AppQt.Q_App.__init__(self, self.module_name, parent=parent, geometry=AppQt.QRect(0, 0, 800, 480),
-                             style_sheet='background-color: #D6D5D6;')
+                             style_sheet='QFrame{background-color: #D6D5D6}')
 
         # init variable
         self.res_path = Util.get_res_path('frame')
@@ -85,12 +85,12 @@ class BaseFrame(AppQt.Q_App):
             self.m_tail_label_list.append(tail_label)
 
         # init at or mt button 垃圾逻辑,改掉
-        style_sheet = 'border-image: url(:/frame/frame/切换到 自动驾驶.png);'
+        style_sheet = 'QPushButton{border-image: url(:/frame/frame/切换到 自动驾驶.png)}'
         self.m_bpButtonAt_mini = AppQt.get_pushbutton(self.tail_panel, AppQt.QRect(235, 0, 331, 100), style_sheet)
         self.m_bpButtonAt_mini.clicked.connect(lambda: self.on_click_mini_at())
         self.m_bpButtonAt_mini.hide()
 
-        style_sheet = 'border-image: url(:/frame/frame/切换到 手动驾驶.png);'
+        style_sheet = 'QPushButton{border-image: url(:/frame/frame/切换到 手动驾驶.png)}'
         self.m_bpButtonMt_mini = AppQt.get_pushbutton(self.tail_panel, AppQt.QRect(235, 0, 331, 100), style_sheet)
         self.m_bpButtonMt_mini.clicked.connect(lambda: self.on_click_mini_mt())
         self.m_bpButtonMt_mini.hide()

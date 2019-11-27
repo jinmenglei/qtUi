@@ -57,7 +57,7 @@ def get_label_text(parent, geometry=QRect(0, 0, 800, 480), bold=False, text='',
     label.setText(text)
     label.setAlignment(Qt.AlignCenter)
 
-    style_sheet = 'color: ' + font_color + ';'
+    style_sheet = 'QLabel{color: ' + font_color + '}'
 
 
 

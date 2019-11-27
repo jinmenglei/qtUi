@@ -69,24 +69,26 @@ class ModeWorkingPanel(AppQt.Q_App):
 
         self.list_working_button_bitmap = []
 
-        bitmap = "border-image: url(:/mode_working/mode_working/暂停.png);"
+        bitmap = 'QPushButton{border-image: url(:/mode_working/mode_working/暂停.png)}' + \
+                 'QPushButton:pressed{border-image: url(:/mode_working/mode_working/暂停-按下.png)}'
         self.list_working_button_bitmap.append(bitmap)
-        bitmap = "border-image: url(:/mode_working/mode_working/继续.png);"
+        bitmap = 'QPushButton{border-image: url(:/mode_working/mode_working/继续.png)}' + \
+                 'QPushButton:pressed{border-image: url(:/mode_working/mode_working/暂停-按下.png)}'
+
         self.list_working_button_bitmap.append(bitmap)
 
-        rect = AppQt.QRect(286, 236, 224, 84)
+        rect = AppQt.QRect(286, 236, 214, 74)
         style_sheet = self.list_working_button_bitmap[self.working_status]
         self.m_button_pause_continue = AppQt.get_pushbutton(self, rect, style_sheet)
 
-        self.m_button_pause_continue.released.connect(lambda: self.on_click_pause_continue())
-        self.m_button_pause_continue.pressed.connect(lambda: self.on_click_pause_continue_down())
+        self.m_button_pause_continue.clicked.connect(lambda: self.on_click_pause_continue())
 
-        rect = AppQt.QRect(524, 236, 224, 84)
-        style_sheet = 'border-image: url(:/mode_working/mode_working/取消.png);'
+        rect = AppQt.QRect(524, 236, 214, 74)
+        style_sheet = 'QPushButton{border-image: url(:/mode_working/mode_working/取消.png)}' + \
+                      'QPushButton:pressed{border-image: url(:/mode_working/mode_working/取消-按下.png)}'
         self.m_button_cancel = AppQt.get_pushbutton(self, rect, style_sheet)
 
-        self.m_button_cancel.released.connect(lambda: self.on_click_cancel())
-        self.m_button_cancel.pressed.connect(lambda: self.on_click_cancel_down())
+        self.m_button_cancel.clicked.connect(lambda: self.on_click_cancel())
 
         self.timer_show = QtCore.QTimer(parent=self)  # 创建定时器
         self.timer_show.timeout.connect(lambda: self.on_timer_show())
@@ -143,16 +145,6 @@ class ModeWorkingPanel(AppQt.Q_App):
         """标题栏刷新定时器"""
         self.do_ui_update()
 
-    def on_click_pause_continue_down(self):
-        """暂停继续按钮"""
-        if self.timer_delay.isActive():
-            return
-
-        if self.working_status == 0:
-            self.m_button_pause_continue.setStyleSheet("border-image: url(:/mode_working/mode_working/暂停-按下.png);")
-        else:
-            self.m_button_pause_continue.setStyleSheet("border-image: url(:/mode_working/mode_working/继续-按下.png);")
-
     def on_click_pause_continue(self):
         """暂停继续按钮"""
 
@@ -173,14 +165,6 @@ class ModeWorkingPanel(AppQt.Q_App):
             self.m_button_cancel.setEnabled(False)
             self.set_button_enable(False)
 
-    def on_click_cancel_down(self):
-        """取消按钮"""
-        if self.timer_delay.isActive():
-            return
-
-        if self.m_button_cancel.isEnabled():
-            self.m_button_cancel.setStyleSheet("border-image: url(:/mode_working/mode_working/取消-按下.png);")
-
     def on_click_cancel(self):
         """取消按钮"""
 
@@ -188,7 +172,6 @@ class ModeWorkingPanel(AppQt.Q_App):
             return
 
         if self.m_button_cancel.isEnabled():
-            self.m_button_cancel.setStyleSheet("border-image: url(:/mode_working/mode_working/取消.png);")
             self.show_box(show_box_work_cancel, '')
 
     def working_set_gauge(self, index, value):

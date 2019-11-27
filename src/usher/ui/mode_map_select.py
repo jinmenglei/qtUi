@@ -3,13 +3,13 @@ from PyQt5.QtWidgets import QPushButton
 from config.setting import *
 import time
 import base.U_util as Util
-import base.U_app_qt
+import base.U_app_qt as AppQt
 from base.U_log import get_logger
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
 
-class ModeMapSelectPanel(base.U_app_qt.Q_App):
+class ModeMapSelectPanel(AppQt.Q_App):
     """手动驾驶的panel"""
     start_timer_show_signal = pyqtSignal()
     stop_timer_show_signal = pyqtSignal()
@@ -17,7 +17,7 @@ class ModeMapSelectPanel(base.U_app_qt.Q_App):
     def __init__(self, base_frame):
         self.module_name = 'mode_map_select'
         self.logger = get_logger(self.module_name)
-        base.U_app_qt.Q_App.__init__(self, self.module_name, base_frame, base.U_app_qt.QRect(0, 40, 800, 340))
+        AppQt.Q_App.__init__(self, self.module_name, base_frame, AppQt.QRect(0, 40, 800, 340))
         self.show_callback = self.start
         self.hide_callback = self.stop
 
@@ -27,13 +27,13 @@ class ModeMapSelectPanel(base.U_app_qt.Q_App):
         self.list_map_label = []
         for index in range(Map_select_num):
             rect = list_button_map_string[index][Map_back_point]
-            label_frame = base.U_app_qt.get_sub_frame(self, rect, 'background-color: #FFFFFF;')
+            label_frame = AppQt.get_sub_frame(self, rect, 'background-color: #FFFFFF;')
 
-            rect = base.U_app_qt.QRect(3, 3, 120, 120)
-            style_sheet = "border-image: url(:/mode_map_select/mode_map_select/" + \
-                            str(list_button_map_string[index][Map_button_path]) + ");"
+            rect = AppQt.QRect(3, 3, 120, 120)
+            style_sheet = "QPushButton{border-image: url(:/mode_map_select/mode_map_select/" + \
+                            str(list_button_map_string[index][Map_button_path]) + ")}"
 
-            map_button = base.U_app_qt.get_pushbutton(label_frame, rect, style_sheet)  # type: QPushButton
+            map_button = AppQt.get_pushbutton(label_frame, rect, style_sheet)  # type: QPushButton
 
             button_id = list_button_map_string[index][Map_button_id]
             map_button.setObjectName(str(button_id))
@@ -44,7 +44,7 @@ class ModeMapSelectPanel(base.U_app_qt.Q_App):
 
             rect = list_button_map_string[index][Map_label_point]
             name = list_button_map_string[index][Map_label_string]
-            map_label = base.U_app_qt.get_label_text(self, rect, False, name, 26)
+            map_label = AppQt.get_label_text(self, rect, False, name, 26)
 
             self.list_map_label.append(map_label)
 
