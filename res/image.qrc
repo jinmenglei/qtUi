@@ -7,6 +7,7 @@
     <file>frame/信号4.png</file>
     <file>frame/充电.png</file>
     <file>frame/切换到 手动驾驶.png</file>
+    <file>frame/切换到 手动驾驶灰.png</file>
     <file>frame/切换到 自动驾驶.png</file>
     <file>frame/水量.png</file>
     <file>frame/没有信号.png</file>
@@ -70,6 +71,7 @@
   <qresource prefix="mode_working">
     <file>mode_working/取消-按下.png</file>
     <file>mode_working/取消.png</file>
+    <file>mode_working/取消灰.png</file>
     <file>mode_working/工作中-灰.png</file>
     <file>mode_working/工作中-蓝.png</file>
     <file>mode_working/暂停-按下.png</file>

@@ -7,8 +7,7 @@ import time
 from config.setting import *
 import base.U_util as Util
 import base.U_app_qt as AppQt
-from PyQt5 import  QtCore, QtGui, QtWidgets
-import res.image_rc
+from PyQt5 import QtCore, QtGui, QtWidgets
 from base.U_log import get_logger
 
 
@@ -85,16 +84,19 @@ class BaseFrame(AppQt.Q_App):
             self.m_tail_label_list.append(tail_label)
 
         # init at or mt button 垃圾逻辑,改掉
-        style_sheet = 'QPushButton{border-image: url(:/frame/frame/切换到 自动驾驶.png)}'
-        self.m_bpButtonAt_mini = AppQt.get_pushbutton(self.tail_panel, AppQt.QRect(235, 0, 331, 100), style_sheet)
+        self.At_style_sheet_enable = 'QPushButton{border-image: url(:/frame/frame/切换到 自动驾驶.png)}'
+        self.Mt_style_sheet_enable = 'QPushButton{border-image: url(:/frame/frame/切换到 手动驾驶.png)}'
+        self.Mt_style_sheet_disable = 'QPushButton{border-image: url(:/frame/frame/切换到 手动驾驶灰.png)}'
+
+        self.m_bpButtonAt_mini = AppQt.get_pushbutton(self.tail_panel, AppQt.QRect(235, 0, 331, 100),
+                                                      self.At_style_sheet_enable)
         self.m_bpButtonAt_mini.clicked.connect(lambda: self.on_click_mini_at())
         self.m_bpButtonAt_mini.hide()
 
-        style_sheet = 'QPushButton{border-image: url(:/frame/frame/切换到 手动驾驶.png)}'
-        self.m_bpButtonMt_mini = AppQt.get_pushbutton(self.tail_panel, AppQt.QRect(235, 0, 331, 100), style_sheet)
+        self.m_bpButtonMt_mini = AppQt.get_pushbutton(self.tail_panel, AppQt.QRect(235, 0, 331, 100),
+                                                      self.Mt_style_sheet_enable)
         self.m_bpButtonMt_mini.clicked.connect(lambda: self.on_click_mini_mt())
         self.m_bpButtonMt_mini.hide()
-
 
         # create timer for title and tail update
         self.timer_show = QtCore.QTimer(parent=self)  # 创建定时器
@@ -240,6 +242,10 @@ class BaseFrame(AppQt.Q_App):
     def set_button_enable(self, enable=True):
         self.m_bpButtonAt_mini.setEnabled(enable)
         self.m_bpButtonMt_mini.setEnabled(enable)
+        if enable:
+            self.m_bpButtonMt_mini.setStyleSheet(self.Mt_style_sheet_enable)
+        else:
+            self.m_bpButtonMt_mini.setStyleSheet(self.Mt_style_sheet_disable)
 
     def show_mt_at(self, tab_name):
         if tab_name in range(Page_num) and tab_name != Page_show_box:

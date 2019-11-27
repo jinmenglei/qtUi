@@ -48,7 +48,7 @@ list_tail_string = [
     ['里程', QRect(676, 54, 59, 28), 28, 90]
 ]
 # add panel index
-Page_mt_mode, Page_author, Page_check, Page_map_select, Page_working, Page_show_box, Page_Update, Page_num = range(8)  # 6个页面
+Page_mt_mode, Page_author, Page_check, Page_map_select, Page_working, Page_Update, Page_show_box, Page_num = range(8)  # 6个页面
 Page_index_title, Page_index_tail = range(2)  # 显示索引
 # 这个是标题和提示显示的内容
 list_page_string = [

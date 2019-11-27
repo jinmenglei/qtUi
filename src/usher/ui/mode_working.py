@@ -84,9 +84,11 @@ class ModeWorkingPanel(AppQt.Q_App):
         self.m_button_pause_continue.clicked.connect(lambda: self.on_click_pause_continue())
 
         rect = AppQt.QRect(524, 236, 214, 74)
-        style_sheet = 'QPushButton{border-image: url(:/mode_working/mode_working/取消.png)}' + \
-                      'QPushButton:pressed{border-image: url(:/mode_working/mode_working/取消-按下.png)}'
-        self.m_button_cancel = AppQt.get_pushbutton(self, rect, style_sheet)
+        self.cancel_style_sheet_enable = 'QPushButton{border-image: url(:/mode_working/mode_working/取消.png)}' + \
+                                         'QPushButton:pressed{border-image: url(:/mode_working/mode_working/取消-按下.png)}'
+
+        self.cancel_style_sheet_disable = 'QPushButton{border-image: url(:/mode_working/mode_working/取消灰.png)}'
+        self.m_button_cancel = AppQt.get_pushbutton(self, rect, self.cancel_style_sheet_enable)
 
         self.m_button_cancel.clicked.connect(lambda: self.on_click_cancel())
 
@@ -157,12 +159,14 @@ class ModeWorkingPanel(AppQt.Q_App):
             self.timer_show.stop()
             self.timer_process.stop()
             self.m_button_cancel.setEnabled(True)
+            self.m_button_cancel.setStyleSheet(self.cancel_style_sheet_enable)
             self.set_button_enable(True)
         else:
             self.m_button_pause_continue.setStyleSheet(self.list_working_button_bitmap[0])
             self.working_status = 0
             self.timer_show.start(100)
             self.m_button_cancel.setEnabled(False)
+            self.m_button_cancel.setStyleSheet(self.cancel_style_sheet_disable)
             self.set_button_enable(False)
 
     def on_click_cancel(self):
@@ -213,6 +217,7 @@ class ModeWorkingPanel(AppQt.Q_App):
 
             self.timer_show.start(100)
             self.m_button_cancel.setEnabled(False)
+            self.m_button_cancel.setStyleSheet(self.cancel_style_sheet_disable)
         else:
             self.show_box(show_box_no_map, '')
         self.set_button_enable(False)

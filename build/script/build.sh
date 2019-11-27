@@ -13,7 +13,7 @@ cd "$UTRY_ROOT_PATH"/utry_output
 UTRY_RELEASE_PATH=$(pwd)
 
 currentfile=linux_$(date +%Y%m%d%H%M%S)
-mkdir "$UTRY_RELEASE_PATH"/"$currentfile"
+#mkdir "$UTRY_RELEASE_PATH"/"$currentfile"
 
 if ! test -d "$UTRY_ROOT_PATH"/release/bin/ui
 then
@@ -40,10 +40,14 @@ PATH_RES_FROM="$UTRY_ROOT_PATH"/res
 UTRY_SRC_PATH="$UTRY_ROOT_PATH"/src/usher/
 
 # shellcheck disable=SC2164
-cd "$UTRY_SRC_PATH"
+cd "$PATH_RES_FROM"
 
 echo "start build ui"
 sleep 1
+echo "step 0:  make rc.py"
+pyrcc5 image.qrc -o image_rc.py
+# shellcheck disable=SC2164
+cd "$UTRY_SRC_PATH"
 echo "step 1:  build"
 pyinstaller -F --noconsole main/ui_main.spec
 pyinstaller -F --noconsole ros_start/launchStart.spec
@@ -56,7 +60,7 @@ rm build/ -r
 echo "step 4: clear dist/"
 rm dist/ -r
 echo "step 5: clear .spec/"
-rm *.spec
+#rm *.spec
 echo "step 6: zip file"
 # shellcheck disable=SC2164
 cd "$UTRY_ROOT_PATH"
