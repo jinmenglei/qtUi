@@ -60,7 +60,7 @@ rm *.spec
 echo "step 6: zip file"
 # shellcheck disable=SC2164
 cd "$UTRY_ROOT_PATH"
-zip -r "$UTRY_RELEASE_PATH"/"$currentfile"/"${currentfile}"_utry.zip release/*
+zip -r "$UTRY_RELEASE_PATH"/"${currentfile}"_utry.zip release/*
 echo "----------------zip complete----------------"
 
 
