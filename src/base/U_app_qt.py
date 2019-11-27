@@ -116,6 +116,7 @@ class App_Qobject(QObject, App):
     def __init__(self, module_name):
         App.__init__(self, module_name)
         self.multi_thread = None
+        # self.__start__()
 
     def __init_thread_connect(self):
         self.__queue = self.qt_signal
@@ -142,7 +143,7 @@ class App_Qobject(QObject, App):
 
 
 
-class Q_App(App, QFrame):
+class Q_App(App_Qobject, QFrame):
     """这个是界面的基础类,包含通讯和基本控件设置"""
     start_signal = pyqtSignal()
     stop_signal = pyqtSignal()

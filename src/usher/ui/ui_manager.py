@@ -84,6 +84,7 @@ class UiManager(App_Qobject):
         self.page_stack = None
 
         self.__init_callback()
+        self.__start__()
 
     def __init_callback(self):
         self.subscribe_msg(self.msg_id.ui_manager_show_box, self.__show_box_callback)
