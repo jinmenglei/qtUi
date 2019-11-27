@@ -11,6 +11,7 @@ from usher.ui.mode_map_select import ModeMapSelectPanel
 from usher.ui.mode_working import ModeWorkingPanel
 from usher.ui.mode_show_box import ModeShowBox
 from usher.ui.mode_update import ModeUpdate
+import time
 
 from config.setting import *
 from base.U_app_qt import App
@@ -225,7 +226,7 @@ class UiManager(QObject, App):
         # show main frame
         self.widgets.show()
         # test auto
-        # Util.add_thread(target=self.test_ui_stable)
+        Util.add_thread(target=self.test_ui_stable)
 
         # test mem
         # Util.add_thread(target=get_mem_snap)
