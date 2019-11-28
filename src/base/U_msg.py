@@ -42,29 +42,23 @@ class UMsg:
     update_task_do_process = 'update_task_do_process'
 
     # mode_mt
-    mode_mt_show = 'mode_mt_show'
     mode_mt_update_button_status = 'mode_mt_update_button_status'
     mode_mt_update_link_status = 'mode_mt_update_link_status'
 
     # mode_author
-    mode_author_show = 'mode_author_show'
 
     # mode_check
-    mode_check_show = 'mode_check_show'
 
     # mode_map_select
-    mode_map_select_show = 'mode_map_select_show'
 
     # mode_working
-    mode_working_show = 'mode_working_show'
     mode_working_show_map = 'mode_working_show_map'
+    mode_working_speed_notify = 'mode_working_speed_notify'
 
     # mode_show_box
-    mode_show_box_show = 'mode_show_box_show'
     mode_show_box_show_tip = 'mode_show_box_show_tip'
 
     # mode_update
-    mode_update_show = 'mode_update_show'
     mode_update_process = 'mode_update_process'
     mode_update_change_result_status = 'mode_update_change_result_status'
 

@@ -22,6 +22,7 @@ class ModeWorkingPanel(AppQt.Q_App):
         self.map_select_path = None
         self.map_select_name = None
         self.working_status = 0
+        self.move_speed = 0
 
         self.label_back = AppQt.get_sub_frame(self, AppQt.QRect(28, 26, 228, 228), 'background-color: #FFFFFF;')
 
@@ -105,6 +106,14 @@ class ModeWorkingPanel(AppQt.Q_App):
 
     def __init_callback(self):
         self.subscribe_msg(self.msg_id.mode_working_show_map, self.show_map_callback)
+        self.subscribe_msg(self.msg_id.mode_working_speed_notify, self.speed_notify_callback)
+
+    def speed_notify_callback(self, data_dict):
+        msg_id, msg_data = Util.get_msg_id_data_dict(data_dict)
+        if 'speed' in msg_data:
+            self.move_speed = msg_data['speed']
+        else:
+            self.logger.warning(str(data_dict) + ' data error !!!')
 
     def show_map_callback(self, data_dict):
         msg_id, msg_data = Util.get_msg_id_data_dict(data_dict)
@@ -164,7 +173,7 @@ class ModeWorkingPanel(AppQt.Q_App):
         else:
             self.m_button_pause_continue.setStyleSheet(self.list_working_button_bitmap[0])
             self.working_status = 0
-            self.timer_show.start(100)
+            self.timer_show.start(200)
             self.m_button_cancel.setEnabled(False)
             self.m_button_cancel.setStyleSheet(self.cancel_style_sheet_disable)
             self.set_button_enable(False)
@@ -216,6 +225,8 @@ class ModeWorkingPanel(AppQt.Q_App):
             self.working_status = 0
 
             self.timer_show.start(200)
+            self.count = 11
+            self.show_ui_update()
             self.m_button_cancel.setEnabled(False)
             self.m_button_cancel.setStyleSheet(self.cancel_style_sheet_disable)
         else:
@@ -238,7 +249,7 @@ class ModeWorkingPanel(AppQt.Q_App):
             self.count = 0
 
             progress_value = random.randint(0, 100)
-            speed_value = random.random() * 0.7
+            speed_value = self.move_speed
             e_value = random.randint(0, 100)
             self.working_set_gauge(Working_gauge_progress, progress_value)
             self.working_set_gauge(Working_gauge_speed, speed_value)

@@ -246,6 +246,7 @@ class BaseFrame(AppQt.Q_App):
                 self.line_speed = abs(msg_data['Position_X'] + msg_data['Position_Y']) / 2
             else:
                 self.line_speed = 0
+            self.send_msg_dispatcher(self.msg_id.mode_working_speed_notify, {'speed': self.line_speed})
 
     def set_button_enable(self, enable=True):
         self.m_bpButtonAt_mini.setEnabled(enable)
