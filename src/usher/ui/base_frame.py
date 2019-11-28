@@ -41,18 +41,19 @@ class BaseFrame(AppQt.Q_App):
         self.list_mt_button_status = [Mt_button_off, Mt_button_off, Mt_button_forward]
 
         # title panel init
-        self.title_panel = AppQt.get_sub_frame(self, AppQt.QRect(0, 0, 800, 40), 'background-color: #E1E1E1;')
+        self.title_panel = AppQt.get_sub_frame(self, AppQt.QRect(0, 0, 800, 40), 'QFrame{background-color: #E1E1E1}')
 
         # tail panel init
-        self.tail_panel = AppQt.get_sub_frame(self, AppQt.QRect(0, 380, 800, 100), 'background-color: #F0F0F0;')
+        self.tail_panel = AppQt.get_sub_frame(self, AppQt.QRect(0, 380, 800, 100), 'QFrame{background-color: #F0F0F0}')
 
         # init title 4G
         self.m_bitmap_4G = AppQt.get_label_picture(self.title_panel, AppQt.QRect(13, 12, 28, 17),
                                                    ':/frame/frame/信号4.png')
 
         # init title battery
+        self.m_battery_url = ':/frame/frame/电池1.png'
         self.m_bitmap_battery = AppQt.get_label_picture(self.title_panel, AppQt.QRect(745, 11, 43, 18),
-                                                        ':/frame/frame/电池1.png')
+                                                        self.m_battery_url)
 
         # init tail water percent
         self.m_bitmap_water = AppQt.get_label_picture(self.tail_panel, AppQt.QRect(47, 26, 40, 54),
@@ -315,6 +316,16 @@ class BaseFrame(AppQt.Q_App):
 
         str_battery = '{:3}'.format(self.battery_count) + '%'
         self.m_title_label_list[Label_title_battery].setText(str_battery)
+
+        self.change_battery()
+
+    def change_battery(self):
+        battery = int((100 - self.battery_count) / 20)
+        if battery in range(5):
+            battery_url = ':/frame/frame/电池' + str(battery+1) + '.png'
+            if battery_url != self.m_battery_url:
+                self.m_bitmap_battery.setPixmap(QtGui.QPixmap(battery_url))
+                self.m_battery_url = battery_url
 
     def start(self):
         self.timer_show.start(100)  # 设定时间间隔
