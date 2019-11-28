@@ -32,14 +32,8 @@ class App(object):
     }
     通过 is_msg_center 来标志是否是消息中心,负责消息的转发, 内部通信的话,直达,跨进程的通过dispatcher
     """
-    def __init__(self, module_name, is_msg_center=False, need_start=True, inner_connection=None, second_name=None):
-        self.second_name = second_name
-        if self.second_name is not None:
-            self.__app_name = second_name
-            self.__second_name = module_name
-        else:
-            self.__app_name = module_name
-
+    def __init__(self, module_name, is_msg_center=False, need_start=True, inner_connection=None):
+        self.__app_name = module_name
         self.__logger = get_logger('app_' + self.__app_name)
         self.__need_start = need_start
         self.__is_msg_center = is_msg_center
@@ -61,9 +55,6 @@ class App(object):
             self.__pipe_dispatcher_rec, self.__pipe_dispatcher_send = Pipe(False)
 
             self.__ins.add_module_queue(self.__app_name, self.__pipe_dispatcher_send)
-
-            if self.second_name is not None:
-                self.__ins.add_module_queue(self.second_name, self.__queue)
 
             self.__ins.add_module_queue('dispatcher', self.__queue)
 

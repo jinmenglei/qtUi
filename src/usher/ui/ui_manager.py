@@ -17,7 +17,7 @@ from config.setting import *
 from base.U_app_qt import App
 from base.U_log import get_logger
 import base.U_util as Util
-from base.U_dispatcher import UDispatcher
+from base.U_dispatcher_qt import UDispatcher
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QObject
 import res.image_rc
@@ -78,21 +78,16 @@ class UiManager(App, QObject):
         self.__app = QtWidgets.QApplication([])
 
         QObject.__init__(self, None)
-        App.__init__(self, self.__module_name, is_msg_center=True, need_start=False, inner_connection=self.inner_signal,
-                     second_name='ui_dispatcher')
+        App.__init__(self, self.__module_name, is_msg_center=False, need_start=False, inner_connection=self.inner_signal)
 
         self.inner_signal.connect(self.inner_msg_handler)
         self.__logger = get_logger(self.__module_name)
-        # self.ui_dispatcher = UDispatcher(self.msg_id.ui_dispatcher, manager_pipe)
+        self.ui_dispatcher = UDispatcher(self.msg_id.ui_dispatcher, manager_pipe)
         self.__frame = None
         self.__default_page = Page_mt_mode
         self.robot_status = 'mt'
         self.show_box_panel = None
         self.page_stack = None
-
-        # self.__msg_id_module_dict = {}
-        if manager_pipe is not None:
-            self.add_manager_dispatcher_pipe(manager_pipe)
 
         self.__init_callback()
 
@@ -101,67 +96,10 @@ class UiManager(App, QObject):
             send_queue.emit(send_msg)
 
     def __init_callback(self):
-        self.subscribe_msg(self.msg_id.inner_register_id, self.__subscribe_msg)
-        self.subscribe_default(self.__msg_dispatcher)
-        self.subscribe_multi_default_callback(self.__multi_msg_dispatcher)
-
         self.subscribe_msg(self.msg_id.ui_manager_show_box, self.__show_box_callback)
         self.subscribe_msg(self.msg_id.ui_manager_change_page, self.__change_page_callback)
         self.subscribe_msg(self.msg_id.ui_manager_robot_status_notify, self.__robot_status_callback)
         self.subscribe_msg(self.msg_id.ui_manager_destroy_show_box, self.__destroy_show_box_callback)
-
-    def __multi_msg_dispatcher(self, data_dict):
-        msg_id, msg_data = Util.get_msg_id_data_dict(data_dict)
-
-        if msg_id is not None:
-            module_name = self.msg_id_module_dict.get(msg_id)
-            if isinstance(module_name, str):
-                self.send_msg(msg_id, module_name, msg_data)
-
-    def __msg_dispatcher(self, data_dict):
-        msg_id, msg_data = Util.get_msg_id_data_dict(data_dict)
-
-        if msg_id is not None:
-            module_name = self.msg_id_module_dict.get(msg_id)
-            # print('###########' + str(data_dict))
-            if isinstance(module_name, str):
-                self.send_msg(msg_id, module_name, msg_data)
-            else:
-                if self.__module_name != self.msg_id.manager_dispatcher:
-                    self.send_data_dict_manager_dispatcher(data_dict)
-
-    def __subscribe_msg(self, data_dict):
-        """
-        subscribe msg_id with mode_name.
-
-        :param data_dict: is a dict . include msg_id, mode_name
-
-        Note: ##
-        data_dict = {
-            'msg_id' : 'register_msg_id',
-            'msg_data' :
-            {
-                'msg_id' : 'xxxxx_id',
-                'module_name' : 'xxxxxx'
-            }
-        }
-        """
-        msg_id, msg_data = Util.get_msg_id_data_dict(data_dict)
-        if msg_id is not None:
-            msg_id = msg_data.get('msg_id')
-            module_name = msg_data.get('module_name')
-            if isinstance(msg_id, str) and isinstance(module_name, str):
-                if msg_id == self.msg_id.inner_register_id:
-                    self.__logger.info('register_msg_id ready for service !')
-                else:
-                    if msg_id in self.msg_id_module_dict:
-                        self.__logger.warning('msg_id : ' + str(msg_id) + ' register again! old module_ is ' +
-                                              str(self.msg_id_module_dict[msg_id]) + ' new module is ' +
-                                              str(module_name))
-                    else:
-                        self.__logger.info('msg_id : ' + str(msg_id) + ' register to module :' + str(module_name))
-                    self.msg_id_module_dict[msg_id] = module_name
-                    self.send_msg_id_manager_dispatcher(msg_id)
 
     def __destroy_show_box_callback(self, data_dict):
         """
