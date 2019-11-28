@@ -1,6 +1,6 @@
 from base.U_app import App
 from PyQt5.QtWidgets import QFrame, QWidget, QPushButton, QLabel
-from PyQt5.QtCore import QRect, Qt, pyqtSignal
+from PyQt5.QtCore import QRect, Qt, pyqtSignal, pyqtBoundSignal
 from PyQt5.QtGui import QPixmap, QMovie, QFont
 
 
@@ -100,14 +100,21 @@ class Q_App(App, QFrame):
     """这个是界面的基础类,包含通讯和基本控件设置"""
     start_signal = pyqtSignal()
     stop_signal = pyqtSignal()
+    inner_signal = pyqtSignal(dict)
 
     def __init__(self, module_name, parent=None, geometry=QRect(0,0,800,480), style_sheet=''):
-        App.__init__(self, module_name)
         QFrame.__init__(self, parent=parent)
+        App.__init__(self, module_name, is_msg_center=False, need_start=False,inner_connection=self.inner_signal)
+
         self.setGeometry(geometry)
         self.setStyleSheet(style_sheet)
         self.start_signal.connect(lambda: self.start())
         self.stop_signal.connect(lambda: self.stop())
+        self.inner_signal.connect(self.inner_msg_handler)
+
+    def send_msg_inner(self, send_queue, send_msg):
+        if isinstance(send_queue, pyqtBoundSignal):
+            send_queue.emit(send_msg)
 
     def start(self):
         """

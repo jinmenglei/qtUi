@@ -13,8 +13,8 @@ from base.U_log import get_logger
 
 class BaseFrame(AppQt.Q_App):
     """whole ui base class"""
-    show_mt_signal = QtCore.pyqtSignal(int)
-    set_button_enable_signal = QtCore.pyqtSignal(bool)
+    # show_mt_signal = QtCore.pyqtSignal(int)
+    # set_button_enable_signal = QtCore.pyqtSignal(bool)
 
     def __init__(self, parent):
         self.module_name = 'base_frame'
@@ -105,8 +105,8 @@ class BaseFrame(AppQt.Q_App):
         self.timer_show.timeout.connect(self.on_timer_show)
         QtCore.QMetaObject.connectSlotsByName(parent)
 
-        self.show_mt_signal.connect(self.show_mt_at)
-        self.set_button_enable_signal.connect(self.set_button_enable)
+        # self.show_mt_signal.connect(self.show_mt_at)
+        # self.set_button_enable_signal.connect(self.set_button_enable)
 
         self.__init_callback()
 
@@ -146,8 +146,8 @@ class BaseFrame(AppQt.Q_App):
         """
         page_mode = msg_data.get('page_mode')
         if page_mode is not None and isinstance(page_mode, int):
-            # self.show_mt_at(page_mode)
-            self.show_mt_signal.emit(page_mode)
+            self.show_mt_at(page_mode)
+            # self.show_mt_signal.emit(page_mode)
 
     def update_link_status_callback(self, data_dict):
         """
@@ -196,8 +196,8 @@ class BaseFrame(AppQt.Q_App):
         """
         enable = msg_data.get('button_enable')
         if enable is not None and isinstance(enable, bool):
-            # self.set_button_enable(enable)
-            self.set_button_enable_signal.emit(enable)
+            self.set_button_enable(enable)
+            # self.set_button_enable_signal.emit(enable)
 
     def info_notify_callback(self, data_dict):
         """
@@ -256,12 +256,15 @@ class BaseFrame(AppQt.Q_App):
 
     def show_mt_at(self, tab_name):
         if tab_name in range(Page_num) and tab_name != Page_show_box:
-            if tab_name is Page_mt_mode:
+            if tab_name == Page_mt_mode:
                 self.m_bpButtonAt_mini.show()
                 self.m_bpButtonMt_mini.hide()
             else:
                 self.m_bpButtonAt_mini.hide()
                 self.m_bpButtonMt_mini.show()
+
+            if tab_name != Page_working:
+                self.set_button_enable(True)
 
             self.m_title_label_list[Lable_title_mode_select].setText(list_page_string[tab_name][Page_index_title])
 

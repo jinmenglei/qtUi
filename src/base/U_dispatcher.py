@@ -8,10 +8,10 @@ class UDispatcher(App):
 
     def __init__(self, module_name, module_pipe=None):
         self.__module_name = module_name
-        super().__init__(self.__module_name)
+        App.__init__(self, self.__module_name, is_msg_center=True)
         self.__logger = get_logger(self.__module_name)
         self.__init()
-        self.__msg_id_module_dict = {}
+        # self.__msg_id_module_dict = {}
         if module_pipe is not None:
             self.add_manager_dispatcher_pipe(module_pipe)
 
@@ -27,7 +27,7 @@ class UDispatcher(App):
         msg_id, msg_data = Util.get_msg_id_data_dict(data_dict)
 
         if msg_id is not None:
-            module_name = self.__msg_id_module_dict.get(msg_id)
+            module_name = self.msg_id_module_dict.get(msg_id)
             if isinstance(module_name, str):
                 self.send_msg(msg_id, module_name, msg_data)
 
@@ -35,7 +35,7 @@ class UDispatcher(App):
         msg_id, msg_data = Util.get_msg_id_data_dict(data_dict)
 
         if msg_id is not None:
-            module_name = self.__msg_id_module_dict.get(msg_id)
+            module_name = self.msg_id_module_dict.get(msg_id)
             if isinstance(module_name, str):
                 self.send_msg(msg_id, module_name, msg_data)
             else:
@@ -68,13 +68,13 @@ class UDispatcher(App):
                     if msg_id == self.msg_id.manager_register_msg_id:
                         self.__logger.info('register_msg_id ready for service !')
                     else:
-                        if msg_id in self.__msg_id_module_dict:
+                        if msg_id in self.msg_id_module_dict:
                             self.__logger.warning('msg_id : ' + str(msg_id) + ' register again! old module_ is ' +
-                                                  str(self.__msg_id_module_dict[msg_id]) + ' new module is ' +
+                                                  str(self.msg_id_module_dict[msg_id]) + ' new module is ' +
                                                   str(module_name))
                         else:
                             self.__logger.info('msg_id : ' + str(msg_id) + ' register to module :' + str(module_name))
-                        self.__msg_id_module_dict[msg_id] = module_name
+                        self.msg_id_module_dict[msg_id] = module_name
 
             elif msg_id == self.msg_id.manager_register_pipe:
                 module_name = msg_data.get('module_name')
@@ -110,13 +110,13 @@ class UDispatcher(App):
                 if msg_id == self.msg_id.inner_register_id:
                     self.__logger.info('register_msg_id ready for service !')
                 else:
-                    if msg_id in self.__msg_id_module_dict:
+                    if msg_id in self.msg_id_module_dict:
                         self.__logger.warning('msg_id : ' + str(msg_id) + ' register again! old module_ is ' +
-                                              str(self.__msg_id_module_dict[msg_id]) + ' new module is ' +
+                                              str(self.msg_id_module_dict[msg_id]) + ' new module is ' +
                                               str(module_name))
                     else:
                         self.__logger.info('msg_id : ' + str(msg_id) + ' register to module :' + str(module_name))
-                    self.__msg_id_module_dict[msg_id] = module_name
+                    self.msg_id_module_dict[msg_id] = module_name
                     self.send_msg_id_manager_dispatcher(msg_id)
 
     def start(self):

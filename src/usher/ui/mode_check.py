@@ -75,8 +75,8 @@ class ModeCheckPanel(AppQt.Q_App):
         self.current_process = 0
         self.check_last_status = Check_status_idle
 
-        self.timer_show.start(100)
-        self.timer_process.start(2)
+        self.timer_show.start(200)
+        self.timer_process.start(4)
 
     def stop(self):
         self.timer_show.stop()

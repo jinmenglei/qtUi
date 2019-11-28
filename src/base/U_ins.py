@@ -16,6 +16,8 @@ class Ins(object):
             self.__first = False
             # 模块和接口对应关系,现在用的Queue,我可能会变
             self.__module_queue_dict = {}
+            # 消息储存的地方
+            self.msg_id_module_dict = {}
             #初始化logger模块
             self.__logger = get_logger('pyins')
             pass

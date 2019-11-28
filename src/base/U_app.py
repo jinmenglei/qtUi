@@ -15,31 +15,66 @@ from multiprocessing import connection
 
 
 class App(object):
-    """send msg to other model"""
-    def __init__(self, module_name):
-        self.__app_name = module_name
+    """
+    这是消息分发的类,对外使用multiprocessing.Pipe
+    对内默认使用Queue
+    消息格式是dict
+    基本的格式如下
+    {
+        'msg_src': 'show_box',
+        'msg_data': {
+            'msg_id': 'mode_show_box_show_tip',
+            'module_name': 'show_box'
+            },
+        'msg_dst': 'dispatcher',
+        'msg_id': 'register_msg_id',
+        'msg_session': 'show_box-to-dispatcher-30d90895-f891-453c-a984-ae28b0151330'
+    }
+    通过 is_msg_center 来标志是否是消息中心,负责消息的转发, 内部通信的话,直达,跨进程的通过dispatcher
+    """
+    def __init__(self, module_name, is_msg_center=False, need_start=True, inner_connection=None, second_name=None):
+        self.second_name = second_name
+        if self.second_name is not None:
+            self.__app_name = second_name
+            self.__second_name = module_name
+        else:
+            self.__app_name = module_name
+
+        self.__logger = get_logger('app_' + self.__app_name)
+        self.__need_start = need_start
+        self.__is_msg_center = is_msg_center
         self.__ins = Ins()
+        self.msg_id_module_dict = self.__ins.msg_id_module_dict
         self.msg_id = UMsg()
-        self.__queue = None
+        # print(self.__app_name, ' :', need_start, '##', inner_connection, '###', inner_callback)
+        if not need_start and inner_connection is not None:
+            self.__queue = inner_connection
+        else:
+            self.__queue = Queue(0)
+
         self.__pipe_dispatcher_rec = None
         self.__pipe_dispatcher_send = None
+        self.__sleep_time = 0.001
 
-        if 'dispatcher' in self.__app_name:
+        if self.__is_msg_center:
 
             self.__pipe_dispatcher_rec, self.__pipe_dispatcher_send = Pipe(False)
 
             self.__ins.add_module_queue(self.__app_name, self.__pipe_dispatcher_send)
-            self.__queue = Queue(0)
+
+            if self.second_name is not None:
+                self.__ins.add_module_queue(self.second_name, self.__queue)
 
             self.__ins.add_module_queue('dispatcher', self.__queue)
 
             if self.__app_name != self.msg_id.out_dispatcher:
                 self.send_queue_module_manager()
         else:
-            self.__queue = Queue(0)
+            self.__sleep_time = 0.01
 
             self.__ins.add_module_queue(self.__app_name, self.__queue)
-        self.__logger = get_logger('app_' + self.__app_name)
+
+
         self.__subscriber_dict = {}
         self.__logger.info('init model ' + self.__app_name)
         self.__is_shutdown = False
@@ -47,6 +82,7 @@ class App(object):
         self.__multi_default_callback = None
 
         # run self
+
         self.__start__()
 
     def add_dispatcher_pipe(self, dispatcher_name, pipe):
@@ -117,8 +153,10 @@ class App(object):
         启动模块通讯监听
         :return:
         """
-        self.process = Thread(target=self.__run__app)
-        self.process.start()
+        if self.__need_start:
+            self.process = Thread(target=self.__run__app)
+            self.process.start()
+
         if self.__pipe_dispatcher_rec is not None:
             self.multi_process = Thread(target=self.__run__multi__)
             self.multi_process.start()
@@ -136,6 +174,16 @@ class App(object):
 
             time.sleep(0.0001)
 
+    def inner_msg_handler(self, data_dict):
+        msg_id, msg_data = Util.get_msg_id_data_dict(data_dict)
+        if msg_id is not None:
+            callback = self.__subscriber_dict.get(msg_id)
+            if callback is not None:
+                callback(data_dict)
+            else:
+                if self.__default_callback is not None:
+                    self.__default_callback(data_dict)
+
     def __run__app(self):
         """
         负责queue的监听
@@ -145,15 +193,8 @@ class App(object):
         while not self.__is_shutdown:
             if not self.__queue.empty():
                 data_dict = self.__queue.get_nowait()
-                msg_id, msg_data = Util.get_msg_id_data_dict(data_dict)
-                if msg_id is not None:
-                    callback = self.__subscriber_dict.get(msg_id)
-                    if callback is not None:
-                        callback(data_dict)
-                    else:
-                        if self.__default_callback is not None:
-                            self.__default_callback(data_dict)
-            time.sleep(0.0001)
+                self.inner_msg_handler(data_dict)
+            time.sleep(self.__sleep_time)
         #
         print(self.__app_name + ' quit by user')
         self.__logger.info(self.__app_name + ' quit by user')
@@ -176,13 +217,15 @@ class App(object):
                     'msg_session': self.make_session(msg_dst)}
 
         send_queue = self.__ins.get_queue_by_module_name(msg_dst)
-
-        if send_queue is not None :
-            if isinstance(send_queue, Queue):
-                send_queue.put_nowait(send_msg)
-            elif isinstance(send_queue, connection.Connection):
-                # print('send_queue' + str(send_queue))
+        if send_queue is not None:
+            if isinstance(send_queue, connection.Connection):
                 send_queue.send(send_msg)
+            else:
+                self.send_msg_inner(send_queue, send_msg)
+
+    def send_msg_inner(self, send_queue, send_msg):
+        if isinstance(send_queue, Queue):
+            send_queue.put_nowait(send_msg)
 
     def send_msg_id_manager_dispatcher(self, msg_id):
         msg_data = {'msg_id': msg_id, 'module_name': self.__app_name}

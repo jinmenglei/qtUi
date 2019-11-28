@@ -215,7 +215,7 @@ class ModeWorkingPanel(AppQt.Q_App):
 
             self.working_status = 0
 
-            self.timer_show.start(100)
+            self.timer_show.start(200)
             self.m_button_cancel.setEnabled(False)
             self.m_button_cancel.setStyleSheet(self.cancel_style_sheet_disable)
         else:
@@ -243,7 +243,7 @@ class ModeWorkingPanel(AppQt.Q_App):
             self.working_set_gauge(Working_gauge_progress, progress_value)
             self.working_set_gauge(Working_gauge_speed, speed_value)
             self.working_set_gauge(Working_gauge_efficiency, e_value)
-            self.timer_process.start(2)
+            self.timer_process.start(4)
 
             x_value = random.randint(0, 100)
             y_value = random.randint(0, 100)
