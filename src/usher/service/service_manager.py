@@ -1,4 +1,4 @@
-from base.U_app import App
+from base.U_msg import UMsg
 from base.U_log import get_logger
 from usher.service.interface_ros import InterfaceRos
 from usher.service.video_record import VideoRecord
@@ -15,7 +15,7 @@ host_server = ('0.0.0.0', 8890)
 # mem test
 def get_mem_snap():
     # test mem
-    server = HTTPServer(host_server, Resquest_ui)
+    server = HTTPServer(host_server, Resquest_server)
     print("Starting server, listen at: %s:%s" % host_server)
     task = Thread(target=server.serve_forever)
     task.start()
@@ -30,7 +30,7 @@ def get_mem_snap():
     return
 
 
-class Resquest_ui(BaseHTTPRequestHandler):
+class Resquest_server(BaseHTTPRequestHandler):
     def do_GET(self):
         if snap_finsh:
             snapshot2 = tracemalloc.take_snapshot()
@@ -45,7 +45,7 @@ class Resquest_ui(BaseHTTPRequestHandler):
 # mem test
 
 
-class ServiceManger(App):
+class ServiceManger(object):
     """
     服务的管理模块,显示和业务分开,其实是ros需要主线程,ui也是,所以
     目前包括:
@@ -55,8 +55,7 @@ class ServiceManger(App):
     """
     def __init__(self, manager_pipe):
         self.module_name = 'service_manager'
-        App.__init__(self, self.module_name)
-        self.dispatcher = UDispatcher(self.msg_id.service_dispatcher, manager_pipe)
+        self.dispatcher = UDispatcher(UMsg.service_dispatcher, manager_pipe)
         self.__logger = get_logger(self.module_name)
         return
 

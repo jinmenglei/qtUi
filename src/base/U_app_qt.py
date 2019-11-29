@@ -102,9 +102,9 @@ class Q_App(App, QFrame):
     stop_signal = pyqtSignal()
     inner_signal = pyqtSignal(dict)
 
-    def __init__(self, module_name, parent=None, geometry=QRect(0,0,800,480), style_sheet=''):
+    def __init__(self, module_name, parent=None, geometry=QRect(0, 0, 800, 340), style_sheet='', is_msg_center=False):
         QFrame.__init__(self, parent=parent)
-        App.__init__(self, module_name, is_msg_center=False, need_start=False,inner_connection=self.inner_signal)
+        App.__init__(self, module_name, is_msg_center, need_start=False,inner_connection=self.inner_signal)
 
         self.setGeometry(geometry)
         self.setStyleSheet(style_sheet)

@@ -17,7 +17,7 @@ class ModeMapSelectPanel(AppQt.Q_App):
     def __init__(self, base_frame):
         self.module_name = 'mode_map_select'
         self.logger = get_logger(self.module_name)
-        AppQt.Q_App.__init__(self, self.module_name, base_frame, AppQt.QRect(0, 40, 800, 340))
+        AppQt.Q_App.__init__(self, self.module_name, base_frame)
         self.show_callback = self.start
         self.hide_callback = self.stop
 

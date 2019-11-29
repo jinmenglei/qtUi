@@ -9,6 +9,7 @@ import base.U_util as Util
 import base.U_app_qt as AppQt
 from PyQt5 import QtCore, QtGui, QtWidgets
 from base.U_log import get_logger
+from usher.ui.manager_frame import ManagerFrame
 
 
 class BaseFrame(AppQt.Q_App):
@@ -112,6 +113,10 @@ class BaseFrame(AppQt.Q_App):
         self.__init_callback()
 
         self.show()
+
+        self.Manage = ManagerFrame(self)
+
+        self.Manage.show()
 
     def __init_callback(self):
         """

@@ -1,27 +1,21 @@
 from base.U_log import get_logger
 import base.U_util as Util
-from base.U_app_qt import App
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtBoundSignal
+from base.U_app_qt import Q_App
+from PyQt5.QtCore import  QRect
 
 
-class UDispatcher(App, QObject):
+class UDispatcher(Q_App):
     """这个地方存放，状态，等信息，负责UI和外界的通讯"""
-    inner_signal = pyqtSignal(dict)
 
     def __init__(self, module_name, module_pipe=None):
         self.__module_name = module_name
-        QObject.__init__(self)
-        App.__init__(self, self.__module_name, is_msg_center=True, need_start=False, inner_connection= self.inner_signal)
+        Q_App.__init__(self, self.__module_name, is_msg_center=True, geometry=QRect(0, 0, 0, 0))
+        # self.hide()
         self.__logger = get_logger(self.__module_name)
         self.__init()
         # self.__msg_id_module_dict = {}
         if module_pipe is not None:
             self.add_manager_dispatcher_pipe(module_pipe)
-        self.inner_signal.connect(self.inner_msg_handler)
-
-    def send_msg_inner(self, send_queue, send_msg):
-        if isinstance(send_queue, pyqtBoundSignal):
-            send_queue.emit(send_msg)
 
     def __init(self):
         self.subscribe_msg(self.msg_id.inner_register_id, self.__subscribe_msg)

@@ -12,7 +12,7 @@ class ModeWorkingPanel(AppQt.Q_App):
     def __init__(self, base_frame):
         self.module_name = 'mode_working'
         self.logger = get_logger(self.module_name)
-        AppQt.Q_App.__init__(self, self.module_name, base_frame, QRect(0, 40, 800, 340))
+        AppQt.Q_App.__init__(self, self.module_name, base_frame)
 
         self.res_path = Util.get_res_path(self.module_name)
         self.current_process = [0, 0, 0]
