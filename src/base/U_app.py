@@ -202,10 +202,14 @@ class App(object):
     def make_session(self, msg_dst):
         return str(self.__app_name) + '-to-' + str(msg_dst) + '-' + Util.get_uuid()
 
-    def send_msg(self, msg_id, msg_dst, msg_data=None):
+    def send_msg(self, msg_id, msg_dst, msg_data=None, msg_src=None):
         """send msg to other model"""
-        send_msg = {'msg_id': msg_id, 'msg_data': msg_data, 'msg_src': self.__app_name, 'msg_dst': msg_dst,
+        send_msg = {'msg_id': msg_id, 'msg_data': msg_data, 'msg_dst': msg_dst,
                     'msg_session': self.make_session(msg_dst)}
+        if msg_src is None:
+            send_msg['msg_src'] = self.__app_name
+        else:
+            send_msg['msg_src'] = msg_src
 
         send_queue = self.__ins.get_queue_by_module_name(msg_dst)
         if send_queue is not None:

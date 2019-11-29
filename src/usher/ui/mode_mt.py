@@ -142,6 +142,7 @@ class ModeMtPanel(AppQt.Q_App):
 
     def on_click_mt_button(self, index):
         """水位,刷盘,方向控制"""
+        # self.send_msg_dispatcher(self.msg_id.launch_start_control)
         button_index = int(index) - Mt_button_id_delta
         if button_index not in range(Mt_button_num):
             return

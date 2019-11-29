@@ -7,49 +7,35 @@ from threading import Thread
 from rosgraph import masterapi,names
 import os
 import yaml
-
-import psutil
-import socket
-import struct
-import fcntl
+from base.U_app import App
+from base.U_log import get_logger
 
 
-# def getip(ethname):
-#     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-#     return socket.inet_ntoa(fcntl.ioctl(s.fileno(), 0X8915, struct.pack('256s', ethname[:15]))[20:24])
-
-def getipaddr():
-    ditNet = psutil.net_if_addrs()
-
-    if '192.168.' in str(ditNet):
-            return True
-    return False
-
-
-class TaskThread(Thread):
+class LaunchThread(App):
     """roscore thread"""
-    def __init__(self, name):
-        Thread.__init__(self)
-        self.name = name
+    def __init__(self):
+        self.__module_name = 'LaunchThread'
+        App.__init__(self, self.__module_name)
+        self.__logger = get_logger(self.__module_name)
+        self.launch_ros_bridge = None
+        self.__init_callback()
 
-    def check_ros_core(self):
-        rosmaster = masterapi.Master(names.make_caller_id('rosparam-%s' % os.getpid()))
-        if not rosmaster.hasParam('run_id'):
-            return False
-        else:
-            if rosmaster.getParam('run_id') is '':
-                return False
-        return True
+    def __init_callback(self):
+        self.subscribe_msg(self.msg_id.launch_start_control, self.control_callback)
+
+    def control_callback(self, data_dict):
+        self.__logger.info(str(data_dict))
+        if self.launch_ros_bridge is not None:
+            self.launch_ros_bridge.shutdown()
 
     def run(self):
         roslaunch.rlutil._wait_for_master()
-        # time.sleep(2)
-        while not self.check_ros_core():
+        rosmaster = masterapi.Master(names.make_caller_id('rosparam-%s'%os.getpid()))
+        while not rosmaster.hasParam('run_id'):
+            time.sleep(1)
+        while rosmaster.getParam('run_id') is '':
             time.sleep(1)
 
-        logging.basicConfig(filename='/home/utry/xiaoyuan_logger.log', filemode="w",
-                            format="%(asctime)s %(name)s:%(levelname)s:%(message)s", datefmt="%d-%M-%Y %H:%M:%S",
-                            level=logging.INFO)
         uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         print('uuid' + uuid)
 
@@ -59,10 +45,10 @@ class TaskThread(Thread):
         # launch2 = roslaunch.parent.ROSLaunchParent(uuid, [
         #     "/home/huike/robot_ws/src/huanyu_robot_start/launch/navigation_slam.launch"])
 
-        launch_rosbrige = roslaunch.parent.ROSLaunchParent(uuid, [
+        self.launch_ros_bridge = roslaunch.parent.ROSLaunchParent(uuid, [
             "/opt/ros/kinetic/share/rosbridge_server/launch/rosbridge_websocket.launch"])
         try:
-            launch_rosbrige.start()
+            self.launch_ros_bridge.start()
             # launch.start()
             # time.sleep(5)
             #
@@ -72,20 +58,17 @@ class TaskThread(Thread):
             #
             # launch.spin()
             # launch2.spin()
-            launch_rosbrige.spin()
+            while True:
+                # self.__logger.info('######### launch still alive')
+                time.sleep(10)
 
-
-        except Exception as e:
-            print('I am except: ', e)
-            rospy.logfatal(e)
-            # logging.info("###### Exception occurred")
+        except roslaunch.RLException as e:
+            print('I am except')
+            self.__logger.fatal(str(e))
 
         finally:
             print('I am finally')
-            # After Ctrl+C, stop all nodes from running
-            #   launch.shutdown()
-            #   launch2.shutdown()
-            launch_rosbrige.shutdown()
+            self.launch_ros_bridge.shutdown()
         pass
 
 
@@ -96,9 +79,8 @@ if __name__ == '__main__':
         time.sleep(2)
     time.sleep(2)
     task = TaskThread('utry_star_roscore')
-    task.run()
-    if not task.check_ros_core():
-        roslaunch.main(['roscore', '--core'])
+    task.start()
+    roslaunch.main(['roscore', '--core'])
 
 
 

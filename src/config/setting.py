@@ -117,12 +117,12 @@ list_working_format_string = ['{:3d}','{:3.2f}','{:3d}']
 
 list_working_gray_point, list_working_text_point = range(2)
 list_working_process_info = [
-    [QRect(358, 32, 380, 38), QRect(490, 32, 120, 38)],
-    [QRect(358, 86, 380, 38), QRect(490, 86, 120, 38)],
-    [QRect(358, 137, 380, 38), QRect(490, 137, 120, 38)],
+    [QRect(358, 32, 380, 38), QRect(358, 32, 380, 38)],
+    [QRect(358, 86, 380, 38), QRect(358, 86, 380, 38)],
+    [QRect(358, 137, 380, 38), QRect(358, 137, 380, 38)],
 ]
 list_working_label_unit = ['%', 'm/s', 'm²/h']
-list_working_max_value = [100, 1, 100]
+list_working_max_value = [100, 1.2, 2700]
 Working_gauge_progress, Working_gauge_speed, Working_gauge_efficiency, Working_gauge_num = range(4)
 Working_point_x, Working_point_y, Working_point_z, Working_point_num = range(4)
 list_working_label_point = ['X:', 'Y:', 'Z:']

@@ -9,6 +9,7 @@ class UMsg:
     manager_dispatcher = 'manager_dispatcher'
     ui_dispatcher = 'ui_dispatcher'
     service_dispatcher = 'service_dispatcher'
+    ros_dispatcher = 'ros_dispatcher'
 
     manager_register_pipe = 'manager_register_pipe'
     manager_register_msg_id = 'manager_register_msg_id'
@@ -61,6 +62,9 @@ class UMsg:
     # mode_update
     mode_update_process = 'mode_update_process'
     mode_update_change_result_status = 'mode_update_change_result_status'
+
+    # launch_start
+    launch_start_control = 'launch_start_control'
 
 
 # test code

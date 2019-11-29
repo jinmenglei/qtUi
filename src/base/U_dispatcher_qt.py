@@ -28,7 +28,7 @@ class UDispatcher(Q_App):
         if msg_id is not None:
             module_name = self.msg_id_module_dict.get(msg_id)
             if isinstance(module_name, str):
-                self.send_msg(msg_id, module_name, msg_data)
+                self.send_msg(msg_id, module_name, msg_data, msg_src=data_dict['msg_src'])
 
     def __msg_dispatcher(self,data_dict):
         msg_id, msg_data = Util.get_msg_id_data_dict(data_dict)
@@ -36,7 +36,7 @@ class UDispatcher(Q_App):
         if msg_id is not None:
             module_name = self.msg_id_module_dict.get(msg_id)
             if isinstance(module_name, str):
-                self.send_msg(msg_id, module_name, msg_data)
+                self.send_msg(msg_id, module_name, msg_data, msg_src=data_dict['msg_src'])
             else:
                 if self.__module_name != self.msg_id.manager_dispatcher:
                     self.send_data_dict_manager_dispatcher(data_dict)

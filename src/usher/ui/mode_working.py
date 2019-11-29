@@ -250,7 +250,8 @@ class ModeWorkingPanel(AppQt.Q_App):
 
             progress_value = random.randint(0, 100)
             speed_value = self.move_speed
-            e_value = random.randint(0, 100)
+            e_value = int(self.move_speed * 0.62 * 3600)
+
             self.working_set_gauge(Working_gauge_progress, progress_value)
             self.working_set_gauge(Working_gauge_speed, speed_value)
             self.working_set_gauge(Working_gauge_efficiency, e_value)
