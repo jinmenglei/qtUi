@@ -102,7 +102,17 @@ class ModeWorkingPanel(AppQt.Q_App):
         self.timer_delay = QtCore.QTimer(parent=self)  # 创建定时器
         self.timer_delay.timeout.connect(lambda: self.on_timer_process())
 
+        self.timer_start_delay = QtCore.QTimer(parent=self)
+        self.timer_start_delay.timeout.connect(lambda: self.on_timer_start_delay())
+
+
         self.__init_callback()
+
+    def on_timer_start_delay(self):
+        msg_data = {'ros_start': True}
+        self.send_msg_dispatcher(self.msg_id.launch_start_control, msg_data)
+        self.timer_start_delay.stop()
+
 
     def __init_callback(self):
         self.subscribe_msg(self.msg_id.mode_working_show_map, self.show_map_callback)
@@ -225,6 +235,7 @@ class ModeWorkingPanel(AppQt.Q_App):
             self.working_status = 0
 
             self.timer_show.start(200)
+            self.timer_start_delay.start(10000)
             self.count = 11
             self.show_ui_update()
             self.m_button_cancel.setEnabled(False)
@@ -239,7 +250,10 @@ class ModeWorkingPanel(AppQt.Q_App):
         self.send_msg_dispatcher(self.msg_id.base_frame_set_button_enable, data_dict)
 
     def stop(self):
+        msg_data = {'ros_start': False}
+        self.send_msg_dispatcher(self.msg_id.launch_start_control, msg_data)
         self.timer_show.stop()
+        self.timer_start_delay.stop()
         self.map_select_path = None
         self.map_select_name = None
 

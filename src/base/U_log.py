@@ -23,7 +23,7 @@ def get_logger(name='root', filename='utry_log.log', level='info', max_bytes=10 
         logger = logging.getLogger(name)
         logger.setLevel(level=level_relations[level])
         log_path = os.path.join(os.environ['HOME'] + '/release/log', filename)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s - %(funcName)s')
 
         file_handler = RotatingFileHandler(log_path, maxBytes=max_bytes, backupCount=filecount)
         file_handler.setLevel(level=level_relations[level])

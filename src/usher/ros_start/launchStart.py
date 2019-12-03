@@ -9,6 +9,7 @@ import os
 import yaml
 from base.U_app import App
 from base.U_log import get_logger
+import base.U_util as Util
 
 
 class LaunchThread(App):
@@ -17,7 +18,13 @@ class LaunchThread(App):
         self.__module_name = 'LaunchThread'
         App.__init__(self, self.__module_name)
         self.__logger = get_logger(self.__module_name)
-        self.launch_ros_bridge = None
+        self.launch_sensor = None
+        self.launch_amcl = None
+        self.launch_running = None
+        self.is_start = False
+        self.is_stop = False
+        self.is_shutdown = False
+        self.uuid = None
         self.__init_callback()
 
     def __init_callback(self):
@@ -25,8 +32,83 @@ class LaunchThread(App):
 
     def control_callback(self, data_dict):
         self.__logger.info(str(data_dict))
-        if self.launch_ros_bridge is not None:
-            self.launch_ros_bridge.shutdown()
+        _,msg_data = Util.get_msg_id_data_dict(data_dict)
+        if 'ros_start' in msg_data:
+            if msg_data['ros_start']:
+                if self.is_start:
+                    self.__logger.warning(' is starting please wait')
+                else:
+                    self.__logger.info('start launch begin')
+                    Util.add_thread(target=self.start_launch_thread)
+            else:
+                if self.is_stop:
+                    self.__logger.warning(' is stopping please wait')
+                else:
+                    self.__logger.info('stop launch begin')
+                    Util.add_thread(target=self.stop_launch_thread)
+
+    def start_launch_thread(self):
+        try:
+
+            self.launch_amcl = roslaunch.parent.ROSLaunchParent(self.uuid, [
+                "/home/utry/catkin_ws/src/xiaoyuan_robot_v2/launch/xiaoyuan_robot_start_amcl.launch"])
+
+            self.launch_running = roslaunch.parent.ROSLaunchParent(self.uuid, [
+                "/home/utry/catkin_ws/src/linerunning_v2/launch/xiaoyuan_clear.launch"])
+
+            self.is_shutdown = False
+            self.is_start = True
+            self.__logger.info('begin to amcl sensor!')
+            self.launch_amcl.start()
+            self.__logger.info('sensor amcl!')
+
+            time.sleep(5)
+
+            self.__logger.info('begin to running sensor!')
+            self.launch_running.start()
+            self.__logger.info('sensor running!')
+            self.is_start = False
+            self.__logger.info('start end!!!!')
+
+            while not self.is_shutdown:
+                time.sleep(1)
+            self.is_shutdown = False
+            self.__logger.info('recived stop msg !!!')
+        except roslaunch.RLException as e:
+            print('I am except')
+            self.__logger.fatal(str(e))
+            self.is_start = False
+
+        finally:
+            self.is_start = False
+            print('I am finally')
+            self.launch_amcl.shutdown()
+            print(self.launch_amcl)
+            self.launch_running.shutdown()
+            print(self.launch_running)
+        pass
+
+    def stop_launch_thread(self):
+        # try:
+        self.is_stop = True
+        self.is_shutdown = True
+        while self.is_shutdown:
+            time.sleep(1)
+        self.launch_amcl.shutdown()
+        time.sleep(1)
+        self.launch_running.shutdown()
+        self.is_stop = False
+        self.__logger.info('stop end !!!!')
+        # # except roslaunch.RLException as e:
+        #     self.__logger.fatal(' ########## I am except')
+        #     self.__logger.fatal(str(e))
+        #     self.is_stop = False
+        #
+        # finally:
+        #     self.is_stop = False
+        #     self.__logger.fatal('I am finally')
+
+
 
     def run(self):
         roslaunch.rlutil._wait_for_master()
@@ -36,28 +118,21 @@ class LaunchThread(App):
         while rosmaster.getParam('run_id') is '':
             time.sleep(1)
 
-        uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
-        print('uuid' + uuid)
+        self.uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
+        print('uuid' + self.uuid)
 
-        # launch = roslaunch.parent.ROSLaunchParent(uuid, [
-        #     "/home/huike/robot_ws/src/huanyu_robot_start/launch/Huanyu_robot_start.launch"])
+        self.launch_sensor = roslaunch.parent.ROSLaunchParent(self.uuid, [
+            "/home/utry/catkin_ws/src/xiaoyuan_robot_v2/launch/xiaoyuan_robot_start_sensor.launch"])
 
-        # launch2 = roslaunch.parent.ROSLaunchParent(uuid, [
-        #     "/home/huike/robot_ws/src/huanyu_robot_start/launch/navigation_slam.launch"])
-
-        self.launch_ros_bridge = roslaunch.parent.ROSLaunchParent(uuid, [
-            "/opt/ros/kinetic/share/rosbridge_server/launch/rosbridge_websocket.launch"])
         try:
-            self.launch_ros_bridge.start()
-            # launch.start()
-            # time.sleep(5)
-            #
-            # launch2.start()
-            # rospy.loginfo("rospy.loginfo ##########")
-            # logging.info("logging.info ##########")
-            #
-            # launch.spin()
-            # launch2.spin()
+            time.sleep(1)
+
+            self.__logger.info('begin to start sensor!')
+            self.launch_sensor.start()
+            self.__logger.info('sensor started!')
+
+            time.sleep(10)
+
             while True:
                 # self.__logger.info('######### launch still alive')
                 time.sleep(10)
@@ -68,7 +143,9 @@ class LaunchThread(App):
 
         finally:
             print('I am finally')
-            self.launch_ros_bridge.shutdown()
+            self.launch_sensor.shutdown()
+            self.launch_amcl.shutdown()
+            self.launch_running.shutdown()
         pass
 
 
