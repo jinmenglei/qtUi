@@ -30,7 +30,7 @@ class ModeMapSelectPanel(AppQt.Q_App):
             label_frame = AppQt.get_sub_frame(self, rect, 'background-color: #FFFFFF;')
 
             rect = AppQt.QRect(3, 3, 120, 120)
-            style_sheet = "QPushButton{border-image: url(:/mode_map_select/mode_map_select/" + \
+            style_sheet = "QPushButton{border-image: url(/home/utry/release/res/mode_map_select/" + \
                             str(list_button_map_string[index][Map_button_path]) + ")}"
 
             map_button = AppQt.get_pushbutton(label_frame, rect, style_sheet)  # type: QPushButton

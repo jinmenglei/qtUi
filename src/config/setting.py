@@ -126,6 +126,8 @@ list_working_max_value = [100, 1.2, 2700]
 Working_gauge_progress, Working_gauge_speed, Working_gauge_efficiency, Working_gauge_num = range(4)
 Working_point_x, Working_point_y, Working_point_z, Working_point_num = range(4)
 list_working_label_point = ['X:', 'Y:', 'Z:']
+working_status_on = 0  # type: int
+working_status_off = 1
 
 Map_button_id_delta = 10000
 Map_select_1, Map_select_2, Map_select_3, Map_select_4, Map_select_5, Map_select_6, Map_select_7, Map_select_8, \
@@ -135,7 +137,7 @@ Map_select_id1, Map_select_id2, Map_select_id3, Map_select_id4, Map_select_id5, 
 
 Map_button_path, Map_button_id, Map_label_string, Map_label_point, Map_back_point = range(5)
 list_button_map_string = [
-    ['map1.pgm', Map_select_id1, '地图1', QRect(83, 139, 154, 26), QRect(97, 7, 126, 126),],
+    ['滨江.png', Map_select_id1, '滨江车库', QRect(83, 139, 154, 26), QRect(97, 7, 126, 126),],
     ['map2.pgm', Map_select_id2, '地图2', QRect(243, 139, 154, 26), QRect(257, 7, 126, 126)],
     ['map3.pgm', Map_select_id3, '地图3', QRect(403, 139, 154, 26), QRect(417, 7, 126, 126)],
     ['map4.pgm', Map_select_id4, '地图4', QRect(563, 139, 154, 26), QRect(577, 7, 126, 126)],
@@ -184,7 +186,7 @@ list_show_box_string = [
     ['是否要切换为\n手动驾驶模式', QRect(173, 158, 438, 50), Page_mt_mode, None],
     ['是否要切换为\n自动驾驶模式', QRect(173, 158, 438, 50), Page_author, None],
     ['是否开始清扫', QRect(258, 123, 279, 100), Page_working, None],
-    ['是否要取当前任务，\n切换到手动驾驶？', QRect(227, 129, 380, 100), Page_mt_mode, None],
+    ['是否要取消当前任务，\n切换到手动驾驶？', QRect(227, 129, 380, 100), Page_mt_mode, None],
     ['失去底层连接\n请联系售后', QRect(227, 129, 380, 100), None, None],
     ['检测到新版本\n是否升级', QRect(227, 129, 380, 100), Page_Update, None],
     ['地图不存在或不可用\n是否重新选择', QRect(227, 129, 380, 100), Page_map_select, Page_mt_mode],

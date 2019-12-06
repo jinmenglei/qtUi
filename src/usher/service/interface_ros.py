@@ -11,6 +11,7 @@ import base.U_util as Util
 import time
 from threading import Thread
 from std_msgs.msg import String
+from geometry_msgs.msg._PoseWithCovarianceStamped import PoseWithCovarianceStamped
 from rosgraph import Master
 import roslaunch
 
@@ -53,7 +54,7 @@ class InterfaceRos(App):
             msg_data['voltage_percent'] = data['voltage_percent']
 
         if 'yewei2_percent' in data:
-            msg_data['voltage_percent'] = data['yewei2_percent']
+            msg_data['yewei2_percent'] = data['yewei2_percent']
 
         if 'Position_X' in data and 'Position_Y' in data:
             msg_data['Position_X'] = data['Position_X']
@@ -166,8 +167,16 @@ class InterfaceRos(App):
 
     def __init_sub_pub(self):
         self.pub = rospy.Publisher('/ui_ros_topic', String, queue_size=100)
-        rospy.Subscriber("/ros_ui_topic", String, self.callback)
+        rospy.Subscriber('/ros_ui_topic', String, self.callback)
+        rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, self.amcl_pose_callback)
         return
+
+    def amcl_pose_callback(self, pose:PoseWithCovarianceStamped):
+        amcl_x = pose.pose.pose.position.x
+        amcl_y = pose.pose.pose.position.y
+        self.logger.info('recive_postion x:' + str(amcl_x) + ' y:' + str(amcl_y))
+        msg_data = {'x': amcl_x, 'y': amcl_y, 'z': 0}
+        self.send_msg_dispatcher(self.msg_id.mode_working_position_notify, msg_data)
 
     def send_ack_callback(self, msg_id, msg_type):
         msg_data = {'msg_id': msg_id, 'msg_type': msg_type}

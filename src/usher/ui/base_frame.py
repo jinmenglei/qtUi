@@ -117,6 +117,20 @@ class BaseFrame(AppQt.Q_App):
         self.Manage = ManagerFrame(self)
 
         self.Manage.show()
+        self.get_odom()
+
+    def get_odom(self):
+        with open('./odom_ini', 'w+') as f_odom:
+            self.odom_count = f_odom.readline()
+            if self.odom_count == '':
+                self.odom_count = 0
+            else:
+                self.odom_count = float(self.odom_count)
+            self.logger.info('read :' + str(self.odom_count))
+
+    def record_odom(self):
+        with open('./odom_ini', 'w+') as f_odom:
+            f_odom.writelines([str(self.odom_count)])
 
     def __init_callback(self):
         """
@@ -277,7 +291,9 @@ class BaseFrame(AppQt.Q_App):
 
     def on_click_mini_at(self):
         """这里是点击切换到到自动驾驶"""
-
+        # add test
+        self.link_ros = True
+        self.link_mcu = True
         if not self.link_mcu or not self.link_ros:
             self.show_box(show_box_loss, '')
         else:
@@ -286,6 +302,9 @@ class BaseFrame(AppQt.Q_App):
 
     def on_click_mini_mt(self):
         """这里是点击切换到到手动驾驶"""
+        # add test
+        self.link_ros = True
+        self.link_mcu = True
         if not self.link_mcu or not self.link_ros:
             self.show_box(show_box_loss, '')
         else:
@@ -324,6 +343,8 @@ class BaseFrame(AppQt.Q_App):
         self.m_title_label_list[Label_title_battery].setText(str_battery)
 
         self.change_battery()
+
+        self.record_odom()
 
     def change_battery(self):
         battery = int((100 - self.battery_count) / 20)

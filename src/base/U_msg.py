@@ -55,6 +55,7 @@ class UMsg:
     # mode_working
     mode_working_show_map = 'mode_working_show_map'
     mode_working_speed_notify = 'mode_working_speed_notify'
+    mode_working_position_notify = 'mode_working_position_notify'
 
     # mode_show_box
     mode_show_box_show_tip = 'mode_show_box_show_tip'

@@ -21,8 +21,11 @@ class ModeWorkingPanel(AppQt.Q_App):
         self.count = 0
         self.map_select_path = None
         self.map_select_name = None
-        self.working_status = 0
+        self.working_status = working_status_on
         self.move_speed = 0
+        self.position_x = 0
+        self.position_y = 0
+        self.position_z = 0
 
         self.label_back = AppQt.get_sub_frame(self, AppQt.QRect(28, 26, 228, 228), 'background-color: #FFFFFF;')
 
@@ -43,7 +46,7 @@ class ModeWorkingPanel(AppQt.Q_App):
 
             self.list_working_label_point_show.append(working_label)
 
-        self.working_set_point(0, 0, 0)
+        self.working_set_point()
 
         tmp_list = list_working_process_info
         self.list_working_cover_panel = []
@@ -73,8 +76,9 @@ class ModeWorkingPanel(AppQt.Q_App):
         bitmap = 'QPushButton{border-image: url(:/mode_working/mode_working/暂停.png)}' + \
                  'QPushButton:pressed{border-image: url(:/mode_working/mode_working/暂停-按下.png)}'
         self.list_working_button_bitmap.append(bitmap)
+
         bitmap = 'QPushButton{border-image: url(:/mode_working/mode_working/继续.png)}' + \
-                 'QPushButton:pressed{border-image: url(:/mode_working/mode_working/暂停-按下.png)}'
+                 'QPushButton:pressed{border-image: url(:/mode_working/mode_working/继续-按下.png)}'
 
         self.list_working_button_bitmap.append(bitmap)
 
@@ -105,7 +109,6 @@ class ModeWorkingPanel(AppQt.Q_App):
         self.timer_start_delay = QtCore.QTimer(parent=self)
         self.timer_start_delay.timeout.connect(lambda: self.on_timer_start_delay())
 
-
         self.__init_callback()
 
     def on_timer_start_delay(self):
@@ -117,6 +120,18 @@ class ModeWorkingPanel(AppQt.Q_App):
     def __init_callback(self):
         self.subscribe_msg(self.msg_id.mode_working_show_map, self.show_map_callback)
         self.subscribe_msg(self.msg_id.mode_working_speed_notify, self.speed_notify_callback)
+        self.subscribe_msg(self.msg_id.mode_working_position_notify, self.position_notify_callback)
+
+    def position_notify_callback(self, data_dict):
+        msg_id, msg_data = Util.get_msg_id_data_dict(data_dict)
+        if 'x' in msg_data and 'y' in msg_data and 'z' in msg_data:
+            self.position_x = int(msg_data['x'])
+            self.position_y = int(msg_data['y'])
+            self.position_z = int(msg_data['z'])
+        else:
+            self.logger.warning(str(data_dict) + ' data error !!!')
+
+        pass
 
     def speed_notify_callback(self, data_dict):
         msg_id, msg_data = Util.get_msg_id_data_dict(data_dict)
@@ -172,21 +187,31 @@ class ModeWorkingPanel(AppQt.Q_App):
         if self.timer_delay.isActive():
             return
 
-        if self.working_status == 0:
-            self.m_button_pause_continue.setStyleSheet(self.list_working_button_bitmap[1])
-            self.working_status = 1
+        if self.working_status == working_status_on:
+            self.working_status = working_status_off
+            self.m_button_pause_continue.setStyleSheet(self.list_working_button_bitmap[self.working_status])
             self.timer_show.stop()
             self.timer_process.stop()
             self.m_button_cancel.setEnabled(True)
             self.m_button_cancel.setStyleSheet(self.cancel_style_sheet_enable)
             self.set_button_enable(True)
+            self.send_set_pause_msg(True)
+
         else:
-            self.m_button_pause_continue.setStyleSheet(self.list_working_button_bitmap[0])
-            self.working_status = 0
+            self.working_status = working_status_on
+            self.m_button_pause_continue.setStyleSheet(self.list_working_button_bitmap[self.working_status])
             self.timer_show.start(200)
             self.m_button_cancel.setEnabled(False)
             self.m_button_cancel.setStyleSheet(self.cancel_style_sheet_disable)
             self.set_button_enable(False)
+            self.send_set_pause_msg(False)
+
+    def send_set_pause_msg(self, is_pause:bool):
+        msg_data = {'msg_id': 'set_pause', 'msg_type': 'control',
+                    'msg_data': 'no'}
+        if is_pause:
+            msg_data['msg_data'] = 'yes'
+        self.send_msg_out(msg_data)
 
     def on_click_cancel(self):
         """取消按钮"""
@@ -211,11 +236,11 @@ class ModeWorkingPanel(AppQt.Q_App):
             self.degree[index] = abs(self.check_process_target[index] - self.current_process[index])/100
             self.list_working_cover_text[index].setText(str_show)
 
-    def working_set_point(self, x, y, z):
+    def working_set_point(self):
         """设置坐标的位置"""
-        self.list_working_label_point_show[Working_point_x].setText('X:' + '{:4.1f}'.format(x))
-        self.list_working_label_point_show[Working_point_y].setText('Y:' + '{:4.1f}'.format(y))
-        self.list_working_label_point_show[Working_point_z].setText('Z:' + '{:4.1f}'.format(z))
+        self.list_working_label_point_show[Working_point_x].setText('X:' + '{:4d}'.format(int(self.position_x)))
+        self.list_working_label_point_show[Working_point_y].setText('Y:' + '{:4d}'.format(int(self.position_y)))
+        self.list_working_label_point_show[Working_point_z].setText('Z:' + '{:4d}'.format(int(self.position_z)))
 
     def start(self):
         if self.map_select_name is not None and self.map_select_path is not None:
@@ -232,12 +257,14 @@ class ModeWorkingPanel(AppQt.Q_App):
             self.check_process_target = [0, 0, 0]
             self.degree = [0, 0, 0]
 
-            self.working_status = 0
+            self.working_status = working_status_on
+            self.send_set_pause_msg(False)
 
             self.timer_show.start(200)
             self.timer_start_delay.start(10000)
             self.count = 11
             self.show_ui_update()
+            self.m_button_pause_continue.setStyleSheet(self.list_working_button_bitmap[self.working_status])
             self.m_button_cancel.setEnabled(False)
             self.m_button_cancel.setStyleSheet(self.cancel_style_sheet_disable)
         else:
@@ -271,10 +298,10 @@ class ModeWorkingPanel(AppQt.Q_App):
             self.working_set_gauge(Working_gauge_efficiency, e_value)
             self.timer_process.start(4)
 
-            x_value = random.randint(0, 100)
-            y_value = random.randint(0, 100)
-            z_value = random.randint(0, 100)
-            self.working_set_point(x_value, y_value, z_value)
+            # x_value = random.randint(0, 100)
+            # y_value = random.randint(0, 100)
+            # z_value = random.randint(0, 100)
+            self.working_set_point()
 
     def on_timer_show(self):
         """标题栏刷新定时器"""
