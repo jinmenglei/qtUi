@@ -292,8 +292,8 @@ class BaseFrame(AppQt.Q_App):
     def on_click_mini_at(self):
         """这里是点击切换到到自动驾驶"""
         # add test
-        self.link_ros = True
-        self.link_mcu = True
+        # self.link_ros = True
+        # self.link_mcu = True
         if not self.link_mcu or not self.link_ros:
             self.show_box(show_box_loss, '')
         else:
@@ -303,8 +303,8 @@ class BaseFrame(AppQt.Q_App):
     def on_click_mini_mt(self):
         """这里是点击切换到到手动驾驶"""
         # add test
-        self.link_ros = True
-        self.link_mcu = True
+        # self.link_ros = True
+        # self.link_mcu = True
         if not self.link_mcu or not self.link_ros:
             self.show_box(show_box_loss, '')
         else:
