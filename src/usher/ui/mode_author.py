@@ -105,7 +105,6 @@ class ModeAuthorPanel(AppQt.Q_App):
 
     def get_unlock_status(self):
         # test
-        return False
         try:
             ublock_url = self.unlock_url
             request = requests.get(ublock_url)

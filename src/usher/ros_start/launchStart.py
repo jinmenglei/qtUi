@@ -10,6 +10,7 @@ import yaml
 from base.U_app import App
 from base.U_log import get_logger
 import base.U_util as Util
+import config.setting as setting
 
 
 class LaunchThread(App):
@@ -32,7 +33,7 @@ class LaunchThread(App):
 
     def control_callback(self, data_dict):
         self.__logger.info(str(data_dict))
-        _,msg_data = Util.get_msg_id_data_dict(data_dict)
+        _, msg_data = Util.get_msg_id_data_dict(data_dict)
         if 'ros_start' in msg_data:
             if msg_data['ros_start']:
                 if self.is_start:
@@ -89,26 +90,24 @@ class LaunchThread(App):
         pass
 
     def stop_launch_thread(self):
-        # try:
-        self.is_stop = True
-        self.is_shutdown = True
-        while self.is_shutdown:
+        try:
+            self.is_stop = True
+            self.is_shutdown = True
+            while self.is_shutdown:
+                time.sleep(1)
+            self.launch_amcl.shutdown()
             time.sleep(1)
-        self.launch_amcl.shutdown()
-        time.sleep(1)
-        self.launch_running.shutdown()
-        self.is_stop = False
-        self.__logger.info('stop end !!!!')
-        # # except roslaunch.RLException as e:
-        #     self.__logger.fatal(' ########## I am except')
-        #     self.__logger.fatal(str(e))
-        #     self.is_stop = False
-        #
-        # finally:
-        #     self.is_stop = False
-        #     self.__logger.fatal('I am finally')
+            self.launch_running.shutdown()
+            self.is_stop = False
+            self.__logger.info('stop end !!!!')
+        except roslaunch.RLException as e:
+            self.__logger.fatal(' ########## I am except')
+            self.__logger.fatal(str(e))
+            self.is_stop = False
 
-
+        finally:
+            self.is_stop = False
+            self.__logger.fatal('I am finally')
 
     def run(self):
         roslaunch.rlutil._wait_for_master()
@@ -117,6 +116,10 @@ class LaunchThread(App):
             time.sleep(1)
         while rosmaster.getParam('run_id') is '':
             time.sleep(1)
+
+        time.sleep(5)
+
+        self.send_msg_dispatcher(self.msg_id.mode_start_status, {'index': setting.start_ros, 'status': True})
 
         self.uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         print('uuid' + self.uuid)
@@ -132,6 +135,8 @@ class LaunchThread(App):
             self.__logger.info('sensor started!')
 
             time.sleep(10)
+
+            self.send_msg_dispatcher(self.msg_id.mode_start_status, {'index': setting.start_launch, 'status': True})
 
             while True:
                 # self.__logger.info('######### launch still alive')

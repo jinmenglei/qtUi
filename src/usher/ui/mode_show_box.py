@@ -11,14 +11,14 @@ class ModeShowBox(AppQt.Q_App):
         self.module_name = 'show_box'
         self.logger = get_logger(self.module_name)
         AppQt.Q_App.__init__(self, self.module_name, base_frame, QRect(0, 0, 800, 480),
-                             'border-image: url(:/show_box/show_box/半透明.png);\n'
-                             'background: transparent;')
+                             'QFrame{border-image: url(:/show_box/show_box/半透明.png)}'
+                             'QFrame{background: transparent}')
 
         self.res_path = Util.get_res_path(self.module_name)
         self.index = 0
 
         self.m_bitmap_white = AppQt.get_sub_frame(self, QRect(100, 53, 600, 374),
-                                                  'border-image: url(:/show_box/show_box/弹窗.png);')
+                                                  'QFrame{border-image: url(:/show_box/show_box/弹窗.png)}')
 
         style_sheet = 'QPushButton{border-image: url(:/show_box/show_box/否.png)}' + \
                       'QPushButton:pressed{border-image: url(:/show_box/show_box/否-点击.png)}'
@@ -77,6 +77,9 @@ class ModeShowBox(AppQt.Q_App):
         """取消按钮"""
         if list_show_box_string[self.index][show_box_yes] is not None:
             self.mode_dispatcher(list_show_box_string[self.index][show_box_yes])
+        elif self.index == show_box_start_error:
+            self.logger.fatal('start error restart!')
+            Util.do_restart()
 
         self.hide()
         # self.send_destroy_show_box()

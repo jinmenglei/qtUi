@@ -48,7 +48,8 @@ list_tail_string = [
     ['里程', QRect(676, 54, 59, 28), 28, 90]
 ]
 # add panel index
-Page_mt_mode, Page_author, Page_check, Page_map_select, Page_working, Page_Update, Page_show_box, Page_num = range(8)  # 6个页面
+Page_mt_mode, Page_author, Page_check, Page_map_select, Page_working, Page_Update, Page_num = range(7)  # 6个页面
+Page_show_box, Page_start = range(2)
 Page_index_title, Page_index_tail = range(2)  # 显示索引
 # 这个是标题和提示显示的内容
 list_page_string = [
@@ -181,7 +182,7 @@ Update_list_all = [
 
 show_box_tip, show_box_point, show_box_yes, show_box_no = range(4)
 show_box_turn_mt, show_box_turn_at, show_box_map_select, show_box_work_cancel, show_box_loss, show_box_update, \
-    show_box_no_map = range(7)
+    show_box_no_map, show_box_start_error = range(8)
 list_show_box_string = [
     ['是否要切换为\n手动驾驶模式', QRect(173, 158, 438, 50), Page_mt_mode, None],
     ['是否要切换为\n自动驾驶模式', QRect(173, 158, 438, 50), Page_author, None],
@@ -190,4 +191,13 @@ list_show_box_string = [
     ['失去底层连接\n请联系售后', QRect(227, 129, 380, 100), None, None],
     ['检测到新版本\n是否升级', QRect(227, 129, 380, 100), Page_Update, None],
     ['地图不存在或不可用\n是否重新选择', QRect(227, 129, 380, 100), Page_map_select, Page_mt_mode],
+    ['启动出现异常\n是否重新启动', QRect(227, 129, 380, 100), None, None],
+]
+start_show_begin, start_show_success, start_show_fail, start_show_status, start_status = range(5)
+start_ui, start_ros, start_launch, start_xiaoyuan, start_status_cnt = range(5)
+list_start_info = [
+    ['正在启动界面程序', '界面程序启动已完成', '界面程序启动超时', False, False],
+    ['正在启动主节点', '主节点启动已完成', '主节点启动失败', False, False],
+    ['正在启动底盘程序', '底盘程序已启动', '底盘程序启动失败', False, False],
+    ['与底盘通信中', '通信已完成', '与底盘失去连接', False, False],
 ]

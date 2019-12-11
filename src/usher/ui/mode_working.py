@@ -26,6 +26,7 @@ class ModeWorkingPanel(AppQt.Q_App):
         self.position_x = 0
         self.position_y = 0
         self.position_z = 0
+        self.progress_percent = 0
 
         self.label_back = AppQt.get_sub_frame(self, AppQt.QRect(28, 26, 228, 228), 'background-color: #FFFFFF;')
 
@@ -62,11 +63,11 @@ class ModeWorkingPanel(AppQt.Q_App):
             AppQt.get_label_picture(cover_panel, AppQt.QRect(0, 0, 380, 38), path)
 
             rect = tmp_list[index][list_working_text_point]
-            text_panel = AppQt.get_sub_frame(self, rect, 'background: transparent;')
+            text_panel = AppQt.get_sub_frame(self, rect, 'QFrame{background: transparent}')
 
             cover_text = AppQt.get_label_text(text_panel, AppQt.QRect(0, 0, rect.width(), rect.height()), True, '', 26,
                                               'MicrosoftYaHei-Bold', '#0E0E32')
-            cover_text.setStyleSheet('background: transparent;')
+            cover_text.setStyleSheet('QLabel{background: transparent}')
 
             self.list_working_cover_panel.append(cover_panel)
             self.list_working_cover_text.append(cover_text)
@@ -116,11 +117,22 @@ class ModeWorkingPanel(AppQt.Q_App):
         self.send_msg_dispatcher(self.msg_id.launch_start_control, msg_data)
         self.timer_start_delay.stop()
 
-
     def __init_callback(self):
         self.subscribe_msg(self.msg_id.mode_working_show_map, self.show_map_callback)
         self.subscribe_msg(self.msg_id.mode_working_speed_notify, self.speed_notify_callback)
         self.subscribe_msg(self.msg_id.mode_working_position_notify, self.position_notify_callback)
+        self.subscribe_msg(self.msg_id.mode_mode_working_progress_notify, self.progress_notify_callback)
+
+    def progress_notify_callback(self, data_dict):
+        _, msg_data = Util.get_msg_id_data_dict(data_dict)
+        self.logger.info('receive msg ' + str(data_dict))
+        if 'progress_percent' in msg_data:
+            progress_percent = msg_data['progress_percent']
+            if isinstance(progress_percent, int):
+                if progress_percent >= 100:
+                    self.progress_percent = 100
+                else:
+                    self.progress_percent = progress_percent
 
     def position_notify_callback(self, data_dict):
         msg_id, msg_data = Util.get_msg_id_data_dict(data_dict)
@@ -171,7 +183,7 @@ class ModeWorkingPanel(AppQt.Q_App):
                 self.current_process[index] = self.current_process[index] + self.degree[index]
                 self.list_working_cover_panel[index].setFixedSize(self.current_process[index], 34)
 
-            elif self.check_process_target[index] < self.current_process[index]:
+            elif self.check_process_target[index] <= self.current_process[index]:
                 self.current_process[index] = self.current_process[index] - self.degree[index]
                 if self.current_process[index] < 0:
                     self.current_process[index] = 0
@@ -289,7 +301,7 @@ class ModeWorkingPanel(AppQt.Q_App):
         if self.count >= 10:
             self.count = 0
 
-            progress_value = random.randint(0, 100)
+            progress_value = self.progress_percent
             speed_value = self.move_speed
             e_value = int(self.move_speed * 0.62 * 3600)
 

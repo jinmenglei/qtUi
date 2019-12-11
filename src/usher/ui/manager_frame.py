@@ -10,6 +10,7 @@ from usher.ui.mode_map_select import ModeMapSelectPanel
 from usher.ui.mode_working import ModeWorkingPanel
 from usher.ui.mode_show_box import ModeShowBox
 from usher.ui.mode_update import ModeUpdate
+from usher.ui.mode_start import ModeStart
 import time
 
 import config.setting as setting
@@ -25,7 +26,6 @@ module_relations = {
     setting.Page_check: ModeCheckPanel,
     setting.Page_map_select: ModeMapSelectPanel,
     setting.Page_working: ModeWorkingPanel,
-    setting.Page_show_box: ModeShowBox,
     setting.Page_Update: ModeUpdate,
 }
 
@@ -41,8 +41,9 @@ class ManagerFrame(AppQt.Q_App):
 
         self.__default_page = setting.Page_mt_mode
         self.robot_status = 'mt'
-        self.show_box_panel = None
-        self.page_stack = None
+        self.show_box_panel = None  # type: AppQt.Q_App
+        self.start_panel = None  # type: AppQt.Q_App
+        self.page_stack = None  # type: QtWidgets.QStackedWidget
 
         self.__init_callback()
 
@@ -127,17 +128,23 @@ class ManagerFrame(AppQt.Q_App):
     def __show_box(self, index, tip=''):
         self.__logger.info('show box index :' + str(index) + '--tip : ' + str(tip))
         if self.show_box_panel is None:
-            self.show_box_panel = module_relations[setting.Page_show_box](self.__frame)
+            self.show_box_panel = ModeShowBox(self.__frame)
         self.show_box_panel.show()
         self.show_box_panel.show_box_tip(index, tip)
 
     def __change_page(self, index):
         self.__logger.info('change panel to index : ' + str(index))
 
+        if self.start_panel.isVisible():
+            self.start_panel.hide()
+
         if index in range(setting.Page_num - 1):
             if self.show_box_panel.isVisible():
                 self.show_box_panel.hide()
             self.page_stack.setCurrentIndex(index)
+
+        if not self.page_stack.isVisible():
+            self.page_stack.show()
 
         self.__update_button_status(index)
 
@@ -146,12 +153,22 @@ class ManagerFrame(AppQt.Q_App):
         self.send_msg_dispatcher(self.msg_id.base_frame_update_button_status, msg_data)
 
     def init_all_page(self):
-        for index in range(setting.Page_num - 1):
+        self.start_panel = ModeStart(self.__frame)
+        self.start_panel.show()
+        for index in range(setting.Page_num):
             tmp_frame = module_relations[index](self)
             self.page_stack.addWidget(tmp_frame)
 
-        self.show_box_panel = module_relations[setting.Page_show_box](self.__frame)
+        self.page_stack.hide()
+
+        self.show_box_panel = ModeShowBox(self.__frame)
         self.show_box_panel.hide()
+
+        self.send_ui_start_success()
+
+    def send_ui_start_success(self):
+        msg_data = {'index': setting.start_ui, 'status': True}
+        self.send_msg_dispatcher(self.msg_id.mode_start_status, msg_data)
 
     def __run(self):
         self.__logger.info('begin to init manager_frame frame for this project!')
@@ -163,6 +180,6 @@ class ManagerFrame(AppQt.Q_App):
         self.init_all_page()
 
         # show default page
-        self.__change_page(self.__default_page)
+        # self.__change_page(self.__default_page)
 
         self.__logger.info('end to init manager_frame frame for this project!')

@@ -64,6 +64,15 @@ def get_ros_core():
     return False
 
 
+def get_pid_by_name(name: str):
+    pid = psutil.process_iter()
+    for pid_sub in pid:
+        if name == pid_sub.name():
+            print('get ' + str(name))
+            return True
+    return False
+
+
 class RosManager(object):
     def __init__(self, manager_pipe):
         self.__module_name = 'ros_manager'
@@ -74,16 +83,29 @@ class RosManager(object):
     def ros_core_process(self):
         self.__logger.info('begin ros core')
         while True:
-            time.sleep(3)
-            if getipaddr():
-                self.__logger.info('host ip is init!')
-                break
+            while True:
+                time.sleep(3)
+                if getipaddr():
+                    self.__logger.info('host ip is init!')
+                    break
 
-        if not get_ros_core():
-            self.__logger.info('start ros core')
-            roslaunch.main(['roscore', '--core'])
-        else:
-            self.__logger.warning('ros core is exist , skip!')
+            if not get_ros_core():
+                self.__logger.info('start ros core')
+                try:
+                    roslaunch.main(['roscore', '--core'])
+                    while True:
+                        time.sleep(1)
+                except roslaunch.RLException as e:
+                    print('I am except')
+                    self.__logger.fatal(str(e))
+                    continue
+
+                finally:
+                    self.__logger.fatal('I am finally')
+
+            else:
+                self.__logger.warning('ros core is exist , skip!')
+                break
 
     def start(self):
         self.__logger.info('begin to init ros core')
@@ -93,7 +115,6 @@ class RosManager(object):
 
         self.launch_thread = LaunchThread()
         self.launch_thread.run()
-
 
 
 #  test code

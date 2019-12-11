@@ -12,14 +12,16 @@ Options:\r\n
                  \t\t   \t  if success,this computer will reboot\n\n
 \tuninstall\t uninstall this ui program to this computer,\n
                     \t\t \t if success,this computer will reboot\n\n
+\ttest 100\t begin to start a startup test, 100 is startup times,\n\n
+\tdeltest\t stop startup test, delete start_ini and move tmp.csv to 2019xxxx_undone.csv \n\n
 \n
 \n
 \tSee www.baidu.com\n
 "
 fun_start()
 {
-    RET=`ps -ef|grep -v grep|grep ui_main`
-    if ["" == "$RET"]
+    RET=$(pgrep -f ui_main)
+    if [ "" == "$RET" ]
     then
         echo "start uio"
         cd /home/utry/release/bin/ui
@@ -33,6 +35,8 @@ fun_stop()
 fun_install()
 {
     EXE_PATH=`pwd`
+    sudo cp /home/utry/release/utry_shell/start_ui /usr/bin/
+    complete -W 'start stop install uninstall test deltest' start_ui
     cd ~/release/utry_shell/
     ./install_program.sh
     cd $EXE_PATH
@@ -48,6 +52,7 @@ fun_showhelp()
 {
     echo -e $HELP_STRING
 }
+# shellcheck disable=SC2120
 fun_showerror()
 {
     echo "$1 command is not support!"
@@ -70,6 +75,20 @@ elif [ "uninstall" == "$1" ];then
     fun_uninstall
 elif [ "--help" == "$1" ];then
     fun_showhelp
+elif [ "test" == "$1" ];then
+    # shellcheck disable=SC1073
+    # shellcheck disable=SC1073
+    if [ "" != "$2" ]; then
+      echo "begin to test"
+      sudo echo "$2" > /home/utry/release/utry_shell/start_ini
+    else
+      echo 'please input cnt'
+    fi
+elif [ "deltest" == "$1" ];then
+  rm /home/utry/release/utry_shell/start_ini
+  currentfile=$(date +%Y%m%d%H%M%S)
+  echo "save undone file to ${currentfile}_undone.csv"
+  mv /home/utry/release/utry_shell/tmp.csv /home/utry/release/utry_shell/${currentfile}_undone.csv
 else
     fun_showerror
 fi

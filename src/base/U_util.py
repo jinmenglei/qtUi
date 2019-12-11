@@ -23,6 +23,10 @@ def get_md5sum(filename):
         return 'file ' + filename + ' is not existed', 0
 
 
+def do_restart():
+    os.system('sudo reboot')
+
+
 def get_mac_address():
     node = uuid.getnode()
     mac = uuid.UUID(int = node).hex[-12:]

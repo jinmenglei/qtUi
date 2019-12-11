@@ -8,6 +8,7 @@ import rospy
 from base.U_app import App
 from base.U_log import get_logger
 import base.U_util as Util
+import config.setting as setting
 import time
 from threading import Thread
 from std_msgs.msg import String
@@ -37,9 +38,21 @@ class InterfaceRos(App):
         # 内部处理函数初始化
         self.callback_dict['snap_req'] = self.snap_callback
         self.callback_dict['send_info_req'] = self.send_info_req_callback
+        self.callback_dict['progress_notify'] = self.progress_callback
 
         # 模块间通信函数初始化
         self.subscribe_msg(self.msg_id.interface_ros_send_msg_out, self.interface_ros_send_msg_out)
+
+    def progress_callback(self, data):
+        self.send_mode_mode_working_progress_notify(data)
+        pass
+
+    def send_mode_mode_working_progress_notify(self, data):
+        self.logger.info('receive process ' + str(data))
+        msg_data = {}
+        if 'progress_percent' in data:
+            msg_data['progress_percent'] = data['progress_percent']
+        self.send_msg_dispatcher(self.msg_id.mode_mode_working_progress_notify, msg_data)
 
     def snap_callback(self, data):
         if data:
@@ -161,6 +174,8 @@ class InterfaceRos(App):
                 self.logger.info('send link ros : ' + str(self.link_ros))
                 self.send_link_status = self.link_ros
                 self.send_msg_link_status(self.link_ros)
+                self.send_msg_dispatcher(self.msg_id.mode_start_status,
+                                         {'index': setting.start_xiaoyuan, 'status': self.link_ros})
 
             time.sleep(0.1)
         return
@@ -174,7 +189,7 @@ class InterfaceRos(App):
     def amcl_pose_callback(self, pose:PoseWithCovarianceStamped):
         amcl_x = pose.pose.pose.position.x
         amcl_y = pose.pose.pose.position.y
-        self.logger.info('recive_postion x:' + str(amcl_x) + ' y:' + str(amcl_y))
+        self.logger.info('receive_position x:' + str(amcl_x) + ' y:' + str(amcl_y))
         msg_data = {'x': amcl_x, 'y': amcl_y, 'z': 0}
         self.send_msg_dispatcher(self.msg_id.mode_working_position_notify, msg_data)
 

@@ -12,3 +12,5 @@
 /release/res/image.qrc
 /release/res/image_rc.py
 /utry_output/*.zip
+/src/usher/main/debug
+/src/usher/main/odom_ini

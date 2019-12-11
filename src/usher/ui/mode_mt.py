@@ -34,9 +34,9 @@ class ModeMtPanel(AppQt.Q_App):
         tmp_list = list_button_mt_string
         for index in range(Mt_button_num):
             list_tmp = []
-            bitmap = "border-image: url(:/mode_mt/mode_mt/" + str(tmp_list[index][Mt_button_off]) + ");"
+            bitmap = "QPushButton{border-image: url(:/mode_mt/mode_mt/" + str(tmp_list[index][Mt_button_off]) + ")}"
             list_tmp.append(bitmap)
-            bitmap = "border-image: url(:/mode_mt/mode_mt/" + str(tmp_list[index][Mt_button_on]) + ");"
+            bitmap = "QPushButton{border-image: url(:/mode_mt/mode_mt/" + str(tmp_list[index][Mt_button_on]) + ")}"
             list_tmp.append(bitmap)
             self.list_mt_button_bitmap.append(list_tmp)
 

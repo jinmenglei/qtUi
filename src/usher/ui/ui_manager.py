@@ -4,6 +4,7 @@
 # no doc
 from usher.ui.base_frame import BaseFrame
 import time
+import os
 
 from base.U_log import get_logger
 import base.U_util as Util
@@ -69,6 +70,9 @@ class UiManager(object):
         self.widgets.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
         self.widgets.move(0, 0)
         self.widgets.resize(800, 480)
+
+        if not os.path.isfile('./debug'):
+            self.widgets.setCursor(QtCore.Qt.BlankCursor)
 
         self.dispatcher = UDispatcher(UMsg.ui_dispatcher, self.__manager_pipe)
         # init base_frame

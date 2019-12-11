@@ -2,11 +2,24 @@
 # shellcheck disable=SC2039
 source /opt/ros/kinetic/setup.sh
 source /home/utry/catkin_ws/devel/setup.bash
-RET=`ps -ef|grep -v grep|grep ui_main`
+RET=$(pgrep -f ui_main)
 if [ "" == "$RET" ]
 then
-   echo "start uio"
-   cd /home/utry/release/bin/ui
-#   ./launchStart &
-   ./ui_main &
+  {
+    xset s 0
+    xset s noblank
+    xset -dpms
+    sleep 2
+#    xrandr --output HDMI1 --auto
+    echo "start uio"
+  } >> /tmp/start.log
+
+  cd /home/utry/release/bin/ui
+  #   ./launchStart &
+  ./ui_main &
+
+  if [ -f /home/utry/release/utry_shell/start_ini ]; then
+    cd /home/utry/release/utry_shell/
+    /usr/bin/python3.5 start_test.py &
+  fi
 fi

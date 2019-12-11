@@ -56,6 +56,7 @@ class UMsg:
     mode_working_show_map = 'mode_working_show_map'
     mode_working_speed_notify = 'mode_working_speed_notify'
     mode_working_position_notify = 'mode_working_position_notify'
+    mode_mode_working_progress_notify = 'mode_mode_working_progress_notify'
 
     # mode_show_box
     mode_show_box_show_tip = 'mode_show_box_show_tip'
@@ -66,6 +67,9 @@ class UMsg:
 
     # launch_start
     launch_start_control = 'launch_start_control'
+
+    # mode_start
+    mode_start_status = 'mode_start_status'
 
 
 # test code

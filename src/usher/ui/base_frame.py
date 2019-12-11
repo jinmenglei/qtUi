@@ -38,6 +38,7 @@ class BaseFrame(AppQt.Q_App):
         self.link_4G = True
         self.link_ros = False
         self.link_mcu = False
+        self.is_get_odom = False
 
         self.list_mt_button_status = [Mt_button_off, Mt_button_off, Mt_button_forward]
 
@@ -120,13 +121,14 @@ class BaseFrame(AppQt.Q_App):
         self.get_odom()
 
     def get_odom(self):
-        with open('./odom_ini', 'w+') as f_odom:
+        with open('./odom_ini', 'r+') as f_odom:
             self.odom_count = f_odom.readline()
             if self.odom_count == '':
                 self.odom_count = 0
             else:
                 self.odom_count = float(self.odom_count)
             self.logger.info('read :' + str(self.odom_count))
+            self.is_get_odom = True
 
     def record_odom(self):
         with open('./odom_ini', 'w+') as f_odom:
@@ -242,7 +244,7 @@ class BaseFrame(AppQt.Q_App):
         :param msg_data:
         :return:
         """
-        if self.received_time is not 0:
+        if self.received_time is not 0 and self.is_get_odom:
             delta_time = time.time() - self.received_time
             self.odom_count += (delta_time * self.line_speed) / 1000
 
@@ -276,7 +278,7 @@ class BaseFrame(AppQt.Q_App):
             self.m_bpButtonMt_mini.setStyleSheet(self.Mt_style_sheet_disable)
 
     def show_mt_at(self, tab_name):
-        if tab_name in range(Page_num) and tab_name != Page_show_box:
+        if tab_name in range(Page_num):
             if tab_name == Page_mt_mode:
                 self.m_bpButtonAt_mini.show()
                 self.m_bpButtonMt_mini.hide()
@@ -286,7 +288,7 @@ class BaseFrame(AppQt.Q_App):
 
             if tab_name != Page_working:
                 self.set_button_enable(True)
-
+            self.logger.info('show button ' + str(tab_name))
             self.m_title_label_list[Lable_title_mode_select].setText(list_page_string[tab_name][Page_index_title])
 
     def on_click_mini_at(self):
@@ -344,7 +346,8 @@ class BaseFrame(AppQt.Q_App):
 
         self.change_battery()
 
-        self.record_odom()
+        if self.is_get_odom:
+            self.record_odom()
 
     def change_battery(self):
         battery = int((100 - self.battery_count) / 20)

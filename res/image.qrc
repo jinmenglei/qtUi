@@ -92,4 +92,7 @@
     <file>Update/自检进度条-灰.png</file>
     <file>Update/自检进度条-蓝.png</file>
   </qresource>
+  <qresource prefix="mode_start">
+    <file>mode_start/start.png</file>
+  </qresource>
 </RCC>
