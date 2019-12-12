@@ -14,33 +14,52 @@ import signal
 class Manager:
     def __init__(self):
         self.logger = get_logger('Manager')
+        self.logger.info('#######################################')
+        self.logger.info('begin to start process')
+        self.logger.info('#######################################')
         self.manager_dispatcher = UDispatcher(UMsg.manager_dispatcher)
         self.manager_dispatcher.start()
         self.manager_pipe = self.manager_dispatcher.get_self_pipe()
         self.process_ui = None
         self.process_service = None
         self.process_ros = None
+        self.process_pool = {}
 
     def run_service_process(self, manager_pipe):
         self.logger.info('begin to start run_service_process')
-        manager = ServiceManger(manager_pipe)
-        manager.start()
-        while True:
-            time.sleep(1)
+        try:
+            manager = ServiceManger(manager_pipe)
+            manager.start()
+
+            while True:
+                time.sleep(1)
+        except Exception as e:
+            self.logger.info('service find exception !!!!!!! : ' + str(e))
+            time.sleep(2)
 
     def run_ui_process(self, manager_pipe):
         self.logger.info('begin to start run_ui_process')
-        manager = UiManager(manager_pipe)
-        manager.start()
-        while True:
-            time.sleep(1)
+        try:
+            manager = UiManager(manager_pipe)
+            manager.start()
+            while True:
+                time.sleep(1)
+        except:
+            self.logger.info('ui find exception !!!!!!!')
+            time.sleep(2)
+
 
     def run_ros_process(self, manager_pipe):
         self.logger.info('begin to start run_ros_process')
-        manager = RosManager(manager_pipe)
-        manager.start()
-        while True:
-            time.sleep(1)
+        try:
+            manager = RosManager(manager_pipe)
+            manager.start()
+            while True:
+                time.sleep(1)
+        except:
+            self.logger.info('ros find exception !!!!!!!')
+            time.sleep(2)
+
 
     def start(self):
 
@@ -48,33 +67,49 @@ class Manager:
             self.logger.info('get queue ' + str(self.manager_pipe))
 
             self.process_ros = Process(target=self.run_ros_process, args=(self.manager_pipe,), name='process_ros')
+            # self.process_ros.daemon = True
             self.process_ros.start()
             self.logger.info('process_ros start ok')
+            self.process_pool['process_ros'] = self.process_ros
 
             self.process_ui = Process(target=self.run_ui_process, args=(self.manager_pipe,), name='process_main')
+            self.process_ui.daemon = True
             self.process_ui.start()
             self.logger.info('process_ui start ok')
+            self.process_pool['process_ui'] = self.process_ui
 
             self.process_service = Process(target=self.run_service_process, name='process_child', args=(self.manager_pipe,))
+            self.process_service.daemon = True
             self.process_service.start()
             self.logger.info('process_service start_ok')
+            self.process_pool['process_service'] = self.process_service
+
             while True:
-                time.sleep(1)
+                # for key in self.process_pool:
+                #     self.logger.info('check process :' + str(key) + 'pid: ' + str(self.process_pool[key].pid) +
+                #                      'is_alive: ' + str(self.process_pool[key].is_alive()))
+                time.sleep(10)
         except KeyboardInterrupt as e:
             self.logger.fatal(' ########################## exit by : ' + str(e))
 
             self.logger.info('########################## kill process_ui.pid : ' + str(self.process_ros.pid))
-            os.kill(self.process_ros.pid, signal.SIGKILL)
+            self.process_ros.terminate()
+            self.process_ros.join(3)
+            # os.kill(self.process_ros.pid, signal.SIGKILL)
 
             self.logger.info('########################## kill process_ui.pid : ' + str(self.process_ui.pid))
-            os.kill(self.process_ui.pid, signal.SIGKILL)
+            self.process_ui.terminate()
+            self.process_ui.join(3)
+            # os.kill(self.process_ui.pid, signal.SIGKILL)
 
             self.logger.info('########################## kill process_service.pid : ' + str(self.process_service.pid))
-            os.kill(self.process_service.pid, signal.SIGKILL)
+            self.process_service.terminate()
+            self.process_service.join(3)
+            # os.kill(self.process_service.pid, signal.SIGKILL)
 
             self.logger.info('########################## kill self.pid : ' + str(os.getpid()))
             time.sleep(1)
-            os.kill(os.getpid(), signal.SIGKILL)
+            # os.kill(os.getpid(), signal.SIGKILL)
             sys.exit(0)
 
 

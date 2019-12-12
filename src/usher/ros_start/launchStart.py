@@ -109,7 +109,8 @@ class LaunchThread(App):
             self.is_stop = False
             self.__logger.fatal('I am finally')
 
-    def run(self):
+    def start(self):
+        self.__logger.info('##### start ' + self.__module_name)
         roslaunch.rlutil._wait_for_master()
         rosmaster = masterapi.Master(names.make_caller_id('rosparam-%s'%os.getpid()))
         while not rosmaster.hasParam('run_id'):

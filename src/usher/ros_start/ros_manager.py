@@ -55,15 +55,6 @@ def getipaddr():
     return False
 
 
-def get_ros_core():
-    pid = psutil.process_iter()
-    for pid_sub in pid:
-        if 'roscore' == pid_sub.name():
-            print('get roscore')
-            return True
-    return False
-
-
 def get_pid_by_name(name: str):
     pid = psutil.process_iter()
     for pid_sub in pid:
@@ -71,6 +62,10 @@ def get_pid_by_name(name: str):
             print('get ' + str(name))
             return True
     return False
+
+
+def get_ros_core():
+    return get_pid_by_name('roscore')
 
 
 class RosManager(object):
@@ -102,6 +97,7 @@ class RosManager(object):
 
                 finally:
                     self.__logger.fatal('I am finally')
+                    time.sleep(1)
 
             else:
                 self.__logger.warning('ros core is exist , skip!')
@@ -109,12 +105,19 @@ class RosManager(object):
 
     def start(self):
         self.__logger.info('begin to init ros core')
+        try:
+            process = Process(target=self.ros_core_process)
+            process.daemon = True
+            process.start()
+            self.__logger.info('complete to init ros core')
 
-        process = Process(target=self.ros_core_process)
-        process.start()
+            self.launch_thread = LaunchThread()
+            self.launch_thread.start()
 
-        self.launch_thread = LaunchThread()
-        self.launch_thread.run()
+        except Exception as e:
+            self.__logger.fatal('process start fail!! ' + str(e))
+            time.sleep(1)
+
 
 
 #  test code

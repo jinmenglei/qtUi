@@ -21,7 +21,7 @@ def get_pid_by_name(name: str):
 
 
 def do_restart():
-    # os.system('reboot')
+    os.system('reboot')
     print('do reboot')
     pass
 
@@ -29,7 +29,7 @@ def do_restart():
 def write_csv_header():
     print('add tmp.csv')
     with open('./tmp.csv', 'w+', newline='')as f:
-        headers = ['启动序号', '记录时间', '启动结果', 'ui_main 进程号', 'rosmaster 进程号', 'rostopic list']
+        headers = ['index', 'record_time', 'start_status', 'ui_main_pid', 'rosmaster_pid', 'rostopic_list']
         f_csv = csv.DictWriter(f, headers)
         f_csv.writeheader()
 
@@ -54,9 +54,20 @@ def read_csv():
 def clear_file():
     os.system('rm ./start_ini')
     str_date = str(datetime.datetime.now())
-    str_command = 'mv ./tmp.csv ' + './' + str_date.replace(' ', '--') + '.csv'
+    if not os.path.isdir('./record'):
+        os.system('mkdir ./record')
+    str_command = 'mv ./tmp.csv ' + './record/' + str_date.replace(' ', '--') + '.csv'
     print(str_command)
     os.system(str_command)
+    os.system('zip -r record_' + str_date.replace(' ', '--') + '.zip ./record/*')
+    os.system('rm ./record -rf')
+
+
+def handler_log(datetime):
+    if not os.path.isdir('./record/log'):
+        os.system('mkdir -p ./record/log')
+    os.system('mv /home/utry/release/log/utry_log.log ./record/log/' + str(datetime) + '.log')
+    os.system('rm /home/utry/release/log/utry_log.log')
 
 
 def get_start():
@@ -84,7 +95,7 @@ if __name__ == '__main__':
             time_cnt += 1
             time.sleep(1)
 
-            if len(get_pid_by_name('ui_main')) > 0:
+            if len(get_pid_by_name('ui_main')) > 0 and len(get_pid_by_name('rosmaster')) > 0:
                 break
 
             if time_cnt >= 300:
@@ -94,17 +105,19 @@ if __name__ == '__main__':
 
         time.sleep(60)
         print('start write csv')
-        list_row = [str(current_cnt), str(datetime.datetime.now())]
+        date_time = str(datetime.datetime.now()).replace(' ', '--')
+        list_row = [str(current_cnt), date_time]
         if is_success:
-            list_row.append('成功')
+            list_row.append('success')
         else:
-            list_row.append('失败')
+            list_row.append('fail')
         list_row.append(str(get_pid_by_name('ui_main')))
         list_row.append(str(get_pid_by_name('rosmaster')))
         _, result = subprocess.getstatusoutput('rostopic list')
-        list_row.append(str(result))
+        list_row.append(str(result).replace('\n', ' '))
 
         write_csv(list_row)
+        handler_log(date_time)
 
         if current_cnt >= target_cnt:
             clear_file()

@@ -28,7 +28,7 @@ class InterfaceRos(App):
         self.logger = get_logger(self.module_name)
         self.pub = None
         self.ros_is_running = False
-        self.send_link_status = True
+        self.send_link_status = False
         self.master = None
         self.ui_ros_topic_is_sub = False
         self.callback_dict = {}
@@ -137,6 +137,7 @@ class InterfaceRos(App):
 
         self.logger.info('roscore init success! init sub pub.')
         self.__init_sub_pub()
+        time.sleep(5)
         self.__main_logic()
         return
 
@@ -158,6 +159,7 @@ class InterfaceRos(App):
     def __main_logic(self):
         self.master = Master('/rostopic')
         check_cnt = 0
+        self.logger.info('begin start __main_logic')
         while not rospy.is_shutdown():
             check_cnt += 1
             if check_cnt == 20:
@@ -174,10 +176,13 @@ class InterfaceRos(App):
                 self.logger.info('send link ros : ' + str(self.link_ros))
                 self.send_link_status = self.link_ros
                 self.send_msg_link_status(self.link_ros)
+                time.sleep(1)
                 self.send_msg_dispatcher(self.msg_id.mode_start_status,
                                          {'index': setting.start_xiaoyuan, 'status': self.link_ros})
 
-            time.sleep(0.1)
+            time.sleep(2)
+
+        self.logger.info('end start __main_logic')
         return
 
     def __init_sub_pub(self):

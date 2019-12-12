@@ -87,7 +87,7 @@ class ModeStart(AppQt.Q_App):
             self.start_index += 1
             self.status_cnt = 0
 
-        self.logger.info(str_show)
+        # self.logger.info(str_show)
 
         for index in range(self.status_cnt):
             str_show = str_show + '·'

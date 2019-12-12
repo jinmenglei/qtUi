@@ -24,7 +24,7 @@ def get_md5sum(filename):
 
 
 def do_restart():
-    os.system('sudo reboot')
+    os.system('reboot')
 
 
 def get_mac_address():

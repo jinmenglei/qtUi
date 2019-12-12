@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 # shellcheck disable=SC2039
 source /opt/ros/kinetic/setup.sh
 source /home/utry/catkin_ws/devel/setup.bash
@@ -19,7 +19,8 @@ then
   ./ui_main &
 
   if [ -f /home/utry/release/utry_shell/start_ini ]; then
+    echo 'start test' >> /tmp/start.log
     cd /home/utry/release/utry_shell/
-    /usr/bin/python3.5 start_test.py &
+    ./start_test >> /tmp/start_ui.log &
   fi
 fi

@@ -36,7 +36,6 @@ fun_install()
 {
     EXE_PATH=`pwd`
     sudo cp /home/utry/release/utry_shell/start_ui /usr/bin/
-    complete -W 'start stop install uninstall test deltest' start_ui
     cd ~/release/utry_shell/
     ./install_program.sh
     cd $EXE_PATH
@@ -81,6 +80,11 @@ elif [ "test" == "$1" ];then
     if [ "" != "$2" ]; then
       echo "begin to test"
       sudo echo "$2" > /home/utry/release/utry_shell/start_ini
+      echo "clear log file"
+      rm /home/utry/release/utry/log/utry_log.log
+      echo "wait for reboot"
+      sleep 2
+      sudo reboot
     else
       echo 'please input cnt'
     fi

@@ -26,6 +26,9 @@ PATH_BIN=$(pwd)
 # shellcheck disable=SC2034
 PATH_RELEASE="$UTRY_ROOT_PATH"/release
 
+# shellcheck disable=SC2034
+PATH_RELEASE_UTRY_SHELL="$PATH_RELEASE"/utry_shell
+
 
 if ! test -d "$UTRY_ROOT_PATH"/release/res
 then
@@ -50,17 +53,18 @@ pyrcc5 image.qrc -o image_rc.py
 cd "$UTRY_SRC_PATH"
 echo "step 1:  build"
 pyinstaller -F --noconsole main/ui_main.spec
-#pyinstaller -F --noconsole ros_start/launchStart.spec
+pyinstaller -F --noconsole auto_test/start_test.py
 echo "step 2: mv file"
 rm "$PATH_BIN"/*
-mv dist/* "$PATH_BIN"
+mv dist/ui_main "$PATH_BIN"
+mv dist/start_test "$PATH_RELEASE_UTRY_SHELL"
 cp "$PATH_RES_FROM"/* "$PATH_RES_TO"/ -r
 echo "step 3: clear build/"
 rm build/ -r
 echo "step 4: clear dist/"
 rm dist/ -r
 echo "step 5: clear .spec/"
-#rm *.spec
+rm ./*.spec
 echo "step 6: zip file"
 # shellcheck disable=SC2164
 cd "$UTRY_ROOT_PATH"

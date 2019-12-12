@@ -14,3 +14,4 @@
 /utry_output/*.zip
 /src/usher/main/debug
 /src/usher/main/odom_ini
+/release/utry_shell/start_test
