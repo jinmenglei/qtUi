@@ -57,6 +57,7 @@ class ServiceManger(object):
         self.module_name = 'service_manager'
         self.dispatcher = UDispatcher(UMsg.service_dispatcher, manager_pipe)
         self.__logger = get_logger(self.module_name)
+        self.__logger.info('init ' + str(self.module_name))
         return
 
     def start(self):
