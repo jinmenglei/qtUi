@@ -54,7 +54,9 @@ class UiManager(object):
 
     def __init__(self, manager_pipe):
         self.__module_name = 'ui_manager'
+        print('ui_manager come in 57')
         self.__logger = get_logger(self.__module_name)
+        print('ui_manager come in 59')
         self.dispatcher = None
         self.__frame = None
         self.__manager_pipe = manager_pipe
@@ -71,12 +73,17 @@ class UiManager(object):
         self.widgets.move(0, 0)
         self.widgets.resize(800, 480)
 
+        print('ui_manager come in 76')
+
         if not os.path.isfile('./debug'):
             self.widgets.setCursor(QtCore.Qt.BlankCursor)
 
         self.dispatcher = UDispatcher(UMsg.ui_dispatcher, self.__manager_pipe)
+        print('ui_manager come in 82')
         # init base_frame
         self.__frame = BaseFrame(self.widgets)
+
+        print('ui_manager come in 86')
 
         # self.__change_page(0)
 
@@ -87,7 +94,8 @@ class UiManager(object):
         # Util.add_thread(target=get_mem_snap)
 
         self.__app.exec_()
-        print('end')
+        self.__logger.info('end!!!!!!')
+        print('ui_manager come in 58')
 
 
 if __name__ == '__main__':

@@ -16,11 +16,11 @@ then
 
   cd /home/utry/release/bin/ui
   #   ./launchStart &
-  ./ui_main &
+  ./ui_main >> /tmp/start.log &
 
   if [ -f /home/utry/release/utry_shell/start_ini ]; then
     echo 'start test' >> /tmp/start.log
     cd /home/utry/release/utry_shell/
-    ./start_test >> /tmp/start_ui.log &
+    ./start_test >> /tmp/start.log &
   fi
 fi

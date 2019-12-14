@@ -8,6 +8,7 @@ from base.U_dispatcher import UDispatcher
 from base.U_msg import UMsg
 import sys
 import os
+import multiprocessing
 import signal
 
 
@@ -17,49 +18,60 @@ class Manager:
         self.logger.info('#######################################')
         self.logger.info('begin to start process')
         self.logger.info('#######################################')
+
         self.manager_dispatcher = UDispatcher(UMsg.manager_dispatcher)
         self.manager_dispatcher.start()
+
         self.manager_pipe = self.manager_dispatcher.get_self_pipe()
         self.process_ui = None
         self.process_service = None
         self.process_ros = None
         self.process_pool = {}
 
-    def run_service_process(self, manager_pipe):
-        self.logger.info('begin to start run_service_process')
+    def run_service_process(self, module_pipe):
+        print('begin to start run_service_process')
+        logger = get_logger('run_service_process')
+        logger.info('begin to start run_service_process')
+        
         try:
-            manager = ServiceManger(manager_pipe)
+            manager = ServiceManger(module_pipe)
             manager.start()
 
             while True:
                 time.sleep(1)
         except Exception as e:
-            self.logger.info('service find exception !!!!!!! : ' + str(e))
+            print('service find exception !!!!!!! : ' + str(e))
+            logger.fatal('service find exception !!!!!!! : ' + str(e))
             time.sleep(2)
 
-    def run_ui_process(self, manager_pipe):
-        self.logger.info('begin to start run_ui_process')
+    def run_ui_process(self, module_pipe):
+        print('begin to start run_ui_process')
+        logger = get_logger('run_ui_process')
+        logger.info('begin to start run_ui_process')
         try:
-            manager = UiManager(manager_pipe)
+            manager = UiManager(module_pipe)
             manager.start()
             while True:
                 time.sleep(1)
-        except:
-            self.logger.info('ui find exception !!!!!!!')
+        except Exception as e:
+            print('ui find exception !!!!!!! : ' + str(e))
+            logger.fatal('ui find exception !!!!!!! : ' + str(e))
             time.sleep(2)
 
+    def run_ros_process(self, module_pipe):
+        print('begin to start run_ros_process')
+        logger = get_logger('run_ros_process')
+        logger.info('begin to start run_ros_process')
 
-    def run_ros_process(self, manager_pipe):
-        self.logger.info('begin to start run_ros_process')
         try:
-            manager = RosManager(manager_pipe)
+            manager = RosManager(module_pipe)
             manager.start()
             while True:
                 time.sleep(1)
-        except:
-            self.logger.info('ros find exception !!!!!!!')
+        except Exception as e:
+            print('ros find exception !!!!!!! : ' + str(e))
+            logger.fatal('ros find exception !!!!!!! : ' + str(e))
             time.sleep(2)
-
 
     def start(self):
 
@@ -72,13 +84,13 @@ class Manager:
             self.logger.info('process_ros start ok')
             self.process_pool['process_ros'] = self.process_ros
 
-            self.process_ui = Process(target=self.run_ui_process, args=(self.manager_pipe,), name='process_main')
+            self.process_ui = Process(target=self.run_ui_process, args=(self.manager_pipe, ), name='process_main')
             self.process_ui.daemon = True
             self.process_ui.start()
             self.logger.info('process_ui start ok')
             self.process_pool['process_ui'] = self.process_ui
 
-            self.process_service = Process(target=self.run_service_process, name='process_child', args=(self.manager_pipe,))
+            self.process_service = Process(target=self.run_service_process, args=(self.manager_pipe, ), name='process_child' )
             self.process_service.daemon = True
             self.process_service.start()
             self.logger.info('process_service start_ok')
@@ -88,7 +100,8 @@ class Manager:
                 # for key in self.process_pool:
                 #     self.logger.info('check process :' + str(key) + 'pid: ' + str(self.process_pool[key].pid) +
                 #                      'is_alive: ' + str(self.process_pool[key].is_alive()))
-                time.sleep(10)
+                print('main process is still alive----refresh')
+                time.sleep(1)
         except KeyboardInterrupt as e:
             self.logger.fatal(' ########################## exit by : ' + str(e))
 

@@ -29,7 +29,7 @@ class ModeStart(AppQt.Q_App):
 
         rect = AppQt.QRect(0, 340, 800, 24)
 
-        self.m_static_start_result = AppQt.get_label_text(self, rect, False, '', 24, 'MicrosoftYaHei', '#333333')
+        self.m_static_start_result = AppQt.get_label_text(self, rect, False, '正在启动，请稍后···', 24, 'MicrosoftYaHei', '#333333')
         self.m_static_start_result.setStyleSheet('background: transparent;')
 
         self.timer_show = QtCore.QTimer(parent=self)  # 创建定时器
@@ -78,7 +78,7 @@ class ModeStart(AppQt.Q_App):
         elif not tmp_list[start_status]:
             self.timeout_cnt += 1
             str_show = tmp_list[start_show_begin]
-            if self.timeout_cnt >= 60:
+            if self.timeout_cnt >= 120:
                 self.timeout_cnt = 0
                 self.show_box(show_box_start_error, '')
                 str_show = tmp_list[start_show_fail]

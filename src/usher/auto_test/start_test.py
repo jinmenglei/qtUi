@@ -4,6 +4,8 @@ import psutil
 import csv
 import datetime
 import subprocess
+import pyautogui
+# import cv2
 
 
 def get_pid_by_name(name: str):
@@ -63,10 +65,11 @@ def clear_file():
     os.system('rm ./record -rf')
 
 
-def handler_log(datetime):
+def handler_log(date_time):
     if not os.path.isdir('./record/log'):
         os.system('mkdir -p ./record/log')
-    os.system('mv /home/utry/release/log/utry_log.log ./record/log/' + str(datetime) + '.log')
+    os.system('mv /home/utry/release/log/utry_log.log ./record/log/' + str(date_time) + '.log')
+    os.system('cp /tmp/start.log ./record/log/' + str(date_time) + '_tmp.log')
     os.system('rm /home/utry/release/log/utry_log.log')
 
 
@@ -79,6 +82,13 @@ def get_start():
             start_cnt = int(start_cnt)
         print('read :' + str(start_cnt))
         return start_cnt
+
+
+def get_snap_screen(data_time):
+    if not os.path.isdir('./record/snap'):
+        os.system('mkdir -p ./record/snap')
+    img = pyautogui.screenshot(region=[0, 0, 800, 480])  # x,y,w,h
+    img.save('./record/snap/' + str(data_time) + '_screenshot.png')
 
 
 if __name__ == '__main__':
@@ -118,6 +128,7 @@ if __name__ == '__main__':
 
         write_csv(list_row)
         handler_log(date_time)
+        get_snap_screen(date_time)
 
         if current_cnt >= target_cnt:
             clear_file()

@@ -11,14 +11,14 @@ echo "step 4 cp rc.local to computer"
 #sudo cp ./rc.local /etc/
 echo "register cmd"
 RET=$(grep "complete -W" ~/.bashrc)
-CODE="complete -W 'start stop install uninstall test deltest' start_ui"
+CODE=" complete -W 'start stop install uninstall test deltest' start_ui"
 if [ "" == "$RET" ]
 then
   echo "install init"
   echo "$CODE" >> ~/.bashrc
 else
   echo "install change"
-  sed -i "/^complete -W/${CODE}" ~/.bashrc
+  sed -i "/^complete -W/c$CODE" ~/.bashrc
 fi
 echo "install ok! begin to restart"
 sleep 1

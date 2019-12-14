@@ -53,7 +53,7 @@ pyrcc5 image.qrc -o image_rc.py
 cd "$UTRY_SRC_PATH"
 echo "step 1:  build"
 pyinstaller -F --noconsole main/ui_main.spec
-pyinstaller -F --noconsole auto_test/start_test.py
+pyinstaller -F -d all --noconsole auto_test/start_test.py
 echo "step 2: mv file"
 rm "$PATH_BIN"/*
 mv dist/ui_main "$PATH_BIN"

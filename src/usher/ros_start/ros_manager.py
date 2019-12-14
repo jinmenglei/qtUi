@@ -5,6 +5,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from threading import Thread
 
 import psutil
+import subprocess
 
 from base.U_dispatcher import UDispatcher
 from base.U_log import get_logger
@@ -48,11 +49,11 @@ class Resquest_ros(BaseHTTPRequestHandler):
 
 
 def getipaddr():
-    ditNet = psutil.net_if_addrs()
+    ditNet = subprocess.getoutput('ifconfig')
 
     if '192.168.' in str(ditNet):
-            return True
-    return False
+            return True, ditNet
+    return False, ditNet
 
 
 def get_pid_by_name(name: str):
@@ -65,43 +66,65 @@ def get_pid_by_name(name: str):
 
 
 def get_ros_core():
-    return get_pid_by_name('roscore')
+    return get_pid_by_name('roscore') or get_pid_by_name('rosmaster')
 
 
 class RosManager(object):
-    def __init__(self, manager_pipe):
+    def __init__(self, module_pipe):
         self.__module_name = 'ros_manager'
-        self.__logger = get_logger(self.__module_name)
-        self.dispatcher = UDispatcher(UMsg.ros_dispatcher, manager_pipe)
+        print('come in ' + str(self.__module_name))
+        try:
+            self.__logger = get_logger(self.__module_name)
+            print('come in 78' + str(self.__module_name))
+            self.__logger.info('come in ' + self.__module_name)
+            print('come in 80' + str(self.__module_name))
+            self.dispatcher = UDispatcher(UMsg.ros_dispatcher, module_pipe)
+            print('come in 82' + str(self.__module_name))
+        except Exception as e:
+            import os
+            os.system('echo \"' + str(e) + '\" > coredump.log')
+            self.__logger.fatal('find exception: ' + str(e))
+
+        self.__logger.info('UDispatcher init ok ')
         self.launch_thread = None
+        self.__logger_inner = None
 
     def ros_core_process(self):
-        self.__logger.info('begin ros core')
-        while True:
+        self.__logger_inner = get_logger('ros_manager_inner')
+        self.__logger_inner.info('begin ros core')
+        try:
             while True:
-                time.sleep(3)
-                if getipaddr():
-                    self.__logger.info('host ip is init!')
-                    break
+                while True:
+                    time.sleep(3)
+                    status, result = getipaddr()
+                    self.__logger_inner.info('get ip :' + str(result))
+                    if status:
+                        self.__logger_inner.info('host ip is init!')
+                        break
+                    else:
+                        self.__logger_inner.warning('wait for ip init!!')
 
-            if not get_ros_core():
-                self.__logger.info('start ros core')
-                try:
-                    roslaunch.main(['roscore', '--core'])
-                    while True:
+                if not get_ros_core():
+                    self.__logger_inner.info('start ros core')
+                    try:
+                        roslaunch.main(['roscore', '--core'])
+                        while True:
+                            time.sleep(1)
+                    except Exception as e:
+                        print('I am except')
+                        self.__logger_inner.fatal(str(e))
+                        continue
+
+                    finally:
+                        self.__logger_inner.fatal('I am finally')
                         time.sleep(1)
-                except roslaunch.RLException as e:
-                    print('I am except')
-                    self.__logger.fatal(str(e))
-                    continue
 
-                finally:
-                    self.__logger.fatal('I am finally')
-                    time.sleep(1)
-
-            else:
-                self.__logger.warning('ros core is exist , skip!')
-                break
+                else:
+                    self.__logger_inner.warning('ros core is exist , skip!')
+                    break
+        except Exception as e:
+            print('something error ' + str(e))
+            self.__logger_inner.fatal('something error ' + str(e))
 
     def start(self):
         self.__logger.info('begin to init ros core')

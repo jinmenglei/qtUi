@@ -19,6 +19,7 @@ class LaunchThread(App):
         self.__module_name = 'LaunchThread'
         App.__init__(self, self.__module_name)
         self.__logger = get_logger(self.__module_name)
+        self.launch_under_pan = None
         self.launch_sensor = None
         self.launch_amcl = None
         self.launch_running = None
@@ -50,6 +51,8 @@ class LaunchThread(App):
 
     def start_launch_thread(self):
         try:
+            self.launch_sensor = roslaunch.parent.ROSLaunchParent(self.uuid, [
+                "/home/utry/catkin_ws/src/xiaoyuan_robot_v2/launch/xiaoyuan_robot_start_sensor.launch"])
 
             self.launch_amcl = roslaunch.parent.ROSLaunchParent(self.uuid, [
                 "/home/utry/catkin_ws/src/xiaoyuan_robot_v2/launch/xiaoyuan_robot_start_amcl.launch"])
@@ -59,15 +62,22 @@ class LaunchThread(App):
 
             self.is_shutdown = False
             self.is_start = True
-            self.__logger.info('begin to amcl sensor!')
-            self.launch_amcl.start()
-            self.__logger.info('sensor amcl!')
+
+            self.__logger.info('begin to  sensor!')
+            self.launch_sensor.start()
+            self.__logger.info('end to sensor!')
 
             time.sleep(5)
 
-            self.__logger.info('begin to running sensor!')
+            self.__logger.info('begin to amcl!')
+            self.launch_amcl.start()
+            self.__logger.info('end to amcl!')
+
+            time.sleep(5)
+
+            self.__logger.info('begin to running !')
             self.launch_running.start()
-            self.__logger.info('sensor running!')
+            self.__logger.info('end to running!')
             self.is_start = False
             self.__logger.info('start end!!!!')
 
@@ -75,6 +85,8 @@ class LaunchThread(App):
                 time.sleep(1)
             self.is_shutdown = False
             self.__logger.info('recived stop msg !!!')
+
+            return
         except roslaunch.RLException as e:
             print('I am except')
             self.__logger.fatal(str(e))
@@ -83,6 +95,8 @@ class LaunchThread(App):
         finally:
             self.is_start = False
             print('I am finally')
+            self.launch_sensor.shutdown()
+            print(self.launch_sensor)
             self.launch_amcl.shutdown()
             print(self.launch_amcl)
             self.launch_running.shutdown()
@@ -95,6 +109,8 @@ class LaunchThread(App):
             self.is_shutdown = True
             while self.is_shutdown:
                 time.sleep(1)
+            self.launch_sensor.shutdown()
+            time.sleep(1)
             self.launch_amcl.shutdown()
             time.sleep(1)
             self.launch_running.shutdown()
@@ -118,24 +134,24 @@ class LaunchThread(App):
         while rosmaster.getParam('run_id') is '':
             time.sleep(1)
 
-        time.sleep(5)
+        time.sleep(1)
 
         self.send_msg_dispatcher(self.msg_id.mode_start_status, {'index': setting.start_ros, 'status': True})
 
         self.uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         print('uuid' + self.uuid)
 
-        self.launch_sensor = roslaunch.parent.ROSLaunchParent(self.uuid, [
-            "/home/utry/catkin_ws/src/xiaoyuan_robot_v2/launch/xiaoyuan_robot_start_sensor.launch"])
+        self.launch_under_pan = roslaunch.parent.ROSLaunchParent(self.uuid, [
+            "/home/utry/catkin_ws/src/xiaoyuan_robot_v2/launch/xiaoyuan_robot_start_underpan.launch"])
 
         try:
             time.sleep(1)
 
-            self.__logger.info('begin to start sensor!')
-            self.launch_sensor.start()
-            self.__logger.info('sensor started!')
+            self.__logger.info('begin to start launch_under_pan!')
+            self.launch_under_pan.start()
+            self.__logger.info('launch_under_pan started!')
 
-            time.sleep(10)
+            time.sleep(5)
 
             self.send_msg_dispatcher(self.msg_id.mode_start_status, {'index': setting.start_launch, 'status': True})
 
@@ -149,9 +165,12 @@ class LaunchThread(App):
 
         finally:
             print('I am finally')
-            self.launch_sensor.shutdown()
-            self.launch_amcl.shutdown()
-            self.launch_running.shutdown()
+            if self.launch_sensor is not None:
+                self.launch_sensor.shutdown()
+            if self.launch_amcl is not None:
+                self.launch_amcl.shutdown()
+            if self.launch_running is not None:
+                self.launch_running.shutdown()
         pass
 
 

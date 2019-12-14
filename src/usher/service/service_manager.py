@@ -55,9 +55,18 @@ class ServiceManger(object):
     """
     def __init__(self, manager_pipe):
         self.module_name = 'service_manager'
-        self.dispatcher = UDispatcher(UMsg.service_dispatcher, manager_pipe)
+
         self.__logger = get_logger(self.module_name)
-        self.__logger.info('init ' + str(self.module_name))
+        self.__logger.info('init ' + str(self.module_name) + ' begin')
+        print('come in 61')
+        try:
+            print('come in 63')
+            self.dispatcher = UDispatcher(UMsg.service_dispatcher, manager_pipe)
+            print('come in 65')
+        except Exception as e:
+            print('come in 65')
+            self.__logger.fatal('find exception : ' + str(e))
+        self.__logger.info('init ' + str(self.module_name) + ' success')
         return
 
     def start(self):
