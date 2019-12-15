@@ -2,7 +2,7 @@
 # module ui.frame
 # the basic class of ui
 # no doc
-
+import os
 import time
 from config.setting import *
 import base.U_util as Util
@@ -121,6 +121,8 @@ class BaseFrame(AppQt.Q_App):
         self.get_odom()
 
     def get_odom(self):
+        if not os.path.isfile('./odom_ini'):
+            self.record_odom()
         with open('./odom_ini', 'r+') as f_odom:
             self.odom_count = f_odom.readline()
             if self.odom_count == '':
