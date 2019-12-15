@@ -90,7 +90,7 @@ class RosManager(object):
         self.__logger_inner = None
 
     def ros_core_process(self):
-        self.__logger_inner = get_logger('ros_manager_inner')
+        self.__logger_inner = get_logger('ros_manager_inner', new_process=True)
         self.__logger_inner.info('begin ros core')
         try:
             while True:
@@ -102,6 +102,7 @@ class RosManager(object):
                         self.__logger_inner.info('host ip is init!')
                         break
                     else:
+                        print('wait for ip init!!')
                         self.__logger_inner.warning('wait for ip init!!')
 
                 if not get_ros_core():
@@ -111,7 +112,7 @@ class RosManager(object):
                         while True:
                             time.sleep(1)
                     except Exception as e:
-                        print('I am except')
+                        print('I am except ' + str(e))
                         self.__logger_inner.fatal(str(e))
                         continue
 
@@ -121,6 +122,7 @@ class RosManager(object):
 
                 else:
                     self.__logger_inner.warning('ros core is exist , skip!')
+                    print('ros core is exist , skip!')
                     break
         except Exception as e:
             print('something error ' + str(e))

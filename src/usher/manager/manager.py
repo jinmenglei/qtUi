@@ -18,11 +18,12 @@ class Manager:
         self.logger.info('#######################################')
         self.logger.info('begin to start process')
         self.logger.info('#######################################')
-
+        self.manager_lock = multiprocessing.Lock()
         self.manager_dispatcher = UDispatcher(UMsg.manager_dispatcher)
         self.manager_dispatcher.start()
 
-        self.manager_pipe = self.manager_dispatcher.get_self_pipe()
+        self.manager_pipe = {'pipe': self.manager_dispatcher.get_self_pipe(),
+                             'lock': self.manager_dispatcher.get_self_lock()}
         self.process_ui = None
         self.process_service = None
         self.process_ros = None
@@ -30,9 +31,9 @@ class Manager:
 
     def run_service_process(self, module_pipe):
         print('begin to start run_service_process')
-        logger = get_logger('run_service_process')
+        logger = get_logger('run_service_process', new_process=True)
         logger.info('begin to start run_service_process')
-        
+        #
         try:
             manager = ServiceManger(module_pipe)
             manager.start()
@@ -46,7 +47,7 @@ class Manager:
 
     def run_ui_process(self, module_pipe):
         print('begin to start run_ui_process')
-        logger = get_logger('run_ui_process')
+        logger = get_logger('run_ui_process', new_process=True)
         logger.info('begin to start run_ui_process')
         try:
             manager = UiManager(module_pipe)
@@ -60,7 +61,7 @@ class Manager:
 
     def run_ros_process(self, module_pipe):
         print('begin to start run_ros_process')
-        logger = get_logger('run_ros_process')
+        logger = get_logger('run_ros_process', new_process=True)
         logger.info('begin to start run_ros_process')
 
         try:
