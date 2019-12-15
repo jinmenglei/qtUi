@@ -31,6 +31,7 @@ fun_start()
 fun_stop()
 {
     sudo kill -9 $(ps -ef |grep ui_main|grep -v grep|awk '{print $2}')
+    sudo kill -9 $(ps -ef |grep ros|grep -v grep|awk '{print $2}')
 }
 fun_install()
 {
