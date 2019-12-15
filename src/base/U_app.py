@@ -10,7 +10,7 @@ import base.U_util as Util
 from base.U_ins import Ins
 from queue import Queue
 from base.U_msg import UMsg
-from multiprocessing import Pipe
+from multiprocessing import Pipe, Lock
 from multiprocessing import connection
 
 
@@ -49,6 +49,7 @@ class App(object):
         self.__pipe_dispatcher_rec = None
         self.__pipe_dispatcher_send = None
         self.__sleep_time = 0.001
+        self.__lock = None  # type: Lock
 
         if self.__is_msg_center:
 
@@ -60,6 +61,9 @@ class App(object):
 
             if self.__app_name != self.msg_id.out_dispatcher:
                 self.send_queue_module_manager()
+            else:
+                self.__lock = Lock()
+
         else:
             self.__sleep_time = 0.01
 
@@ -91,7 +95,8 @@ class App(object):
         :param pipe:
         :return:
         """
-        self.__ins.add_module_queue('manager_dispatcher', pipe)
+        self.__ins.add_module_queue('manager_dispatcher', pipe['pipe'])
+        self.__lock = pipe['lock']
 
     def get_self_pipe(self):
         """
@@ -102,6 +107,13 @@ class App(object):
             return self.__pipe_dispatcher_send
         else:
             return self.__queue
+
+    def get_self_lock(self):
+        """
+        获取lock
+        :return:
+        """
+        return self.__lock
 
     def subscribe_default(self, callback):
         """
@@ -214,7 +226,11 @@ class App(object):
         send_queue = self.__ins.get_queue_by_module_name(msg_dst)
         if send_queue is not None:
             if isinstance(send_queue, connection.Connection):
+                if msg_dst == self.msg_id.out_dispatcher and self.__lock is not None:
+                    self.__lock.acquire()
                 send_queue.send(send_msg)
+                if msg_dst == self.msg_id.out_dispatcher and self.__lock is not None:
+                    self.__lock.release()
             else:
                 self.send_msg_inner(send_queue, send_msg)
 
