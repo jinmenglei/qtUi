@@ -17,9 +17,16 @@ level_relations = {
 log_module_dict = {}
 
 
-def get_logger(name='root', filename='utry_log.log', level='info', max_bytes=10 * 1024 * 1024, filecount=40):
+def get_logger(name='root', filename='utry_log.log', level='info', max_bytes=10 * 1024 * 1024, filecount=40,
+               new_process=False):
     logger = log_module_dict.get(name)
     if logger is None:
+        print(' before 真是不信了！！！！ ' + str(logging._lock) + ' ' + str(name))
+        if new_process:
+            if logging._lock is not None:
+                import threading
+                logging._lock = threading.RLock()
+        print(' end 真是不信了！！！！ ' + str(logging._lock) + ' ' + str(name))
         logger = logging.getLogger(name)
         logger.setLevel(level=level_relations[level])
         log_path = os.path.join(os.environ['HOME'] + '/release/log', filename)
@@ -28,6 +35,7 @@ def get_logger(name='root', filename='utry_log.log', level='info', max_bytes=10 
         file_handler = RotatingFileHandler(log_path, maxBytes=max_bytes, backupCount=filecount)
         file_handler.setLevel(level=level_relations[level])
         file_handler.setFormatter(formatter)
+
         logger.addHandler(file_handler)
 
         shell_handler = logging.StreamHandler()
