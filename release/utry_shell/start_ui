@@ -82,7 +82,7 @@ elif [ "test" == "$1" ];then
       echo "begin to test"
       sudo echo "$2" > /home/utry/release/utry_shell/start_ini
       echo "clear log file"
-      rm /home/utry/release/log/utry_log.log
+      rm /home/utry/release/log/utry_*
       echo "wait for reboot"
       sleep 2
       sudo reboot

@@ -29,7 +29,7 @@ def start_ui():
 
 
 def stop_ui():
-    os.system('start_ui stop')
+    os.system('echo "root" | sudo -S start_ui stop')
     print('do reboot')
     pass
 
@@ -72,22 +72,22 @@ def clear_file():
 
 
 def handler_log(date_time):
-    if not os.path.isdir('./record/log'):
-        os.system('mkdir -p ./record/log')
-    os.system('mv /home/utry/release/log/utry_log.log ./record/log/' + str(date_time) + '.log')
-    os.system('cp /tmp/start.log ./record/log/' + str(date_time) + '_tmp.log')
-    os.system('rm /home/utry/release/log/utry_log.log')
+    str_input_log = './record/' + str(date_time)
+    if not os.path.isdir(str_input_log):
+        os.system('mkdir -p ' + str(str_input_log))
+    os.system('mv /home/utry/release/log/utry_* ' + str_input_log)
+    os.system('cp /tmp/start.log ' + str_input_log)
+    os.system('rm /home/utry/release/log/utry_*')
+    img = pyautogui.screenshot(region=[0, 0, 800, 480])  # x,y,w,h
+    img.save(str_input_log + '/screenshot.png')
 
 
 def get_start():
-        return 100
+    return 100
 
 
 def get_snap_screen(data_time):
-    if not os.path.isdir('./record/snap'):
-        os.system('mkdir -p ./record/snap')
-    img = pyautogui.screenshot(region=[0, 0, 800, 480])  # x,y,w,h
-    img.save('./record/snap/' + str(data_time) + '_screenshot.png')
+    return
 
 
 if __name__ == '__main__':
@@ -95,45 +95,53 @@ if __name__ == '__main__':
     is_success = True
     print(datetime.datetime.now())
 
-    while True:
-        start_ui()
-        if not os.path.isfile('./tmp.csv'):
-            write_csv_header()
-        target_cnt = get_start()
-        current_cnt = read_csv()
+    try:
         while True:
-            time_cnt += 1
+            start_ui()
+            if not os.path.isfile('./tmp.csv'):
+                write_csv_header()
+            target_cnt = get_start()
+            current_cnt = read_csv()
+            while True:
+                time_cnt += 1
+                time.sleep(1)
+
+                if len(get_pid_by_name('ui_main')) > 0 and len(get_pid_by_name('rosmaster')) > 0:
+                    break
+
+                if time_cnt >= 300:
+                    print('start error')
+                    is_success = False
+                    break
+
+            time.sleep(60)
+            print('start write csv')
+            date_time = str(datetime.datetime.now()).replace(' ', '--')
+            list_row = [str(current_cnt), date_time]
+            if is_success:
+                list_row.append('success')
+            else:
+                list_row.append('fail')
+            list_row.append(str(get_pid_by_name('ui_main')))
+            list_row.append(str(get_pid_by_name('rosmaster')))
+            _, result = subprocess.getstatusoutput('rostopic list')
+            list_row.append(str(result).replace('\n', ' '))
+
+            write_csv(list_row)
+            handler_log(date_time)
+            get_snap_screen(date_time)
+
+            if current_cnt >= target_cnt:
+                clear_file()
+                break
             time.sleep(1)
 
-            if len(get_pid_by_name('ui_main')) > 0 and len(get_pid_by_name('rosmaster')) > 0:
-                break
+            stop_ui()
+            time.sleep(10)
 
-            if time_cnt >= 300:
-                print('start error')
-                is_success = False
-                break
-
-        time.sleep(60)
-        print('start write csv')
-        date_time = str(datetime.datetime.now()).replace(' ', '--')
-        list_row = [str(current_cnt), date_time]
-        if is_success:
-            list_row.append('success')
-        else:
-            list_row.append('fail')
-        list_row.append(str(get_pid_by_name('ui_main')))
-        list_row.append(str(get_pid_by_name('rosmaster')))
-        _, result = subprocess.getstatusoutput('rostopic list')
-        list_row.append(str(result).replace('\n', ' '))
-
-        write_csv(list_row)
-        handler_log(date_time)
-        get_snap_screen(date_time)
-
-        if current_cnt >= target_cnt:
-            clear_file()
-            break
-        time.sleep(1)
-
+    except KeyboardInterrupt as e:
+        print(' stop by ctrl + c')
         stop_ui()
-        time.sleep(10)
+        clear_file()
+        time.sleep(1)
+        print('test end')

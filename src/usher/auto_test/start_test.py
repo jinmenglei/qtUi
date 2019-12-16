@@ -66,11 +66,14 @@ def clear_file():
 
 
 def handler_log(date_time):
-    if not os.path.isdir('./record/log'):
-        os.system('mkdir -p ./record/log')
-    os.system('mv /home/utry/release/log/utry_log.log ./record/log/' + str(date_time) + '.log')
-    os.system('cp /tmp/start.log ./record/log/' + str(date_time) + '_tmp.log')
-    os.system('rm /home/utry/release/log/utry_log.log')
+    str_input_log = './record/' + str(date_time)
+    if not os.path.isdir(str_input_log):
+        os.system('mkdir -p ' + str(str_input_log))
+    os.system('mv /home/utry/release/log/utry_* ' + str_input_log)
+    os.system('cp /tmp/start.log ' + str_input_log)
+    os.system('rm /home/utry/release/log/utry_*')
+    img = pyautogui.screenshot(region=[0, 0, 800, 480])  # x,y,w,h
+    img.save(str_input_log + '/screenshot.png')
 
 
 def get_start():
@@ -85,10 +88,8 @@ def get_start():
 
 
 def get_snap_screen(data_time):
-    if not os.path.isdir('./record/snap'):
-        os.system('mkdir -p ./record/snap')
-    img = pyautogui.screenshot(region=[0, 0, 800, 480])  # x,y,w,h
-    img.save('./record/snap/' + str(data_time) + '_screenshot.png')
+    return
+
 
 
 if __name__ == '__main__':

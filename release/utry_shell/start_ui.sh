@@ -12,15 +12,15 @@ then
     sleep 2
 #    xrandr --output HDMI1 --auto
     echo "start uio"
-  } >> /tmp/start.log
+  } > /tmp/start.log
 
   cd /home/utry/release/bin/ui
   #   ./launchStart &
   ./ui_main >> /tmp/start.log &
 
   if [ -f /home/utry/release/utry_shell/start_ini ]; then
-    echo 'start test' >> /tmp/start.log
+    echo 'start test' >> /tmp/start_test.log
     cd /home/utry/release/utry_shell/
-    ./start_test >> /tmp/start.log &
+    ./start_test >> /tmp/start_test.log &
   fi
 fi

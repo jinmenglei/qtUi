@@ -15,22 +15,25 @@ level_relations = {
 
 
 log_module_dict = {}
+log_pid_lock_dict = {}
 
 
-def get_logger(name='root', filename='utry_log.log', level='info', max_bytes=10 * 1024 * 1024, filecount=40,
-               new_process=False):
+def get_logger(name='root', filename='utry_log.log', level='info', max_bytes=10 * 1024 * 1024, filecount=40):
+    print(' before 真是不信了！！！！ ' + str(logging._lock) + ' ' + str(name))
+    my_pid = os.getpid()
+    if log_pid_lock_dict.get(my_pid) is None:
+        log_pid_lock_dict[my_pid] = logging._lock
+        try:
+            logging._releaseLock()
+        except Exception as e:
+            print('try to release :' + str(e))
+
     logger = log_module_dict.get(name)
     if logger is None:
-        print(' before 真是不信了！！！！ ' + str(logging._lock) + ' ' + str(name))
-        if new_process:
-            if logging._lock is not None:
-                import threading
-                logging._lock = threading.RLock()
-        print(' end 真是不信了！！！！ ' + str(logging._lock) + ' ' + str(name))
         logger = logging.getLogger(name)
         logger.setLevel(level=level_relations[level])
         log_path = os.path.join(os.environ['HOME'] + '/release/log', filename)
-        formatter = logging.Formatter('%(asctime)s - %(process)6s - %(levelname)7s - %(message)s - %(funcName)s - %(name)s')
+        formatter = logging.Formatter('%(asctime)s - %(levelname)7s - %(message)s - %(name)s')
 
         file_handler = RotatingFileHandler(log_path, maxBytes=max_bytes, backupCount=filecount)
         file_handler.setLevel(level=level_relations[level])
@@ -44,7 +47,34 @@ def get_logger(name='root', filename='utry_log.log', level='info', max_bytes=10 
         logger.addHandler(shell_handler)
 
         log_module_dict[name] = logger
+
     return logger
+
+
+class logger_inner:
+    def info(log: str):
+        print(log)
+        pass
+
+    def warning(log: str):
+        print(log)
+        pass
+
+    def debug( log: str):
+        print(log)
+        pass
+
+    def error(log: str):
+        print(log)
+        pass
+
+    def critical(log: str):
+        print(log)
+        pass
+
+    def fatal(log: str):
+        print(log)
+        pass
 
 
 """test code"""

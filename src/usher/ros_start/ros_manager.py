@@ -90,49 +90,50 @@ class RosManager(object):
         self.__logger_inner = None
 
     def ros_core_process(self):
-        self.__logger_inner = get_logger('ros_manager_inner', new_process=True)
-        self.__logger_inner.info('begin ros core')
+        logger_inner = get_logger('ros_manager_inner')
+        logger_inner.info('begin ros core')
         try:
             while True:
                 while True:
                     time.sleep(3)
                     status, result = getipaddr()
-                    self.__logger_inner.info('get ip :' + str(result))
+                    logger_inner.info('get ip :' + str(result))
                     if status:
-                        self.__logger_inner.info('host ip is init!')
+                        logger_inner.info('host ip is init!')
                         break
                     else:
                         print('wait for ip init!!')
-                        self.__logger_inner.warning('wait for ip init!!')
+                        logger_inner.warning('wait for ip init!!')
 
                 if not get_ros_core():
-                    self.__logger_inner.info('start ros core')
+                    logger_inner.info('start ros core')
                     try:
                         roslaunch.main(['roscore', '--core'])
                         while True:
                             time.sleep(1)
                     except Exception as e:
                         print('I am except ' + str(e))
-                        self.__logger_inner.fatal(str(e))
+                        logger_inner.fatal(str(e))
                         continue
 
                     finally:
-                        self.__logger_inner.fatal('I am finally')
+                        logger_inner.fatal('I am finally')
                         time.sleep(1)
 
                 else:
-                    self.__logger_inner.warning('ros core is exist , skip!')
+                    logger_inner.warning('ros core is exist , skip!')
                     print('ros core is exist , skip!')
                     break
         except Exception as e:
             print('something error ' + str(e))
-            self.__logger_inner.fatal('something error ' + str(e))
+            logger_inner.fatal('something error ' + str(e))
 
     def start(self):
         self.__logger.info('begin to init ros core')
         try:
             process = Process(target=self.ros_core_process)
             process.daemon = True
+            time.sleep(1)
             process.start()
             self.__logger.info('complete to init ros core')
 

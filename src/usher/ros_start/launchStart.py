@@ -134,7 +134,7 @@ class LaunchThread(App):
         while rosmaster.getParam('run_id') is '':
             time.sleep(1)
 
-        time.sleep(1)
+        time.sleep(10)
 
         self.send_msg_dispatcher(self.msg_id.mode_start_status, {'index': setting.start_ros, 'status': True})
 
