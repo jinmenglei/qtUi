@@ -60,7 +60,7 @@ rm "$PATH_BIN"/*
 mv dist/ui_main "$PATH_BIN"
 mv dist/start_test "$PATH_RELEASE_UTRY_SHELL"
 #mv dist/start_test_unstop "$PATH_RELEASE_UTRY_SHELL"
-cp "$PATH_RES_FROM"/* "$PATH_RES_TO"/ -r
+cp "$PATH_RES_FROM"/image_rc.py "$PATH_RES_TO"/
 echo "step 3: clear build/"
 rm build/ -r
 echo "step 4: clear dist/"
