@@ -66,14 +66,12 @@ def clear_file():
 
 
 def handler_log(date_time):
-    str_input_log = './record/' + str(date_time)
-    if not os.path.isdir(str_input_log):
-        os.system('mkdir -p ' + str(str_input_log))
-    os.system('mv /home/utry/release/log/utry_* ' + str_input_log)
-    os.system('cp /tmp/start.log ' + str_input_log)
-    os.system('rm /home/utry/release/log/utry_*')
-    img = pyautogui.screenshot(region=[0, 0, 800, 480])  # x,y,w,h
-    img.save(str_input_log + '/screenshot.png')
+    if not os.path.isdir('./record/log'):
+        os.system('mkdir -p ./record/log')
+
+    os.system('mv /home/utry/release/log/utry_log.log ./record/log/' + str(date_time) + '.log')
+    os.system('cp /tmp/start.log ./record/log/' + str(date_time) + '_tmp.log')
+    os.system('rm /home/utry/release/log/utry_log.log')
 
 
 def get_start():
@@ -87,9 +85,11 @@ def get_start():
         return start_cnt
 
 
-def get_snap_screen(data_time):
-    return
-
+def get_snap_screen(date_time):
+    if not os.path.isdir('./record/snap'):
+        os.system('mkdir -p ./record/snap')
+    img = pyautogui.screenshot(region=[0, 0, 800, 480])  # x,y,w,h
+    img.save('./record/snap/' + str(date_time) + '_screenshot.png')
 
 
 if __name__ == '__main__':

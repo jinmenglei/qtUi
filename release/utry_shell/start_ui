@@ -90,10 +90,22 @@ elif [ "test" == "$1" ];then
       echo 'please input cnt'
     fi
 elif [ "deltest" == "$1" ];then
-  rm /home/utry/release/utry_shell/start_ini
+
+  sudo kill -9 $(ps -ef |grep start_test|grep -v grep|awk '{print $2}')
+  EXE_PATH=`pwd`
+  cd /home/utry/release/utry_shell
+
+  rm ./start_ini
   currentfile=$(date +%Y%m%d%H%M%S)
   echo "save undone file to ${currentfile}_undone.csv"
-  mv /home/utry/release/utry_shell/tmp.csv /home/utry/release/utry_shell/${currentfile}_undone.csv
+  if ! test -d ./record
+  then
+    mkdir record
+  fi
+  mv ./tmp.csv ./record/${currentfile}_undone.csv
+  zip -r record_${currentfile}_undone.zip ./record/*
+  rm ./record/ -rf
+  cd $EXE_PATH
 else
     fun_showerror
 fi
