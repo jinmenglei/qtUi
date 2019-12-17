@@ -7,6 +7,50 @@ from threading import Thread
 import hashlib
 
 
+def get_map_num():
+    data_bag = os.environ['HOME'] + '/catkin_ws/src/databag/'
+    map_list = []
+    # 判断是否有databag文件夹
+    if not os.path.isdir(data_bag):
+        pass
+    else:
+        # 拉出所有文件
+        file_list = os.listdir(data_bag)
+        # 按照创建时间排序
+        file_list = sorted(file_list, key=lambda x: os.path.getmtime(os.path.join(data_bag, x)), reverse=True)
+        # 拿出pcd文件
+        list_pcd = []
+        list_png = []
+        for file in file_list:
+            if '.pcd' in str(file):
+                list_pcd.append(file)
+            if '.png' in file:
+                list_png.append(file)
+        # 拿出有waypoint文件的pcd
+
+        for pcd in list_pcd:
+            name = str(pcd).strip('.pcd')
+            csv_name = name+'wp.csv'
+            if csv_name not in file_list:
+                list_pcd.remove(pcd)
+
+        # 组装下返回值
+        for pcd in list_pcd:
+            png_path = ':/mode_map_select/mode_map_select/default.png'
+            name = str(pcd).strip('.pcd')
+            for png in list_png:
+                if str(pcd).strip('.pcd') in png:
+                    png_path = data_bag + png
+
+                    tmp_name = str(png).strip('.png').strip((str(pcd).strip('.pcd')) + '_')
+                    if tmp_name != '':
+                        name = tmp_name
+                    break
+            tmp_dict = {'pcd': data_bag + pcd, 'wp': data_bag + str(pcd).strip('.pcd') + 'wp.csv', 'png': png_path,
+                        'name': name}
+            map_list.append(tmp_dict)
+    return map_list
+
 def get_md5sum(filename):
     block_size = 64*1024
     md5 = hashlib.md5()
@@ -64,7 +108,10 @@ def dict_to_json(dict_data) -> (str, dict):
 
 
 def get_res_path(mode_name) -> str:
-    return os.path.join(os.environ['HOME'] + '/release/res/', mode_name+'/')
+    path = os.path.join(os.environ['HOME'] + '/release/res/', mode_name+'/')
+    if not os.path.isdir(path):
+        os.system('mkdir -p ' + path)
+    return path
 
 
 def dict_to_ros_msg(dict_data) -> (str, String):
@@ -112,17 +159,4 @@ def get_msg_id_from_data_dict(data_dict) -> (str,str):
 
 # test code
 if __name__ == '__main__':
-    x = 'haha'
-    print(type(x))
-    print(json_to_dict.__annotations__)
-    print(json_to_dict('{}'))
-    dict_str = {}
-    dict_str['msg_id'] = 'xxxx'
-    print(dict_to_ros_msg(dict_str))
-
-    print(get_uuid())
-    # import time
-    # time.sleep(1)
-    print(get_uuid())
-    print(get_uuid())
-    print(get_uuid())
+    print(get_map_num())

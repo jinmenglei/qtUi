@@ -53,14 +53,11 @@
     <file>mode_check/自检进度条-蓝.png</file>
   </qresource>
   <qresource prefix="mode_map_select">
-    <file>mode_map_select/map1.pgm</file>
-    <file>mode_map_select/map2.pgm</file>
-    <file>mode_map_select/map3.pgm</file>
-    <file>mode_map_select/map4.pgm</file>
-    <file>mode_map_select/map5.pgm</file>
-    <file>mode_map_select/map6.pgm</file>
-    <file>mode_map_select/map7.pgm</file>
-    <file>mode_map_select/map8.pgm</file>
+    <file>mode_map_select/default.png</file>
+    <file>mode_map_select/右-灰.png</file>
+    <file>mode_map_select/右-亮.png</file>
+    <file>mode_map_select/左-灰.png</file>
+    <file>mode_map_select/左-亮.png</file>
   </qresource>
   <qresource prefix="mode_mt">
     <file>mode_mt/前进.png</file>

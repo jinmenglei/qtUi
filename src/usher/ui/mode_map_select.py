@@ -7,6 +7,7 @@ import base.U_app_qt as AppQt
 from base.U_log import get_logger
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
+import os
 
 
 class ModeMapSelectPanel(AppQt.Q_App):
@@ -23,33 +24,84 @@ class ModeMapSelectPanel(AppQt.Q_App):
 
         self.res_path = Util.get_res_path(self.module_name)
 
+        # self.get_map_num()
+        style_sheet = 'QPushButton{border-image: url(:/mode_map_select/mode_map_select/左-亮.png)}' + \
+                      'QPushButton:pressed{border-image: url(:/mode_map_select/mode_map_select/左-灰.png)}'
+        self.m_button_left = AppQt.get_pushbutton(self, QRect(20, 140, 58, 58), style_sheet)
+
+        # self.get_map_num()
+        style_sheet = 'QPushButton{border-image: url(:/mode_map_select/mode_map_select/右-亮.png)}' + \
+                      'QPushButton:pressed{border-image: url(:/mode_map_select/mode_map_select/右-灰.png)}'
+        self.m_button_right = AppQt.get_pushbutton(self, QRect(720, 140, 58, 58), style_sheet)
+
+        self.map_frame = AppQt.get_sub_frame(self, QRect(100, 0, 600, 340))
+
         self.list_map_button = []
+        self.list_map_frame = []
         self.list_map_label = []
-        for index in range(Map_select_num):
-            rect = list_button_map_string[index][Map_back_point]
-            label_frame = AppQt.get_sub_frame(self, rect, 'background-color: #FFFFFF;')
+        self.list_map = []
 
-            rect = AppQt.QRect(3, 3, 120, 120)
-            style_sheet = "QPushButton{border-image: url(/home/utry/release/res/mode_map_select/" + \
-                            str(list_button_map_string[index][Map_button_path]) + ")}"
+        self.timer_show = QtCore.QTimer()  # 创建定时器
+        self.timer_show.timeout.connect(lambda: self.on_timer_show())  # 绑定一个定时器事件
 
-            map_button = AppQt.get_pushbutton(label_frame, rect, style_sheet)  # type: QPushButton
+    def get_map_num(self):
 
-            button_id = list_button_map_string[index][Map_button_id]
-            map_button.setObjectName(str(button_id))
+        list_map = Util.get_map_num()
 
-            map_button.clicked.connect(lambda: self.on_click_map_button(int(self.sender().objectName())))
+        self.m_button_left.hide()
+        self.m_button_right.hide()
 
-            self.list_map_button.append(map_button)
+        if len(list_map) == 0:
+            self.show_box(show_box_need_build_map, '')
+        else:
+            if list_map == self.list_map:
+                pass
+            else:
+                self.list_map = list_map
+                for button in self.list_map_button:
+                    button.disconnect()
+                    button.destroy()
+                self.list_map_button.clear()
+                for frame in self.list_map_frame:
+                    frame.destroy()
+                self.list_map_frame.clear()
 
-            rect = list_button_map_string[index][Map_label_point]
-            name = list_button_map_string[index][Map_label_string]
-            map_label = AppQt.get_label_text(self, rect, False, name, 26)
+                for label in self.list_map_label:
+                    label.destroy()
+                self.list_map_label.clear()
 
-            self.list_map_label.append(map_label)
+                position_cnt = 0
+                for map_detail in list_map:
+                    if position_cnt % 2 == 0:
+                        rect_back = QRect(0 + (126 + 32) * int(position_cnt / 2), 7, 126, 126)
+                        rect_title = QRect(0 + (126 + 32) * int(position_cnt / 2), 139, 126, 26)
+                    else:
+                        rect_back = QRect(0 + (126 + 32) * int(position_cnt / 2), 175, 126, 126)
+                        rect_title = QRect(0 + (126 + 32) * int(position_cnt / 2), 307, 126, 26)
 
-            self.timer_show = QtCore.QTimer()  # 创建定时器
-            self.timer_show.timeout.connect(lambda: self.on_timer_show())  # 绑定一个定时器事件
+                    frame = AppQt.get_sub_frame(self.map_frame, rect_back, 'background-color: #FFFFFF;')
+                    frame.show()
+                    png_path = map_detail.get('png')
+                    name = map_detail.get('name')
+                    style_sheet = 'QPushButton{border-image: url(' + png_path + ')}'
+
+                    rect = AppQt.QRect(3, 3, 120, 120)
+                    map_button = AppQt.get_pushbutton(frame, rect, style_sheet)  # type: QPushButton
+                    map_button.setObjectName(str(position_cnt + Map_button_id_delta))
+                    map_button.show()
+
+                    map_button.clicked.connect(lambda: self.on_click_map_button(int(self.sender().objectName())))
+
+                    self.list_map_button.append(map_button)
+
+                    map_label = AppQt.get_label_text(self.map_frame, rect_title, False, name, 26)
+                    map_label.show()
+
+                    self.list_map_label.append(map_label)
+                    position_cnt += 1
+                self.map_frame.show()
+
+        pass
 
     def on_click_map_button(self, index):
         """选择地图按钮处理事件"""
@@ -65,6 +117,7 @@ class ModeMapSelectPanel(AppQt.Q_App):
             self.send_msg_dispatcher(self.msg_id.mode_working_show_map, data_dict)
 
     def start(self):
+        self.get_map_num()
         self.timer_show.start(1000)
 
     def stop(self):

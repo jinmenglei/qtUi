@@ -28,8 +28,10 @@ class ModeAuthorPanel(AppQt.Q_App):
         self.mac_id = Util.get_mac_address()
         self.download_url = 'http://47.100.182.145:8080/qrcode/clearQrcode?macId=' + self.mac_id
         self.unlock_url = 'http://47.100.182.145:8080/lock/queryUnlockById?macId=' + self.mac_id
+        self.lock_url = 'http://47.100.182.145:8080/lock/lock?macId=' + self.mac_id
         self.logger.info('get qr_code url is : ' + str(self.download_url))
         self.logger.info('unlock url is : ' + str(self.unlock_url))
+        self.logger.info('lock url is : ' + str(self.lock_url))
         self.download_file_name = self.res_path + 'Qr_d.png'
         self.qr_code_path = self.res_path + 'Qr.png'
         self.process_percent = 0
@@ -88,6 +90,10 @@ class ModeAuthorPanel(AppQt.Q_App):
         self.unlock_status = False
         Util.add_thread(target=self.qr_code_lock_function)
 
+        self.locking = False
+
+        Util.add_thread(target=self.set_lock_status)
+
     def qr_code_lock_function(self):
         while True:
             time.sleep(0.1)
@@ -103,11 +109,28 @@ class ModeAuthorPanel(AppQt.Q_App):
                 if not self.lock_status:
                     self.lock_status = True
 
+    def set_lock_status(self):
+        self.locking = True
+        try:
+            request = requests.get(self.lock_url)
+            data_dict = request.json()
+            self.logger.info('get msg :' + str(request.json()))
+            if 'code' in data_dict:
+                code = data_dict['code']
+                if code == 0:
+                    self.logger.info('lock success!')
+                else:
+                    self.logger.info('device is locked!')
+        except:
+            self.logger.warning('find error')
+        finally:
+            self.locking = False
+
+
     def get_unlock_status(self):
         # test
         try:
-            ublock_url = self.unlock_url
-            request = requests.get(ublock_url)
+            request = requests.get(self.unlock_url)
             data_dict = request.json()
             self.logger.debug('get msg :' + str(request.json()))
             if 'code' in data_dict:
@@ -120,7 +143,7 @@ class ModeAuthorPanel(AppQt.Q_App):
                     return False
         except:
             self.logger.warning('find error')
-            return  False
+            return False
 
     def update_qr_code_function(self):
         try_time = 10
@@ -161,22 +184,6 @@ class ModeAuthorPanel(AppQt.Q_App):
                 self.logger.info('two png is same!!')
                 return True
         self.logger.info('two png not same!!' + str(md5sum_download) + ' : ' + str(md5sum_current))
-        return False
-
-    def get_qr_code_unlock(self):
-        update_url = 'http://47.100.182.145:9200/update_info?'
-        update_url = update_url + 'packageName=update' + '&versionName=1'
-
-        while self.IsShown():
-            request = requests.get(update_url)
-            json_request = request.json()
-
-            if json_request['diffUpdate']:
-                self.json_request = json_request
-                # self.show_box(show_box_update, '')
-                return True
-
-            time.sleep(60)
         return False
 
     def on_timer_delay(self):
@@ -274,3 +281,5 @@ class ModeAuthorPanel(AppQt.Q_App):
     def stop(self):
         self.timer_show.stop()
         self.timer_error_show.stop()
+        if not self.locking:
+            Util.add_thread(target=self.set_lock_status)

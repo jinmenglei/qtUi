@@ -44,7 +44,7 @@ list_title_string = [
 list_tail_string = [
     ['88%', QRect(115, 14, 70, 28), 28, 90],
     ['水量', QRect(120, 54, 59, 28), 28, 90],
-    ['88%', QRect(658, 14, 120, 28), 28, 90],
+    ['0.0', QRect(658, 14, 120, 28), 28, 90],
     ['里程', QRect(676, 54, 59, 28), 28, 90]
 ]
 # add panel index
@@ -180,18 +180,19 @@ Update_list_all = [
 ]
 
 
-show_box_tip, show_box_point, show_box_yes, show_box_no = range(4)
+show_box_tip, show_box_yes, show_box_no = range(3)
 show_box_turn_mt, show_box_turn_at, show_box_map_select, show_box_work_cancel, show_box_loss, show_box_update, \
-    show_box_no_map, show_box_start_error = range(8)
+    show_box_no_map, show_box_start_error, show_box_need_build_map = range(9)
 list_show_box_string = [
-    ['是否要切换为\n手动驾驶模式', QRect(173, 158, 438, 50), Page_mt_mode, None],
-    ['是否要切换为\n自动驾驶模式', QRect(173, 158, 438, 50), Page_author, None],
-    ['是否开始清扫', QRect(258, 123, 279, 100), Page_working, None],
-    ['是否要取消当前任务，\n切换到手动驾驶？', QRect(227, 129, 380, 100), Page_mt_mode, None],
-    ['失去底层连接\n请联系售后', QRect(227, 129, 380, 100), None, None],
-    ['检测到新版本\n是否升级', QRect(227, 129, 380, 100), Page_Update, None],
-    ['地图不存在或不可用\n是否重新选择', QRect(227, 129, 380, 100), Page_map_select, Page_mt_mode],
-    ['启动出现异常\n是否重新启动', QRect(227, 129, 380, 100), None, None],
+    ['是否要切换为\n手动驾驶模式', Page_mt_mode, None],
+    ['是否要切换为\n自动驾驶模式', Page_author, None],
+    ['是否开始清扫', Page_working, None],
+    ['是否要取消当前任务，\n切换到手动驾驶？', Page_mt_mode, None],
+    ['失去底层连接\n请联系售后', None, None],
+    ['检测到新版本\n是否升级', Page_Update, None],
+    ['地图不存在或不可用\n是否重新选择', Page_map_select, Page_mt_mode],
+    ['启动出现异常\n是否重新启动', None, None],
+    ['未发现可用地图，请实施\n切换到手动驾驶？', Page_mt_mode, None],
 ]
 start_show_begin, start_show_success, start_show_fail, start_show_status, start_status = range(5)
 start_ui, start_ros, start_launch, start_xiaoyuan, start_status_cnt = range(5)
