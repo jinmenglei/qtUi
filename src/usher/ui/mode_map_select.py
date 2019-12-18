@@ -44,48 +44,109 @@ class ModeMapSelectPanel(AppQt.Q_App):
         self.timer_show = QtCore.QTimer()  # 创建定时器
         self.timer_show.timeout.connect(lambda: self.on_timer_show())  # 绑定一个定时器事件
 
+    def clear_all(self):
+        for button in self.list_map_button:
+            button.disconnect()
+            button.destroy()
+        self.list_map_button.clear()
+        for frame in self.list_map_frame:
+            frame.destroy()
+        self.list_map_frame.clear()
+
+        for label in self.list_map_label:
+            label.destroy()
+        self.list_map_label.clear()
+
+    def get_map_qrect(self, list_map_len):
+        position = {
+            'x_start_top': 0,
+            'x_start_tail': 0,
+            'x_delta': 126 + 32,
+            'y_button_top': 7,
+            'y_label_top': 139,
+            'y_button_tail': 175,
+            'y_label_tail': 307,
+            'map_weight':126
+        }
+        if list_map_len > 6:
+            pass
+        elif list_map_len == 6:
+            position['x_start_top'] = position['x_start_tail'] = 79
+        elif list_map_len == 5:
+            position['x_start_top'] = 79
+            position['x_start_tail'] = 158
+        elif list_map_len == 4:
+            position['y_button_top'] = 91
+            position['y_label_top'] = 91 + 126 + 6
+        elif list_map_len == 3:
+            position['map_weight'] = 180
+            position['y_button_top'] = 64
+            position['y_label_top'] = 64 + 180 + 6
+            position['x_delta'] = 180 + 30
+        elif list_map_len == 2:
+            position['map_weight'] = 280
+            position['y_button_top'] = 14
+            position['y_label_top'] = 14 + 280 + 6
+            position['x_delta'] = 280 + 40
+        else:
+            position['map_weight'] = 280
+            position['y_button_top'] = 14
+            position['y_label_top'] = 14 + 280 + 6
+            position['x_start_top'] = 160
+        self.logger.info('get rect: ' + str(position))
+        return position
+
+    def get_qrect(self, pos, list_map_len, position_cnt):
+        if list_map_len <= 4:
+            rect_back = QRect(pos['x_start_top'] + pos['x_delta'] * position_cnt, pos['y_button_top'],
+                              pos['map_weight'], pos['map_weight'])
+            rect_title = QRect(pos['x_start_top'] + pos['x_delta'] * position_cnt - 10, pos['y_label_top'],
+                               pos['map_weight'] + 20, 26)
+        else:
+            if position_cnt % 2 == 0:
+                rect_back = QRect(pos['x_start_top'] + pos['x_delta'] * int(position_cnt / 2),
+                                  pos['y_button_top'], pos['map_weight'], pos['map_weight'])
+                rect_title = QRect(pos['x_start_top'] + pos['x_delta'] * int(position_cnt / 2) - 10,
+                                   pos['y_label_top'], pos['map_weight'] + 20, 26)
+            else:
+                rect_back = QRect(pos['x_start_tail'] + pos['x_delta'] * int(position_cnt / 2),
+                                  pos['y_button_tail'], pos['map_weight'], pos['map_weight'])
+                rect_title = QRect(pos['x_start_tail'] + pos['x_delta'] * int(position_cnt / 2) - 10,
+                                   pos['y_label_tail'], pos['map_weight'] + 20, 26)
+        self.logger.info('get rect back : ' + str(rect_back))
+        self.logger.info('get rect title : ' + str(rect_title))
+        return rect_back, rect_title
+
     def get_map_num(self):
 
         list_map = Util.get_map_num()
 
         self.m_button_left.hide()
         self.m_button_right.hide()
+        list_map_len = len(list_map)
 
-        if len(list_map) == 0:
+        if list_map_len == 0:
             self.show_box(show_box_need_build_map, '')
         else:
             if list_map == self.list_map:
                 pass
             else:
                 self.list_map = list_map
-                for button in self.list_map_button:
-                    button.disconnect()
-                    button.destroy()
-                self.list_map_button.clear()
-                for frame in self.list_map_frame:
-                    frame.destroy()
-                self.list_map_frame.clear()
 
-                for label in self.list_map_label:
-                    label.destroy()
-                self.list_map_label.clear()
+                self.clear_all()
 
+                pos = self.get_map_qrect(list_map_len)
                 position_cnt = 0
                 for map_detail in list_map:
-                    if position_cnt % 2 == 0:
-                        rect_back = QRect(0 + (126 + 32) * int(position_cnt / 2), 7, 126, 126)
-                        rect_title = QRect(0 + (126 + 32) * int(position_cnt / 2), 139, 126, 26)
-                    else:
-                        rect_back = QRect(0 + (126 + 32) * int(position_cnt / 2), 175, 126, 126)
-                        rect_title = QRect(0 + (126 + 32) * int(position_cnt / 2), 307, 126, 26)
+                    rect_back, rect_title = self.get_qrect(pos, list_map_len, position_cnt)
 
                     frame = AppQt.get_sub_frame(self.map_frame, rect_back, 'background-color: #FFFFFF;')
                     frame.show()
+
                     png_path = map_detail.get('png')
-                    name = map_detail.get('name')
                     style_sheet = 'QPushButton{border-image: url(' + png_path + ')}'
 
-                    rect = AppQt.QRect(3, 3, 120, 120)
+                    rect = AppQt.QRect(3, 3, pos['map_weight'] - 2 * 3, pos['map_weight'] - 2 * 3)
                     map_button = AppQt.get_pushbutton(frame, rect, style_sheet)  # type: QPushButton
                     map_button.setObjectName(str(position_cnt + Map_button_id_delta))
                     map_button.show()
@@ -94,6 +155,7 @@ class ModeMapSelectPanel(AppQt.Q_App):
 
                     self.list_map_button.append(map_button)
 
+                    name = map_detail.get('name')
                     map_label = AppQt.get_label_text(self.map_frame, rect_title, False, name, 26)
                     map_label.show()
 
@@ -101,6 +163,8 @@ class ModeMapSelectPanel(AppQt.Q_App):
                     position_cnt += 1
                 self.map_frame.show()
 
+        # if list_map_len > 8:
+        #     self.m_button_right.show()
         pass
 
     def on_click_map_button(self, index):
@@ -108,13 +172,16 @@ class ModeMapSelectPanel(AppQt.Q_App):
         self.logger.info('click ' + str(index) + 'map')
         button_index = index - Map_button_id_delta
 
-        if 0 <= button_index < Map_select_num:
-
-            map_select_path = self.res_path + list_button_map_string[button_index][Map_button_path]
-            map_select_name = list_button_map_string[button_index][Map_label_string]
-            self.show_box(show_box_map_select, '【' + map_select_name + '】?')
-            data_dict = {'map_path': map_select_path, 'map_name': map_select_name}
-            self.send_msg_dispatcher(self.msg_id.mode_working_show_map, data_dict)
+        if 0 <= button_index < len(self.list_map):
+            if Util.change_wp_file(self.list_map[button_index].get('wp')) and \
+                    Util.change_pcd_file(self.list_map[button_index].get('pcd')):
+                map_select_path = self.list_map[button_index].get('png')
+                map_select_name = self.list_map[button_index].get('name')
+                self.show_box(show_box_map_select, '【' + map_select_name + '】?')
+                data_dict = {'map_path': map_select_path, 'map_name': map_select_name}
+                self.send_msg_dispatcher(self.msg_id.mode_working_show_map, data_dict)
+            else:
+                self.show_box(show_box_launch_fail, '')
 
     def start(self):
         self.get_map_num()
