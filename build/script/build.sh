@@ -3,7 +3,7 @@ cd ../../
 UTRY_ROOT_PATH=$(pwd)
 if [ "$1" == "D" ] || [ "$1" == "d" ]
 then
-  echo 'do debug'
+  echo 'do debug '
 else
   echo 'do release'
 fi
