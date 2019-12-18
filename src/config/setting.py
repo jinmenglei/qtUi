@@ -182,7 +182,7 @@ Update_list_all = [
 
 show_box_tip, show_box_yes, show_box_no = range(3)
 show_box_turn_mt, show_box_turn_at, show_box_map_select, show_box_work_cancel, show_box_loss, show_box_update, \
-    show_box_no_map, show_box_start_error, show_box_need_build_map = range(9)
+    show_box_no_map, show_box_start_error, show_box_need_build_map, show_box_launch_fail = range(10)
 list_show_box_string = [
     ['是否要切换为\n手动驾驶模式', Page_mt_mode, None],
     ['是否要切换为\n自动驾驶模式', Page_author, None],
@@ -193,6 +193,7 @@ list_show_box_string = [
     ['地图不存在或不可用\n是否重新选择', Page_map_select, Page_mt_mode],
     ['启动出现异常\n是否重新启动', None, None],
     ['未发现可用地图，请实施\n切换到手动驾驶？', Page_mt_mode, None],
+    ['启动文件异常\n点击‘是’，重新选择\n 点击‘否’，切换到手动驾驶', None, Page_mt_mode],
 ]
 start_show_begin, start_show_success, start_show_fail, start_show_status, start_status = range(5)
 start_ui, start_ros, start_launch, start_xiaoyuan, start_status_cnt = range(5)
