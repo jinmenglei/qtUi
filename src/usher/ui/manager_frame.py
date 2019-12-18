@@ -154,12 +154,12 @@ class ManagerFrame(AppQt.Q_App):
 
     def init_all_page(self):
         self.start_panel = ModeStart(self.__frame)
-        self.start_panel.hide()
+        self.start_panel.show()
         for index in range(setting.Page_num):
             tmp_frame = module_relations[index](self)
             self.page_stack.addWidget(tmp_frame)
 
-        self.page_stack.show()
+        self.page_stack.hide()
 
         self.show_box_panel = ModeShowBox(self.__frame)
         self.show_box_panel.hide()
@@ -180,6 +180,6 @@ class ManagerFrame(AppQt.Q_App):
         self.init_all_page()
 
         # show default page
-        self.__change_page(setting.Page_map_select)
+        # self.__change_page(setting.Page_map_select)
 
         self.__logger.info('end to init manager_frame frame for this project!')
