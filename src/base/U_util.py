@@ -45,11 +45,68 @@ def get_map_num():
                     tmp_name = str(png).strip('.png').strip((str(pcd).strip('.pcd')) + '_')
                     if tmp_name != '':
                         name = tmp_name
-                    break
             tmp_dict = {'pcd': data_bag + pcd, 'wp': data_bag + str(pcd).strip('.pcd') + 'wp.csv', 'png': png_path,
-                        'name': name}
+                        'name': str(name)[:5]}
             map_list.append(tmp_dict)
     return map_list
+
+
+def change_wp_file(wp_path):
+    launch_file = '/home/utry/catkin_ws/src/linerunning_v2/launch/xiaoyuan_clear.launch'
+    launch_file_bk = '/home/utry/catkin_ws/src/linerunning_v2/launch/.xiaoyuan_clear.launch'
+    if os.path.isfile(launch_file):
+        cmd = 'cp ' + launch_file + ' ' + launch_file_bk
+        os.system(cmd)
+
+    if os.path.isfile(wp_path) and os.path.isfile(launch_file):
+        with open(launch_file, 'r') as f_launch:
+            file_lines = f_launch.readlines()
+
+        with open(launch_file, 'w') as f_launch:
+            for line in file_lines:
+                if 'waypoints_filepath' in line:
+                    line = '       <param name="waypoints_filepath"    type="string" value="' + wp_path + '"/>\n'
+                f_launch.write(line)
+
+        with open(launch_file, 'r') as f_launch:
+            file_lines = f_launch.readlines()
+            for line in file_lines:
+                if wp_path in line:
+                    return True
+    if os.path.isfile(launch_file_bk):
+        cmd = 'cp ' + launch_file_bk + ' ' + launch_file
+        os.system(cmd)
+    return False
+
+
+def change_pcd_file(pcd_path):
+    launch_file = '/home/utry/catkin_ws/src/xiaoyuan_robot_v2/launch/xiaoyuan_robot_start_amcl.launch'
+    launch_file_bk = '/home/utry/catkin_ws/src/xiaoyuan_robot_v2/launch/.xiaoyuan_robot_start_amcl.launch'
+    if os.path.isfile(launch_file):
+        cmd = 'cp ' + launch_file + ' ' + launch_file_bk
+        os.system(cmd)
+
+    if os.path.isfile(pcd_path) and os.path.isfile(launch_file):
+        with open(launch_file, 'r') as f_launch:
+            file_lines = f_launch.readlines()
+
+        with open(launch_file, 'w') as f_launch:
+            for line in file_lines:
+                if 'map_pcd' in line:
+                    line = '    <arg name="map_pcd" value="' + pcd_path + '"/>\n'
+                f_launch.write(line)
+
+        with open(launch_file, 'r') as f_launch:
+            file_lines = f_launch.readlines()
+            for line in file_lines:
+                if pcd_path in line:
+                    return True
+
+    if os.path.isfile(launch_file_bk):
+        cmd = 'cp ' + launch_file_bk + ' ' + launch_file
+        os.system(cmd)
+    return False
+
 
 def get_md5sum(filename):
     block_size = 64*1024
@@ -160,3 +217,5 @@ def get_msg_id_from_data_dict(data_dict) -> (str,str):
 # test code
 if __name__ == '__main__':
     print(get_map_num())
+    print(change_pcd_file('/home/utry/catkin_ws/src/databag/1029.pcd'))
+    print(change_wp_file('/home/utry/catkin_ws/src/databag/1029wp.csv'))
