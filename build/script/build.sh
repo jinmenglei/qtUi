@@ -1,12 +1,13 @@
 #! /bin/sh
 cd ../../
 UTRY_ROOT_PATH=$(pwd)
-if [ '$1' == 'D' ] || [ '$1' == 'd' ]
+if [ "$1" == "D" ] || [ "$1" == "d" ]
 then
   echo 'do debug'
 else
   echo 'do release'
 fi
+
 # test output
 if ! test -d "$UTRY_ROOT_PATH"/utry_output
 then
@@ -58,7 +59,7 @@ pyrcc5 image.qrc -o image_rc.py
 cd "$UTRY_SRC_PATH"
 echo "step 1:  build"
 pyinstaller -F --noconsole main/ui_main.spec
-if [ '$1' == 'D' ] || [ '$1' == 'd' ]
+if [ "$1" == "D" ] || [ "$1" == "d" ]
 then
   pyinstaller -F --noconsole auto_test/start_test.py
 fi
@@ -67,7 +68,7 @@ echo "step 2: mv file"
 rm "$PATH_BIN"/*
 mv dist/ui_main "$PATH_BIN"
 rm "$PATH_RELEASE_UTRY_SHELL"/start_test
-if [ '$1' == 'D' ] || [ '$1' == 'd' ]
+if [ "$1" == "D" ] || [ "$1" == "d" ]
 then
   mv dist/start_test "$PATH_RELEASE_UTRY_SHELL"
 fi
@@ -82,7 +83,7 @@ rm ./*.spec
 echo "step 6: zip file"
 # shellcheck disable=SC2164
 cd "$UTRY_ROOT_PATH"
-if [ '$1' == 'D' ] || [ '$1' == 'd' ]
+if [ "$1" == "D" ] || [ "$1" == "d" ]
 then
   zip -r "$UTRY_RELEASE_PATH"/"${currentfile}"_utry_d.zip release/*
 else

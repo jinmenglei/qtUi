@@ -18,9 +18,12 @@ then
   #   ./launchStart &
   ./ui_main >> /tmp/start.log &
 
-  if [ -f /home/utry/release/utry_shell/start_ini ]; then
+  if [ -f /home/utry/release/utry_shell/start_ini ] && [ -f /home/utry/release/utry_shell/start_test ]
+  then
     echo 'start test' >> /tmp/start_test.log
     cd /home/utry/release/utry_shell/
     ./start_test >> /tmp/start_test.log &
+  else
+    echo 'dont need test'
   fi
 fi
