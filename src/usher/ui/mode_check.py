@@ -57,7 +57,6 @@ class ModeCheckPanel(AppQt.Q_App):
         self.timer_process = QtCore.QTimer() # 创建定时器
         self.timer_process.timeout.connect(lambda: self.on_timer_process())
 
-
     def __check_list_init__(self):
         """检测列表初始化"""
         self.check_list_all[Check_4g][Check_content_function] = self.check_4g
