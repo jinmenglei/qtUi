@@ -36,7 +36,6 @@ fun_stop()
 fun_install()
 {
     EXE_PATH=`pwd`
-    sudo cp /home/utry/release/utry_shell/start_ui /usr/bin/
     cd ~/release/utry_shell/
     ./install_program.sh
     cd $EXE_PATH
