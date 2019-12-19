@@ -2,6 +2,7 @@
 # shellcheck disable=SC2039
 source /opt/ros/kinetic/setup.sh
 source /home/utry/catkin_ws/devel/setup.bash
+
 RET=$(pgrep -f ui_main)
 if [ "" == "$RET" ]
 then
@@ -20,6 +21,15 @@ then
 
   if [ -f /home/utry/release/utry_shell/start_ini ] && [ -f /home/utry/release/utry_shell/start_test ]
   then
+    if [ "" == "$DISPLAY" ]
+    then
+      export DISPLAY=:0.0 >> /tmp/start_test.log
+      echo 'change DISPLAY'
+    else
+      echo "$DISPLAY"
+      echo 'do nothing' >> /tmp/start_test.log
+    fi
+
     echo 'start test' >> /tmp/start_test.log
     cd /home/utry/release/utry_shell/
     ./start_test >> /tmp/start_test.log &
