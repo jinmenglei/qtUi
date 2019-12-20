@@ -11,6 +11,7 @@ from base.U_app import App
 from base.U_log import get_logger
 import base.U_util as Util
 import config.setting as setting
+from std_msgs.msg import String
 
 
 class LaunchThread(App):
@@ -27,10 +28,28 @@ class LaunchThread(App):
         self.is_stop = False
         self.is_shutdown = False
         self.uuid = None
+        self.callback_dict = {}
         self.__init_callback()
+        self.pub = None  # type: rospy.Publisher
+        self.pub_start_ros_ack = False
+        self.pub_start_launch_ack = False
+
+
 
     def __init_callback(self):
-        self.subscribe_msg(self.msg_id.launch_start_control, self.control_callback)
+        # self.subscribe_msg(self.msg_id.launch_start_control, self.control_callback)
+        self.callback_dict[self.msg_id.launch_start_control] = self.control_callback
+        self.callback_dict[self.msg_id.mode_start_status + '_ack'] = self.mode_start_ack_callback
+
+    def mode_start_ack_callback(self, data_dict):
+        self.__logger.info('get :' + str(data_dict))
+        _, msg_data = Util.get_msg_id_data_dict(data_dict)
+        if msg_data['index'] == setting.start_ros:
+            self.pub_start_ros_ack = True
+
+        if msg_data['index'] == setting.start_launch:
+            self.pub_start_launch_ack = True
+        pass
 
     def control_callback(self, data_dict):
         self.__logger.info(str(data_dict))
@@ -125,18 +144,71 @@ class LaunchThread(App):
             self.is_stop = False
             self.__logger.fatal('I am finally')
 
-    def start(self):
+    def send_msg_ros(self, msg_data):
+        ret, send_msg = Util.dict_to_ros_msg(msg_data)
+        if ret == 'ok':
+            self.pub.publish(send_msg)
+        else:
+            self.__logger.warning('msg : ' + str(msg_data) + 'to json fail by:' + str(ret))
+        return
+
+    def launch_callback(self, data):
+        ret, data_dict = Util.ros_msg_to_dict(data)
+        self.__logger.info(str(data_dict))
+        if ret == 'ok' and data_dict is not None:
+            msg_id = data_dict['msg_id']
+            msg_data = ''
+
+            if 'msg_data' in data_dict:
+                msg_data = data_dict['msg_data']
+
+            callback = self.callback_dict.get(msg_id)
+            if callback is not None:
+                callback(msg_data)
+
+    def pub_start_status_ros(self):
+        self.__logger.info('receive pub_start_status_ros_ack!! start')
+        msg_data = {'msg_id': self.msg_id.mode_start_status, 'msg_type': 'control',
+                    'msg_data': {'index': setting.start_ros, 'status': True}}
+        while not self.pub_start_ros_ack:
+            self.send_msg_ros(msg_data)
+            time.sleep(1)
+
+        self.__logger.info('receive pub_start_status_ros_ack!! end')
+
+    def pub_start_status_launch(self):
+        self.__logger.info('receive pub_start_status_launch_ack!! start')
+        msg_data = {'msg_id': self.msg_id.mode_start_status, 'msg_type': 'control',
+                    'msg_data': {'index': setting.start_launch, 'status': True}}
+        while not self.pub_start_launch_ack:
+            self.send_msg_ros(msg_data)
+            time.sleep(1)
+
+        self.__logger.info('receive pub_start_status_launch_ack!!  end')
+
+    def main_logic(self):
         self.__logger.info('##### start ' + self.__module_name)
-        roslaunch.rlutil._wait_for_master()
-        rosmaster = masterapi.Master(names.make_caller_id('rosparam-%s'%os.getpid()))
+        Util.wait_for_master()
+        rosmaster = masterapi.Master(names.make_caller_id('rosparam-%s' % os.getpid()))
         while not rosmaster.hasParam('run_id'):
+            self.__logger.info('checking run_id is alive')
             time.sleep(1)
         while rosmaster.getParam('run_id') is '':
+            self.__logger.info('checking run_id is alive')
             time.sleep(1)
 
-        time.sleep(10)
+        rospy.init_node('launch_ui_start', anonymous=True)
 
-        self.send_msg_dispatcher(self.msg_id.mode_start_status, {'index': setting.start_ros, 'status': True})
+        time.sleep(3)
+
+        self.pub = rospy.Publisher('/launch_ui_topic', String, queue_size=100)
+        rospy.Subscriber('/ui_launch_topic', String, self.launch_callback)
+
+        time.sleep(2)
+
+        Util.add_thread(target=self.pub_start_status_ros)
+
+        time.sleep(2)
 
         self.uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         print('uuid' + self.uuid)
@@ -152,26 +224,20 @@ class LaunchThread(App):
             self.__logger.info('launch_under_pan started!')
 
             time.sleep(5)
-
-            self.send_msg_dispatcher(self.msg_id.mode_start_status, {'index': setting.start_launch, 'status': True})
-
-            while True:
-                # self.__logger.info('######### launch still alive')
-                time.sleep(10)
+            Util.add_thread(target=self.pub_start_status_launch)
+            # while True:
+            #     # self.__logger.info('######### launch still alive')
+            #     time.sleep(10)
 
         except roslaunch.RLException as e:
             print('I am except')
             self.__logger.fatal(str(e))
 
-        finally:
-            print('I am finally')
-            if self.launch_sensor is not None:
-                self.launch_sensor.shutdown()
-            if self.launch_amcl is not None:
-                self.launch_amcl.shutdown()
-            if self.launch_running is not None:
-                self.launch_running.shutdown()
         pass
+
+    def start(self):
+        print('###################')
+        self.main_logic()
 
 
 if __name__ == '__main__':

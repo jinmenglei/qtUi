@@ -16,6 +16,7 @@ level_relations = {
 
 log_module_dict = {}
 log_pid_lock_dict = {}
+log_filename = 'utry_log.log'
 
 
 def get_logger(name='root', filename='utry_log.log', level='info', max_bytes=10 * 1024 * 1024, filecount=40):
@@ -32,7 +33,7 @@ def get_logger(name='root', filename='utry_log.log', level='info', max_bytes=10 
     if logger is None:
         logger = logging.getLogger(name)
         logger.setLevel(level=level_relations[level])
-        log_path = os.path.join(os.environ['HOME'] + '/release/log', filename)
+        log_path = os.path.join(os.environ['HOME'] + '/release/log', log_filename)
 
         if not os.path.isdir(os.environ['HOME'] + '/release/log'):
             os.mkdir(os.environ['HOME'] + '/release/log')

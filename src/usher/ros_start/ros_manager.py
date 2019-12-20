@@ -8,13 +8,17 @@ import psutil
 import subprocess
 
 from base.U_dispatcher import UDispatcher
-from base.U_log import get_logger
+from base.U_log import get_logger, log_filename
 from base.U_msg import UMsg
+import base.U_util as Util
 import roslaunch
 from usher.ros_start.launchStart import LaunchThread
 from multiprocessing import Process
+import os
 
 host_ros = ('0.0.0.0', 8891)
+
+log_filename = 'utry_log_ros.log'
 
 
 # mem test
@@ -64,13 +68,11 @@ def get_pid_by_name(name: str):
             return True
     return False
 
-
-def get_ros_core():
-    return get_pid_by_name('roscore') or get_pid_by_name('rosmaster')
+    # return get_pid_by_name('roscore') or get_pid_by_name('rosmaster')
 
 
 class RosManager(object):
-    def __init__(self, module_pipe):
+    def __init__(self):
         self.__module_name = 'ros_manager'
         print('come in ' + str(self.__module_name))
         try:
@@ -78,10 +80,9 @@ class RosManager(object):
             print('come in 78' + str(self.__module_name))
             self.__logger.info('come in ' + self.__module_name)
             print('come in 80' + str(self.__module_name))
-            self.dispatcher = UDispatcher(UMsg.ros_dispatcher, module_pipe)
+            self.dispatcher = UDispatcher(UMsg.ros_dispatcher)
             print('come in 82' + str(self.__module_name))
         except Exception as e:
-            import os
             os.system('echo \"' + str(e) + '\" > coredump.log')
             self.__logger.fatal('find exception: ' + str(e))
 
@@ -105,12 +106,16 @@ class RosManager(object):
                         print('wait for ip init!!')
                         logger_inner.warning('wait for ip init!!')
 
-                if not get_ros_core():
+                if not Util.get_ros_core():
                     logger_inner.info('start ros core')
                     try:
-                        roslaunch.main(['roscore', '--core'])
-                        while True:
+                        import subprocess
+                        result = subprocess.getoutput('roscore')
+                        self.__logger.info(str(result))
+                        time.sleep(10)
+                        while Util.get_ros_core():
                             time.sleep(1)
+                        self.__logger.fatal('roscore is not alive!!!')
                     except Exception as e:
                         print('I am except ' + str(e))
                         logger_inner.fatal(str(e))
@@ -131,14 +136,15 @@ class RosManager(object):
     def start(self):
         self.__logger.info('begin to init ros core')
         try:
-            process = Process(target=self.ros_core_process)
-            process.daemon = True
-            time.sleep(1)
-            process.start()
-            self.__logger.info('complete to init ros core')
 
+            Util.add_thread(target=self.ros_core_process)
+            print('xxxxxxxxxxxxxxxxxxxxx')
             self.launch_thread = LaunchThread()
             self.launch_thread.start()
+
+            time.sleep(1)
+
+            self.__logger.info('complete to init ros core')
 
         except Exception as e:
             self.__logger.fatal('process start fail!! ' + str(e))

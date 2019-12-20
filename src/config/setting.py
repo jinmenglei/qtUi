@@ -192,7 +192,7 @@ list_show_box_string = [
     ['检测到新版本\n是否升级', Page_Update, None],
     ['地图不存在或不可用\n是否重新选择', Page_map_select, Page_mt_mode],
     ['启动出现异常\n是否重新启动', None, None],
-    ['未发现可用地图，请实施\n切换到手动驾驶？', Page_mt_mode, None],
+    ['未发现可用地图\n切换到手动驾驶？', Page_mt_mode, None],
     ['启动文件异常\n点击‘是’，重新选择\n 点击‘否’，切换到手动驾驶', None, Page_mt_mode],
 ]
 start_show_begin, start_show_success, start_show_fail, start_show_status, start_status = range(5)

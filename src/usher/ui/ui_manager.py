@@ -52,14 +52,13 @@ class Resquest_ui(BaseHTTPRequestHandler):
 
 class UiManager(object):
 
-    def __init__(self, manager_pipe):
+    def __init__(self):
         self.__module_name = 'ui_manager'
         print('ui_manager come in 57')
         self.__logger = get_logger(self.__module_name)
         print('ui_manager come in 59')
         self.dispatcher = None
         self.__frame = None
-        self.__manager_pipe = manager_pipe
         self.__app = None
         self.widgets = None
 
@@ -78,7 +77,7 @@ class UiManager(object):
         if not os.path.isfile('./debug'):
             self.widgets.setCursor(QtCore.Qt.BlankCursor)
 
-        self.dispatcher = UDispatcher(UMsg.ui_dispatcher, self.__manager_pipe)
+        # self.dispatcher = UDispatcher(UMsg.ui_dispatcher, self.__manager_pipe)
         print('ui_manager come in 82')
         # init base_frame
         self.__frame = BaseFrame(self.widgets)

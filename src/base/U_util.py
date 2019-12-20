@@ -5,6 +5,27 @@ import os
 import uuid
 from threading import Thread
 import hashlib
+import roslaunch
+import time
+
+
+def wait_for_master():
+    m = roslaunch.core.Master()  # get a handle to the default master
+    is_running = m.is_running()
+    if not is_running:
+        print("roscore/master is not yet running, will wait for it to start")
+    while not is_running:
+        time.sleep(0.1)
+        is_running = m.is_running()
+    if is_running:
+        print("master has started, initiating launch")
+    else:
+        print("unknown error waiting for master to start")
+
+
+def get_ros_core():
+    m = roslaunch.core.Master()
+    return m.is_running()
 
 
 def get_map_num():

@@ -33,6 +33,7 @@ class InterfaceRos(App):
         self.ui_ros_topic_is_sub = False
         self.callback_dict = {}
         self.__init_callback()
+        self.pub_launch = None
 
     def __init_callback(self):
         # 内部处理函数初始化
@@ -42,6 +43,19 @@ class InterfaceRos(App):
 
         # 模块间通信函数初始化
         self.subscribe_msg(self.msg_id.interface_ros_send_msg_out, self.interface_ros_send_msg_out)
+        self.subscribe_msg(self.msg_id.launch_start_control, self.control_callback)
+
+    def control_callback(self, data_dict):
+        self.__logger.info(str(data_dict))
+        _, msg_data = Util.get_msg_id_data_dict(data_dict)
+        if msg_data is not None and isinstance(msg_data, dict):
+            if self.ros_is_running:
+                data_dict_ros = {'msg_id': self.msg_id.launch_start_control, 'msg_data': msg_data}
+                self.send_msg_ros_launch(data_dict_ros)
+            else:
+                self.logger.info('ros_master is not run')
+        return
+
 
     def progress_callback(self, data):
         self.send_mode_mode_working_progress_notify(data)
@@ -126,8 +140,17 @@ class InterfaceRos(App):
             self.logger.warning('msg : ' + str(msg_data) + 'to json fail by:' + str(ret))
         return
 
+    def send_msg_ros_launch(self, msg_data):
+        ret, send_msg = Util.dict_to_ros_msg(msg_data)
+        if ret == 'ok':
+            self.pub_launch.publish(send_msg)
+        else:
+            self.logger.warning('msg : ' + str(msg_data) + 'to json fail by:' + str(ret))
+        return
+
     def start(self):
         Util.add_thread(target=self.__run)
+        Util.add_thread(target=self.init_ros_node)
         return
 
     def __run(self):
@@ -187,6 +210,8 @@ class InterfaceRos(App):
 
     def __init_sub_pub(self):
         self.pub = rospy.Publisher('/ui_ros_topic', String, queue_size=100)
+        self.pub_launch = rospy.Publisher('/ui_launch_topic', String, queue_size=100)
+        rospy.Subscriber('/launch_ui_topic', String, self.launch_callback)
         rospy.Subscriber('/ros_ui_topic', String, self.callback)
         rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, self.amcl_pose_callback)
         return
@@ -202,6 +227,15 @@ class InterfaceRos(App):
         msg_data = {'msg_id': msg_id, 'msg_type': msg_type}
         self.send_msg_ros(msg_data)
         return
+
+    def launch_callback(self, data):
+        self.logger.info(str(data))
+        ret, data_dict = Util.ros_msg_to_dict(data)
+        self.logger.info(str(data_dict))
+        if ret == 'ok' and data_dict is not None:
+            self.send_msg_dispatcher(self.msg_id.mode_start_status, data_dict['msg_data'])
+            data_dict['msg_id'] = self.msg_id.mode_start_status + '_ack'
+            self.send_msg_ros_launch(data_dict)
 
     def callback(self, data):
         ret, data_dict = Util.ros_msg_to_dict(data)
@@ -222,7 +256,7 @@ class InterfaceRos(App):
                 if callback is not None:
                     callback(msg_data)
         else:
-            self.logger.warning(str(data_dict) + '--- msg errer : ' + str(ret))
+            self.logger.warning(str(data_dict) + '--- msg error : ' + str(ret))
         return
 
     def init_ros_node(self):
@@ -230,7 +264,6 @@ class InterfaceRos(App):
         self.logger.info('roscore inited!!')
         time.sleep(1)
 
-        rospy.init_node('ros_ui_start', anonymous=True)
-
         self.ros_is_running = True
+        self.logger.info('start init_ros_node Ok!')
         return

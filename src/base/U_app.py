@@ -12,6 +12,7 @@ from queue import Queue
 from base.U_msg import UMsg
 from multiprocessing import Pipe, Lock, RLock
 from multiprocessing import connection
+from PyQt5.QtCore import pyqtBoundSignal
 
 
 class App(object):
@@ -248,6 +249,8 @@ class App(object):
     def send_msg_inner(self, send_queue, send_msg):
         if isinstance(send_queue, Queue):
             send_queue.put_nowait(send_msg)
+        elif isinstance(send_queue, pyqtBoundSignal):
+            send_queue.emit(send_msg)
 
     def send_msg_id_manager_dispatcher(self, msg_id):
         msg_data = {'msg_id': msg_id, 'module_name': self.__app_name}

@@ -53,7 +53,7 @@ class ServiceManger(object):
     行车记录仪
     更新
     """
-    def __init__(self, manager_pipe):
+    def __init__(self):
         self.module_name = 'service_manager'
 
         self.__logger = get_logger(self.module_name)
@@ -61,7 +61,7 @@ class ServiceManger(object):
         print('come in 61')
         try:
             print('come in 63')
-            self.dispatcher = UDispatcher(UMsg.service_dispatcher, manager_pipe)
+            # self.dispatcher = UDispatcher(UMsg.service_dispatcher, manager_pipe)
             print('come in 65')
         except Exception as e:
             print('come in 65')
@@ -81,8 +81,6 @@ class ServiceManger(object):
         update_task.start()
         self.__logger.info('start update_task Ok!')
         interface_ros.init_ros_node()
-        self.__logger.info('start init_ros_node Ok!')
+
         # task_mem = Thread(target=get_mem_snap)
         # task_mem.start()
-        while True:
-            time.sleep(1)

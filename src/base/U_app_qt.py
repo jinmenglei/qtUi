@@ -112,9 +112,9 @@ class Q_App(App, QFrame):
         self.stop_signal.connect(lambda: self.stop())
         self.inner_signal.connect(self.inner_msg_handler)
 
-    def send_msg_inner(self, send_queue, send_msg):
-        if isinstance(send_queue, pyqtBoundSignal):
-            send_queue.emit(send_msg)
+    # def send_msg_inner(self, send_queue, send_msg):
+    #     if isinstance(send_queue, pyqtBoundSignal):
+    #         send_queue.emit(send_msg)
 
     def start(self):
         """
