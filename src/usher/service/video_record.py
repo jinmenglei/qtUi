@@ -8,6 +8,7 @@ from threading import Thread
 from base.U_app import App
 from base.U_log import get_logger
 from queue import Queue
+import subprocess as sp
 
 
 class VideoRecord(App):
@@ -58,7 +59,28 @@ class VideoRecord(App):
 
     def rtmp_queue_callback(self):
         self.logger.info('come in write_file_queue_callback')
-        pass
+        rtmpUrl = "rtmp://120.26.209.2:1935/live/test"
+        command = ['ffmpeg',
+                   '-y',
+                   '-f', 'rawvideo',
+                   '-vcodec', 'rawvideo',
+                   '-pix_fmt', 'bgr24',
+                   '-s', "{}x{}".format(640, 480),  # 图片分辨率
+                   '-r', str(8.0),  # 视频帧率
+                   '-i', '-',
+                   '-c:v', 'libx264',
+                   '-pix_fmt', 'yuv420p',
+                   '-preset', 'ultrafast',
+                   '-f', 'flv',
+                   rtmpUrl]
+
+        p = sp.Popen(command, stdin=sp.PIPE)
+
+        while True:
+            time.sleep(0.01)
+            if not self.write_file_queue.empty():
+                frame = self.rtmp_queue_callback.get_nowait()
+                # p.stdin.write(image.tostring())
 
     def local_queue_callback(self):
         self.logger.info('come in write_file_queue_callback')
@@ -67,8 +89,8 @@ class VideoRecord(App):
     def start(self):
         Util.add_thread(target=self.__run__)
         Util.add_thread(target=self.write_file_queue_callback)
-        Util.add_thread(target=self.rtmp_queue_callback)
-        Util.add_thread(target=self.local_queue_callback)
+        # Util.add_thread(target=self.rtmp_queue_callback)
+        # Util.add_thread(target=self.local_queue_callback)
 
     def __run__(self):
         self.init_cap()
