@@ -11,6 +11,7 @@ from base.U_app import App
 from base.U_log import get_logger
 import base.U_util as Util
 import config.setting as setting
+from third_party.config import get_value_by_key
 
 
 class LaunchThread(App):
@@ -20,9 +21,26 @@ class LaunchThread(App):
         App.__init__(self, self.__module_name)
         self.__logger = get_logger(self.__module_name)
         self.launch_under_pan = None
+        self.launch_under_pan_path = get_value_by_key('underpan', 'LAUNCH')
+        self.__logger.info('get underpan path: '+ str(self.launch_under_pan_path))
+        if self.launch_under_pan_path is None:
+            self.launch_under_pan_path = \
+                '/home/utry/catkin_ws/src/xiaoyuan_robot_v2/launch/xiaoyuan_robot_start_underpan.launch'
+        self.launch_other = None
+        self.launch_other_path = get_value_by_key('other', 'LAUNCH')
+        self.__logger.info('get other path: ' + str(self.launch_other_path))
+
+        if self.launch_other_path is None:
+            self.launch_other_path = \
+                '/home/utry/catkin_ws/src/xiaoyuan_robot_v2/launch/xiaoyuan_robot_start_other.launch'
         self.launch_sensor = None
         self.launch_amcl = None
         self.launch_running = None
+        self.launch_running_path = get_value_by_key('linerunning', 'LAUNCH')
+        self.__logger.info('get linerunning path: ' + str(self.launch_running_path))
+        if self.launch_running_path is None:
+            self.launch_running_path = '/home/utry/catkin_ws/src/linerunning_v2/launch/xiaoyuan_clear.launch'
+
         self.is_start = False
         self.is_stop = False
         self.is_shutdown = False
@@ -51,27 +69,16 @@ class LaunchThread(App):
 
     def start_launch_thread(self):
         try:
-            self.launch_sensor = roslaunch.parent.ROSLaunchParent(self.uuid, [
-                "/home/utry/catkin_ws/src/xiaoyuan_robot_v2/launch/xiaoyuan_robot_start_sensor.launch"])
+            self.launch_other = roslaunch.parent.ROSLaunchParent(self.uuid, [self.launch_other_path])
 
-            self.launch_amcl = roslaunch.parent.ROSLaunchParent(self.uuid, [
-                "/home/utry/catkin_ws/src/xiaoyuan_robot_v2/launch/xiaoyuan_robot_start_amcl.launch"])
-
-            self.launch_running = roslaunch.parent.ROSLaunchParent(self.uuid, [
-                "/home/utry/catkin_ws/src/linerunning_v2/launch/xiaoyuan_clear.launch"])
+            self.launch_running = roslaunch.parent.ROSLaunchParent(self.uuid, [self.launch_running_path])
 
             self.is_shutdown = False
             self.is_start = True
 
-            self.__logger.info('begin to  sensor!')
-            self.launch_sensor.start()
+            self.__logger.info('begin to  other!')
+            self.launch_other.start()
             self.__logger.info('end to sensor!')
-
-            time.sleep(5)
-
-            self.__logger.info('begin to amcl!')
-            self.launch_amcl.start()
-            self.__logger.info('end to amcl!')
 
             time.sleep(5)
 
@@ -95,10 +102,8 @@ class LaunchThread(App):
         finally:
             self.is_start = False
             print('I am finally')
-            self.launch_sensor.shutdown()
-            print(self.launch_sensor)
-            self.launch_amcl.shutdown()
-            print(self.launch_amcl)
+            self.launch_other.shutdown()
+            print(self.launch_other)
             self.launch_running.shutdown()
             print(self.launch_running)
         pass
@@ -109,9 +114,7 @@ class LaunchThread(App):
             self.is_shutdown = True
             while self.is_shutdown:
                 time.sleep(1)
-            self.launch_sensor.shutdown()
-            time.sleep(1)
-            self.launch_amcl.shutdown()
+            self.launch_other.shutdown()
             time.sleep(1)
             self.launch_running.shutdown()
             self.is_stop = False
@@ -141,8 +144,7 @@ class LaunchThread(App):
         self.uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         print('uuid' + self.uuid)
 
-        self.launch_under_pan = roslaunch.parent.ROSLaunchParent(self.uuid, [
-            "/home/utry/catkin_ws/src/xiaoyuan_robot_v2/launch/xiaoyuan_robot_start_underpan.launch"])
+        self.launch_under_pan = roslaunch.parent.ROSLaunchParent(self.uuid, [self.launch_under_pan_path])
 
         try:
             time.sleep(1)
@@ -165,10 +167,8 @@ class LaunchThread(App):
 
         finally:
             print('I am finally')
-            if self.launch_sensor is not None:
-                self.launch_sensor.shutdown()
-            if self.launch_amcl is not None:
-                self.launch_amcl.shutdown()
+            if self.launch_other is not None:
+                self.launch_other.shutdown()
             if self.launch_running is not None:
                 self.launch_running.shutdown()
         pass

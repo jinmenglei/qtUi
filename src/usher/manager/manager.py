@@ -79,6 +79,13 @@ class Manager:
         try:
             self.logger.info('get queue ' + str(self.manager_pipe))
 
+            self.process_service = Process(target=self.run_service_process, args=(self.manager_pipe, ), name='process_child' )
+            self.process_service.daemon = True
+            time.sleep(1)
+            self.process_service.start()
+            self.logger.info('process_service start_ok')
+            self.process_pool['process_service'] = self.process_service
+
             self.process_ui = Process(target=self.run_ui_process, args=(self.manager_pipe,), name='process_main')
             self.process_ui.daemon = True
             time.sleep(1)
@@ -93,20 +100,11 @@ class Manager:
             self.logger.info('process_ros start ok')
             self.process_pool['process_ros'] = self.process_ros
 
-
-
-            self.process_service = Process(target=self.run_service_process, args=(self.manager_pipe, ), name='process_child' )
-            self.process_service.daemon = True
-            time.sleep(1)
-            self.process_service.start()
-            self.logger.info('process_service start_ok')
-            self.process_pool['process_service'] = self.process_service
-
             while True:
                 # for key in self.process_pool:
                 #     self.logger.info('check process :' + str(key) + 'pid: ' + str(self.process_pool[key].pid) +
                 #                      'is_alive: ' + str(self.process_pool[key].is_alive()))
-                print('main process is still alive----refresh')
+                # print('main process is still alive----refresh')
                 time.sleep(1)
         except KeyboardInterrupt as e:
             self.logger.fatal(' ########################## exit by : ' + str(e))

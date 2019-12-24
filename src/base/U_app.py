@@ -282,7 +282,6 @@ class App(object):
 
 # """test code """
 if __name__ == '__main__':
-    from service.dispatcher import Dispatcher
     logger = get_logger(__name__)
 
     message = App('test')

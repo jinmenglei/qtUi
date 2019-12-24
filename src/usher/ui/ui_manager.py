@@ -16,6 +16,7 @@ from base.U_msg import UMsg
 import tracemalloc
 from threading import Thread
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from third_party.config import get_value_by_key
 host_ui = ('0.0.0.0', 8889)
 
 
@@ -91,7 +92,11 @@ class UiManager(object):
         self.widgets.show()
 
         # test mem
-        # Util.add_thread(target=get_mem_snap)
+        check_memory = get_value_by_key('check_memory', 'CONFIG')
+        self.__logger.info('get check_memory :' + str(check_memory))
+        if check_memory == 'yes':
+            task_mem = Thread(target=get_mem_snap)
+            task_mem.start()
 
         self.__app.exec_()
         self.__logger.info('end!!!!!!')

@@ -28,10 +28,11 @@ class BaseFrame(AppQt.Q_App):
         self.logger = get_logger(self.module_name)
 
         self.one_second_cnt = 0
+        self.get_odom_cnt = 0
         # home
         self.battery_count = 88
         self.water_count = 88
-        self.odom_count = 1.2
+        self.odom_count = 0
         self.line_speed = 0
         self.received_time = 0
 
@@ -118,23 +119,12 @@ class BaseFrame(AppQt.Q_App):
         self.Manage = ManagerFrame(self)
 
         self.Manage.show()
-        self.get_odom()
-
-    def get_odom(self):
-        if not os.path.isfile('./odom_ini'):
-            self.record_odom()
-        with open('./odom_ini', 'r+') as f_odom:
-            self.odom_count = f_odom.readline()
-            if self.odom_count == '':
-                self.odom_count = 0
-            else:
-                self.odom_count = float(self.odom_count)
-            self.logger.info('read :' + str(self.odom_count))
-            self.is_get_odom = True
 
     def record_odom(self):
-        with open('./odom_ini', 'w+') as f_odom:
-            f_odom.writelines([str(self.odom_count)])
+        msg_data = {'odom': self.odom_count}
+        self.send_msg_dispatcher(self.msg_id.cfg_server_set_odom, msg_data)
+        # with open('./odom_ini', 'w+') as f_odom:
+        #     f_odom.writelines([str(self.odom_count)])
 
     def __init_callback(self):
         """
@@ -145,6 +135,26 @@ class BaseFrame(AppQt.Q_App):
         self.subscribe_msg(self.msg_id.base_frame_set_button_enable, self.set_button_enable_callback)
         self.subscribe_msg(self.msg_id.base_frame_update_link_status, self.update_link_status_callback)
         self.subscribe_msg(self.msg_id.base_frame_update_button_status, self.update_button_status_callback)
+        self.subscribe_msg(self.msg_id.base_frame_odom_notify, self.odom_notify_callback)
+
+    def odom_notify_callback(self, data_dict):
+        """
+        {
+            'msg_id' : 'base_frame_odom_notify',
+            'msg_data': {
+                'odom': '1.23'
+            }
+        }
+        :param data_dict:
+        :return:
+        """
+        msg_id, msg_data = Util.get_msg_id_data_dict(data_dict)
+        if msg_id is not None and isinstance(msg_data, dict):
+            self.logger.info('get_odom :' + str(data_dict))
+            odom = msg_data['odom']
+            self.odom_count = float(odom)
+            self.is_get_odom = True
+            self.show_time()
 
     def update_button_status_callback(self, data_dict):
         """
@@ -325,8 +335,14 @@ class BaseFrame(AppQt.Q_App):
             self.link_mcu = False
             self.link_ros = False
 
+        if not self.is_get_odom:
+            self.get_odom_cnt += 1
+            if self.get_odom_cnt >= 10 * 10:
+                self.send_msg_dispatcher(self.msg_id.cfg_server_get_odom)
+                self.get_odom_cnt = 0
+
         self.one_second_cnt += 1
-        if self.one_second_cnt >= 5 * 10:
+        if self.one_second_cnt >= 5 * 10 * 6:
             self.one_second_cnt = 0
             self.show_time()
 

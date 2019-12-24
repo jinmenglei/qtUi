@@ -162,7 +162,7 @@ class InterfaceRos(App):
         self.logger.info('begin start __main_logic')
         while not rospy.is_shutdown():
             check_cnt += 1
-            if check_cnt == 20:
+            if check_cnt == 5:
                 check_cnt = 0
                 self.check_ui_ros_topic_is_sub()
             if time.time() - self.received_time < 1:
@@ -180,7 +180,7 @@ class InterfaceRos(App):
                 self.send_msg_dispatcher(self.msg_id.mode_start_status,
                                          {'index': setting.start_xiaoyuan, 'status': self.link_ros})
 
-            time.sleep(2)
+            time.sleep(1)
 
         self.logger.info('end start __main_logic')
         return

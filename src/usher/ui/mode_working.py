@@ -193,6 +193,19 @@ class ModeWorkingPanel(AppQt.Q_App):
         """标题栏刷新定时器"""
         self.do_ui_update()
 
+    def turn_off_all(self):
+        self.logger.info('do turn off all')
+        msg_data = {'msg_id': 'brush_req', 'msg_type': 'control',
+                    'msg_data': 'close'}
+        self.send_msg_out(msg_data)
+
+        msg_data['msg_id'] = 'water_req'
+        self.send_msg_out(msg_data)
+
+        msg_data['msg_id'] = 'direction_req'
+        msg_data['msg_data'] = 'forward'
+        self.send_msg_out(msg_data)
+
     def on_click_pause_continue(self):
         """暂停继续按钮"""
 
@@ -208,6 +221,7 @@ class ModeWorkingPanel(AppQt.Q_App):
             self.m_button_cancel.setStyleSheet(self.cancel_style_sheet_enable)
             self.set_button_enable(True)
             self.send_set_pause_msg(True)
+            self.turn_off_all()
 
         else:
             self.working_status = working_status_on

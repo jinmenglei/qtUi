@@ -5,6 +5,7 @@ import os
 import uuid
 from threading import Thread
 import hashlib
+from third_party.config import get_value_by_key
 
 
 def get_map_num():
@@ -52,8 +53,12 @@ def get_map_num():
 
 
 def change_wp_file(wp_path):
-    launch_file = '/home/utry/catkin_ws/src/linerunning_v2/launch/xiaoyuan_clear.launch'
-    launch_file_bk = '/home/utry/catkin_ws/src/linerunning_v2/launch/.xiaoyuan_clear.launch'
+    launch_file = get_value_by_key('linerunning', 'LAUNCH')
+    if launch_file is None:
+        launch_file = '/home/utry/catkin_ws/src/linerunning_v2/launch/xiaoyuan_clear.launch'
+
+    launch_file_bk = get_launch_backup(launch_file)
+
     if os.path.isfile(launch_file):
         cmd = 'cp ' + launch_file + ' ' + launch_file_bk
         os.system(cmd)
@@ -79,9 +84,25 @@ def change_wp_file(wp_path):
     return False
 
 
+def get_launch_backup(launch_file):
+    # 拆分出最后launch文件
+    list_launch = launch_file.split('/')
+    launch_file_name = list_launch[len(list_launch) - 1]
+    print(launch_file_name)
+    # 拼接backup文件
+    launch_file_bk = launch_file.strip(launch_file_name) + '.' + launch_file_name
+    print(launch_file_bk)
+    return launch_file_bk
+
+
 def change_pcd_file(pcd_path):
-    launch_file = '/home/utry/catkin_ws/src/xiaoyuan_robot_v2/launch/xiaoyuan_robot_start_amcl.launch'
-    launch_file_bk = '/home/utry/catkin_ws/src/xiaoyuan_robot_v2/launch/.xiaoyuan_robot_start_amcl.launch'
+    launch_file = get_value_by_key('other', 'LAUNCH')
+    if launch_file is None:
+        launch_file = '/home/utry/catkin_ws/src/xiaoyuan_robot_v2/launch/xiaoyuan_robot_start_other.launch'
+
+    # 拼接backup文件
+    launch_file_bk = get_launch_backup(launch_file)
+
     if os.path.isfile(launch_file):
         cmd = 'cp ' + launch_file + ' ' + launch_file_bk
         os.system(cmd)
@@ -139,7 +160,7 @@ def get_uuid() -> str:
 
 
 def add_thread(target=None, name=None, args=(), kwargs=None, *, daemon=None):
-    task = Thread(target=target,)
+    task = Thread(target=target, name=name, args=args, kwargs=kwargs, daemon=daemon)
     task.start()
     return task
 
@@ -216,6 +237,6 @@ def get_msg_id_from_data_dict(data_dict) -> (str,str):
 
 # test code
 if __name__ == '__main__':
-    print(get_map_num())
+    # print(get_map_num())
     print(change_pcd_file('/home/utry/catkin_ws/src/databag/1029.pcd'))
     print(change_wp_file('/home/utry/catkin_ws/src/databag/1029wp.csv'))

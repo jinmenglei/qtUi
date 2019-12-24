@@ -13,6 +13,7 @@ from base.U_msg import UMsg
 import roslaunch
 from usher.ros_start.launchStart import LaunchThread
 from multiprocessing import Process
+from third_party.config import get_value_by_key
 
 host_ros = ('0.0.0.0', 8891)
 
@@ -136,6 +137,12 @@ class RosManager(object):
             time.sleep(1)
             process.start()
             self.__logger.info('complete to init ros core')
+
+            check_memory = get_value_by_key('check_memory', 'CONFIG')
+            self.__logger.info('get check_memory :' + str(check_memory))
+            if check_memory == 'yes':
+                task_mem = Thread(target=get_mem_snap)
+                task_mem.start()
 
             self.launch_thread = LaunchThread()
             self.launch_thread.start()

@@ -32,6 +32,7 @@ class UMsg:
     base_frame_set_button_enable = 'base_frame_set_button_enable'
     base_frame_update_link_status = 'base_frame_update_link_status'
     base_frame_update_button_status = 'base_frame_update_button_status'
+    base_frame_odom_notify = 'base_frame_odom_notify'
 
     # interface_ros
     interface_ros_send_msg_out = 'interface_ros_send_msg_out'
@@ -70,6 +71,10 @@ class UMsg:
 
     # mode_start
     mode_start_status = 'mode_start_status'
+
+    # cfg_server
+    cfg_server_get_odom = 'cfg_server_get_odom'
+    cfg_server_set_odom = 'cfg_server_set_odom'
 
 
 # test code

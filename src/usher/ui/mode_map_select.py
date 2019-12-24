@@ -85,7 +85,7 @@ class ModeMapSelectPanel(AppQt.Q_App):
         map_label.show()
 
         self.list_map_label.append(map_label)
-        self.timer_update_map.start(200)
+        self.timer_update_map.start(20)
         pass
 
     def on_timer_update_map(self):
@@ -190,7 +190,7 @@ class ModeMapSelectPanel(AppQt.Q_App):
 
                 self.position_cnt = 0
 
-                self.timer_update_map.start(100)
+                self.timer_update_map.start(50)
 
 
         # if list_map_len > 8:

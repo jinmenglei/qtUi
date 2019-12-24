@@ -7,6 +7,7 @@ import requests
 import shutil
 import base64
 from PyQt5 import QtGui, QtCore
+from third_party.config import get_value_by_key
 
 
 class ModeAuthorPanel(AppQt.Q_App):
@@ -22,7 +23,16 @@ class ModeAuthorPanel(AppQt.Q_App):
         self.res_path = Util.get_res_path(self.module_name)
         self.input_cnt = 0
         self.one_second_cnt = 0
+        password = get_value_by_key('password', 'CONFIG')  # type: str
+        self.logger.info('get password: ' + str(password))
         self.password = '889972'
+        if password is not None:
+            if len(password) == 6:
+                if password.isdigit():
+                    self.password = str(password)
+
+        self.logger.info('set password: ' + str(self.password))
+
         self.input_password = ''
         self.error_show_cnt = 0
         self.mac_id = Util.get_mac_address()
@@ -72,8 +82,9 @@ class ModeAuthorPanel(AppQt.Q_App):
 
             self.radio_list.append(radio_button)
 
-        self.m_static_password_tip = AppQt.get_label_text(self, AppQt.QRect(191, 14, 418, 28), True, '请扫描二维码或 输入管理员密码', 28,
-                                                    'MicrosoftYaHei-Bold','#333333')
+        self.m_static_password_tip = AppQt.get_label_text(self, AppQt.QRect(191, 14, 418, 28), True,
+                                                          '请扫描二维码或 输入管理员密码', 28,
+                                                          'MicrosoftYaHei-Bold', '#333333')
 
         self.timer_show = QtCore.QTimer(parent=self)  # 创建定时器
         self.timer_show.timeout.connect(self.on_timer_show)
@@ -125,7 +136,6 @@ class ModeAuthorPanel(AppQt.Q_App):
             self.logger.warning('find error')
         finally:
             self.locking = False
-
 
     def get_unlock_status(self):
         # test

@@ -9,6 +9,7 @@ from base.U_app import App
 from base.U_log import get_logger
 from queue import Queue
 import subprocess as sp
+from third_party.config import get_value_by_key
 
 
 class VideoRecord(App):
@@ -26,13 +27,45 @@ class VideoRecord(App):
         self.frequency = 8.0
         self.abspath = None
         # video record
-        self.record_time = 180  # s
-        self.file_size = 1000  # M
+        self.record_time = get_value_by_key('video_record_time', 'CONFIG')  # type:str
+        self.logger.info('get video_record_time: ' + str(self.record_time))
+        if self.record_time is None:
+            self.record_time = 180
+        else:
+            if self.record_time.isdigit():
+                self.record_time = int(self.record_time)
+            else:
+                self.logger.info('get video_record_time is not digit')
+                self.record_time = 180
+
+        self.file_size = get_value_by_key('video_record_size', 'CONFIG')  #  type:str
+        self.logger.info('get video_record_size: ' + str(self.file_size))
+        if self.file_size is None:
+            self.file_size = 1024
+        else:
+            if self.file_size.isdigit():
+                self.file_size = int(self.file_size)
+            else:
+                self.logger.info('get video_record_size is not digit')
+                self.file_size = 1024
+
         self.save_path = Util.get_res_path('video_save')
         self.snap_flag = False
         self.write_file_queue = Queue()
         self.rtmp_queue = Queue()
         self.local_queue = Queue()
+
+        self.video_record_flip = get_value_by_key('video_record_flip', 'CONFIG')
+        self.logger.info('get video_record_flip ：' + str(self.video_record_flip))
+        self.rtmp_enable = get_value_by_key('rtmp_enable', 'CONFIG')
+        self.logger.info('get rtmp_enable ：' + str(self.rtmp_enable))
+        self.rtmp_url = get_value_by_key('rtmp_url', 'CONFIG')
+        self.logger.info('get rtmp_url ：' + str(self.rtmp_url))
+        if self.rtmp_url is None:
+            self.rtmp_url = 'rtmp://120.26.209.2:1935/live/test'
+
+        self.http_local_enable = get_value_by_key('http_local_enable', 'CONFIG')
+        self.logger.info('get http_local_enable ：' + str(self.http_local_enable))
 
     def snap_req_callback(self, data_dict):
         self.snap_flag = True
@@ -59,7 +92,6 @@ class VideoRecord(App):
 
     def rtmp_queue_callback(self):
         self.logger.info('come in write_file_queue_callback')
-        rtmpUrl = "rtmp://120.26.209.2:1935/live/test"
         command = ['ffmpeg',
                    '-y',
                    '-f', 'rawvideo',
@@ -72,7 +104,7 @@ class VideoRecord(App):
                    '-pix_fmt', 'yuv420p',
                    '-preset', 'ultrafast',
                    '-f', 'flv',
-                   rtmpUrl]
+                   self.rtmp_url]
 
         p = sp.Popen(command, stdin=sp.PIPE)
 
@@ -89,8 +121,10 @@ class VideoRecord(App):
     def start(self):
         Util.add_thread(target=self.__run__)
         Util.add_thread(target=self.write_file_queue_callback)
-        # Util.add_thread(target=self.rtmp_queue_callback)
-        # Util.add_thread(target=self.local_queue_callback)
+        if self.rtmp_enable == 'yes':
+            Util.add_thread(target=self.rtmp_queue_callback)
+        if self.http_local_enable == 'yes':
+            Util.add_thread(target=self.local_queue_callback)
 
     def __run__(self):
         self.init_cap()
@@ -156,14 +190,17 @@ class VideoRecord(App):
                     # print(time.time() - time_start)
                     # flip frame
                     # cv.imshow('frame', frame)
-                    frame = cv.flip(frame, -1)
+                    if self.video_record_flip == 'yes':
+                        frame = cv.flip(frame, -1)
 
                     # set time flag
                     str_time = str(datetime.datetime.now())
                     str_time = str_time[:21]
                     cv.putText(frame, str_time, (30, 30), cv.FONT_HERSHEY_SIMPLEX, 0.5, self.get_text_color(frame), 1)
-                    # self.rtmp_queue.put_nowait(frame)
-                    # self.local_queue.put_nowait(frame)
+                    if self.rtmp_enable == 'yes':
+                        self.rtmp_queue.put_nowait(frame)
+                    if self.http_local_enable == 'yes':
+                        self.local_queue.put_nowait(frame)
                     self.write_file_queue.put_nowait(frame)
 
                 time_sleep = time.time() - time_start

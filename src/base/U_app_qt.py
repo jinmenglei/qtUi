@@ -151,8 +151,6 @@ class Q_App(App, QFrame):
 
 # """test code """
 if __name__ == '__main__':
-    from service.dispatcher import Dispatcher
-    logger = get_logger(__name__)
 
     message = App('test')
     print(message.make_session('abc'))
@@ -173,13 +171,3 @@ if __name__ == '__main__':
     # dispatcher.start()
     # dispatcher.init_ros_node()
     # logger.info('dispatcher.start()')
-
-
-
-
-
-# class Q_App_W(QWidget, App):
-#     def __init__(self, module_name, parent=None):
-#         QWidget.__init__(self)
-#         App.__init__(self, module_name)
-

@@ -15,3 +15,5 @@
 /src/usher/main/debug
 /src/usher/main/odom_ini
 /release/utry_shell/start_test
+/src/third_party/u_database.db
+/src/usher/main/u_database.db

@@ -20,6 +20,8 @@ class ModeMtPanel(AppQt.Q_App):
             ,'direction_req']]
 
         self.list_mt_button_status = [Mt_button_off, Mt_button_off, Mt_button_forward]
+        self.list_remote_mt_button_status = [Mt_button_off, Mt_button_off, Mt_button_forward]
+
         self.link_ros = False
         self.link_mcu = False
 
@@ -88,21 +90,21 @@ class ModeMtPanel(AppQt.Q_App):
     def update_button_status_proc(self, msg_data):
         if 'brush_status' in msg_data:
             if msg_data['brush_status'] == 'close':
-                self.list_mt_button_status[Mt_brush_button] = Mt_button_off
+                self.list_remote_mt_button_status[Mt_brush_button] = Mt_button_off
             else:
-                self.list_mt_button_status[Mt_brush_button] = Mt_button_on
+                self.list_remote_mt_button_status[Mt_brush_button] = Mt_button_on
 
         if 'water_status' in msg_data:
             if msg_data['water_status'] == 'close':
-                self.list_mt_button_status[Mt_water_button] = Mt_button_off
+                self.list_remote_mt_button_status[Mt_water_button] = Mt_button_off
             else:
-                self.list_mt_button_status[Mt_water_button] = Mt_button_on
+                self.list_remote_mt_button_status[Mt_water_button] = Mt_button_on
 
         if 'direction_status' in msg_data:
             if msg_data['direction_status'] == 'forward':
-                self.list_mt_button_status[Mt_direction_button] = Mt_button_forward
+                self.list_remote_mt_button_status[Mt_direction_button] = Mt_button_forward
             else:
-                self.list_mt_button_status[Mt_direction_button] = Mt_button_back
+                self.list_remote_mt_button_status[Mt_direction_button] = Mt_button_back
 
     def update_link_status_callback(self, data_dict):
         """
@@ -175,8 +177,10 @@ class ModeMtPanel(AppQt.Q_App):
 
         for index in range(Mt_button_num):
             list_button[index].setStyleSheet(list_bitmap[index][list_status[index]])
+            self.ui_control_ros(index)
 
     def on_timer_show(self):
         """标题栏刷新定时器"""
         if not self.timer_delay.isActive() and self.isVisible():
-            self.show_all_button()
+            # self.show_all_button()
+            pass

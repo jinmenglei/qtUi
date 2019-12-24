@@ -4,7 +4,9 @@ from usher.service.interface_ros import InterfaceRos
 from usher.service.video_record import VideoRecord
 from usher.service.Update_task import UpdateTask
 from base.U_dispatcher import UDispatcher
+from usher.service.cfg_server import CfgServer
 import time
+from third_party.config import get_value_by_key
 
 # test mem
 import tracemalloc
@@ -71,18 +73,28 @@ class ServiceManger(object):
 
     def start(self):
         self.__logger.info('start service_manger!')
+        cfg_server = CfgServer()
+        cfg_server.start()
+        self.__logger.info('start cfg_service ok!')
         interface_ros = InterfaceRos()
         interface_ros.start()
         self.__logger.info('start interface_ros ok')
-        video_record = VideoRecord()
-        video_record.start()
-        self.__logger.info('start video_record ok !')
+        video_record_enable = get_value_by_key('video_record_enable', 'CONFIG')
+        self.__logger.info('get video_record_enable :' + str(video_record_enable))
+        if video_record_enable == 'yes':
+            video_record = VideoRecord()
+            video_record.start()
+            self.__logger.info('start video_record ok !')
         update_task = UpdateTask()
         update_task.start()
         self.__logger.info('start update_task Ok!')
         interface_ros.init_ros_node()
         self.__logger.info('start init_ros_node Ok!')
-        # task_mem = Thread(target=get_mem_snap)
-        # task_mem.start()
+
+        check_memory = get_value_by_key('check_memory', 'CONFIG')
+        self.__logger.info('get check_memory :' + str(check_memory))
+        if check_memory == 'yes':
+            task_mem = Thread(target=get_mem_snap)
+            task_mem.start()
         while True:
             time.sleep(1)
