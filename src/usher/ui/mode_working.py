@@ -156,13 +156,13 @@ class ModeWorkingPanel(AppQt.Q_App):
         msg_id, msg_data = Util.get_msg_id_data_dict(data_dict)
         if 'map_path' in msg_data and 'map_name' in msg_data:
             map_path = msg_data['map_path']
-            if os.path.isfile(map_path):
+            if os.path.isfile(map_path) or map_path == ':/mode_map_select/mode_map_select/default.png':
                 self.map_select_path = map_path
                 if 'map_name' in msg_data:
                     self.map_select_name = msg_data['map_name']
                     return
             else:
-                self.logger.fatal(str(map_path) + 'select path is no existed')
+                self.logger.fatal(str(map_path) + ' select path is no existed')
                 return
 
         self.logger.warning(str(data_dict) + ' data error !!!')
@@ -193,17 +193,15 @@ class ModeWorkingPanel(AppQt.Q_App):
         """标题栏刷新定时器"""
         self.do_ui_update()
 
-    def turn_off_all(self):
+    def turn_off_all(self, up=True):
         self.logger.info('do turn off all')
         msg_data = {'msg_id': 'brush_req', 'msg_type': 'control',
                     'msg_data': 'close'}
+        if not up:
+            msg_data['msg_data'] = 'open'
         self.send_msg_out(msg_data)
 
         msg_data['msg_id'] = 'water_req'
-        self.send_msg_out(msg_data)
-
-        msg_data['msg_id'] = 'direction_req'
-        msg_data['msg_data'] = 'forward'
         self.send_msg_out(msg_data)
 
     def on_click_pause_continue(self):
@@ -221,7 +219,7 @@ class ModeWorkingPanel(AppQt.Q_App):
             self.m_button_cancel.setStyleSheet(self.cancel_style_sheet_enable)
             self.set_button_enable(True)
             self.send_set_pause_msg(True)
-            self.turn_off_all()
+            self.turn_off_all(up=True)
 
         else:
             self.working_status = working_status_on
@@ -231,6 +229,7 @@ class ModeWorkingPanel(AppQt.Q_App):
             self.m_button_cancel.setStyleSheet(self.cancel_style_sheet_disable)
             self.set_button_enable(False)
             self.send_set_pause_msg(False)
+            self.turn_off_all(up=False)
 
     def send_set_pause_msg(self, is_pause:bool):
         msg_data = {'msg_id': 'set_pause', 'msg_type': 'control',
@@ -287,7 +286,7 @@ class ModeWorkingPanel(AppQt.Q_App):
             self.send_set_pause_msg(False)
 
             self.timer_show.start(200)
-            self.timer_start_delay.start(10000)
+            self.timer_start_delay.start(1000)
             self.count = 11
             self.show_ui_update()
             self.m_button_pause_continue.setStyleSheet(self.list_working_button_bitmap[self.working_status])
