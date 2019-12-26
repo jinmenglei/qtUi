@@ -6,6 +6,7 @@ import uuid
 from threading import Thread
 import hashlib
 from third_party.config import get_value_by_key
+import PIL.Image as Image
 
 
 def get_map_num():
@@ -235,8 +236,26 @@ def get_msg_id_from_data_dict(data_dict) -> (str,str):
     return error_code, msg_id
 
 
+def resize_png_for_map_display(file_path):
+    if os.path.isfile(file_path):
+        infile = file_path
+        outfile = file_path
+        im = Image.open(infile)
+        (x, y) = im.size  # read image size
+        if x > 280 or y > 280:
+            x_s = 280
+            y_s = 280
+            out = im.resize((x_s, y_s), Image.ANTIALIAS)  # resize image with high-quality
+            out.save(outfile)
+
+            print('original size: ', x, y)
+            print('adjust size: ', x_s, y_s)
+
+
 # test code
 if __name__ == '__main__':
     # print(get_map_num())
-    print(change_pcd_file('/home/utry/catkin_ws/src/databag/1029.pcd'))
-    print(change_wp_file('/home/utry/catkin_ws/src/databag/1029wp.csv'))
+    import time
+    print(time.time())
+    resize_png_for_map_display()
+    print(time.time())

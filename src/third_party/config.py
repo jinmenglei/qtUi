@@ -45,6 +45,13 @@ class Config(object):
         self.config.add_section('DATA_PATH')
         self.config.set('DATA_PATH', 'database', self.config_path.strip('config.ini'))
         # 本机配置
+        self.config.add_section('HOST_URL')
+        self.config.set('HOST_URL', 'qrcode_download_url', 'http://47.100.182.145:8080/qrcode/clearQrcode?macId=')
+        self.config.set('HOST_URL', 'unlock_url', 'http://47.100.182.145:8080/lock/queryUnlockById?macId=')
+        self.config.set('HOST_URL', 'lock_url', 'http://47.100.182.145:8080/lock/lock?macId=')
+        self.config.set('HOST_URL', 'update_url', 'http://47.100.182.145:9200/update_info?')
+        self.config.set('HOST_URL', 'update_download_url', 'http://47.100.182.145:9200')
+        # 本机配置
         self.config.add_section('CONFIG')
         self.config.set('CONFIG', 'password', '889972')
         self.config.set('CONFIG', 'encrypted', 'no')

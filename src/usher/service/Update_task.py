@@ -10,6 +10,7 @@ import base.U_util as Util
 from threading import Thread
 from base.U_log import get_logger
 from base.U_app import App
+from third_party.config import get_value_by_key
 
 
 class UpdateTask(App):
@@ -19,7 +20,17 @@ class UpdateTask(App):
         self.json_request = ''
         self.logger = get_logger(self.module_name)
         self.res_path = Util.get_res_path('Update')
-        self.download_url = 'http://47.100.182.145:9200'
+
+        self.download_url = get_value_by_key('update_download_url', 'HOST_URL')
+        self.logger.info('get download_url:' + str(self.download_url))
+        if self.download_url is None:
+            self.download_url = 'http://47.100.182.145:9200'
+
+        self.update_url = get_value_by_key('update_url', 'HOST_URL')
+        self.logger.info('get update_url:' + str(self.update_url))
+        if self.update_url is None:
+            self.update_url = 'http://47.100.182.145:9200/update_info?'
+
         self.update_function_list = []
         self.update_function_list_init()
         self.is_shutdown = False
@@ -47,8 +58,7 @@ class UpdateTask(App):
         self.logger.warning('error msg :' + str(data_dict))
 
     def check_out_version(self):
-        update_url = 'http://47.100.182.145:9200/update_info?'
-        update_url = update_url + 'packageName=update' + '&versionName=1'
+        update_url = self.update_url + 'packageName=update' + '&versionName=1'
         # print(update_url)
         update_time = 10
         time.sleep(5)

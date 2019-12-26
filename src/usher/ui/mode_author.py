@@ -36,9 +36,23 @@ class ModeAuthorPanel(AppQt.Q_App):
         self.input_password = ''
         self.error_show_cnt = 0
         self.mac_id = Util.get_mac_address()
-        self.download_url = 'http://47.100.182.145:8080/qrcode/clearQrcode?macId=' + self.mac_id
-        self.unlock_url = 'http://47.100.182.145:8080/lock/queryUnlockById?macId=' + self.mac_id
-        self.lock_url = 'http://47.100.182.145:8080/lock/lock?macId=' + self.mac_id
+        self.download_url = get_value_by_key('qrcode_download_url', 'HOST_URL')
+        self.logger.info('get qr_code url is : ' + str(self.download_url))
+        if self.download_url is None:
+            self.download_url = 'http://47.100.182.145:8080/qrcode/clearQrcode?macId='
+        self.download_url += self.mac_id
+
+        self.unlock_url = get_value_by_key('unlock_url', 'HOST_URL')
+        self.logger.info('unlock url is : ' + str(self.unlock_url))
+        if self.unlock_url is None:
+            self.unlock_url = 'http://47.100.182.145:8080/lock/queryUnlockById?macId='
+        self.unlock_url += self.mac_id
+
+        self.lock_url = get_value_by_key('lock_url', 'HOST_URL')
+        self.logger.info('lock url is : ' + str(self.lock_url))
+        if self.lock_url is None:
+            self.lock_url = 'http://47.100.182.145:8080/lock/lock?macId='
+        self.lock_url += self.mac_id
         self.logger.info('get qr_code url is : ' + str(self.download_url))
         self.logger.info('unlock url is : ' + str(self.unlock_url))
         self.logger.info('lock url is : ' + str(self.lock_url))

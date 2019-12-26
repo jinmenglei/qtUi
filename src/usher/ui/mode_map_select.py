@@ -69,6 +69,7 @@ class ModeMapSelectPanel(AppQt.Q_App):
 
         self.list_map_frame.append(frame)
         png_path = map_detail.get('png')
+        Util.resize_png_for_map_display(png_path)
         style_sheet = 'QPushButton{border-image: url(' + png_path + ')}'
 
         rect = AppQt.QRect(3, 3, pos['map_weight'] - 2 * 3, pos['map_weight'] - 2 * 3)
@@ -85,7 +86,7 @@ class ModeMapSelectPanel(AppQt.Q_App):
         map_label.show()
 
         self.list_map_label.append(map_label)
-        self.timer_update_map.start(20)
+        self.timer_update_map.start(50)
         pass
 
     def on_timer_update_map(self):

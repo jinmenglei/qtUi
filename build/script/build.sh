@@ -58,15 +58,15 @@ pyrcc5 image.qrc -o image_rc.py
 # shellcheck disable=SC2164
 cd "$UTRY_SRC_PATH"
 echo "step 1:  build"
-pyinstaller -F --noconsole main/ui_main.spec
+pyinstaller  main/ui_main.spec
 if [ "$1" == "D" ] || [ "$1" == "d" ]
 then
-  pyinstaller -F --noconsole auto_test/start_test.py
+  pyinstaller -F auto_test/start_test.py
 fi
 #pyinstaller -F --noconsole auto_test/start_test_unstop.py
 echo "step 2: mv file"
 rm "$PATH_BIN"/*
-mv dist/ui_main "$PATH_BIN"
+mv dist/ui_main/* "$PATH_BIN"
 rm "$PATH_RELEASE_UTRY_SHELL"/start_test
 if [ "$1" == "D" ] || [ "$1" == "d" ]
 then
