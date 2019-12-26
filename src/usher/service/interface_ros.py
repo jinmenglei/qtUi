@@ -12,7 +12,7 @@ import config.setting as setting
 import time
 from threading import Thread
 from std_msgs.msg import String
-from geometry_msgs.msg._PoseWithCovarianceStamped import PoseWithCovarianceStamped
+from geometry_msgs.msg import PoseWithCovarianceStamped
 from rosgraph import Master
 import roslaunch
 
