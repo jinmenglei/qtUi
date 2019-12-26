@@ -9,8 +9,8 @@
 /release/res/show_box/
 /release/res/Update/
 /release/res/version/
-/release/res/image.qrc
 /release/res/image_rc.py
+/res/image_rc.py
 /utry_output/*.zip
 /src/usher/main/debug
 /src/usher/main/odom_ini
