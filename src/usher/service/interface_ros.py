@@ -15,6 +15,7 @@ from std_msgs.msg import String
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from rosgraph import Master
 import roslaunch
+from queue import Queue
 
 
 class InterfaceRos(App):
@@ -33,6 +34,16 @@ class InterfaceRos(App):
         self.ui_ros_topic_is_sub = False
         self.callback_dict = {}
         self.__init_callback()
+        self.msg_out_queue = Queue(0)
+        Util.add_thread(target=self.msg_out_queue_callback)
+
+    def msg_out_queue_callback(self):
+        while True:
+            if not self.msg_out_queue.empty():
+                msg_data = self.msg_out_queue.get_nowait()
+                self.logger.info('send msg to ros: ' + str(msg_data))
+                self.send_msg_ros(msg_data)
+            time.sleep(0.05)
 
     def __init_callback(self):
         # 内部处理函数初始化
@@ -111,7 +122,8 @@ class InterfaceRos(App):
         if msg_data is not None and isinstance(msg_data, dict):
             if self.ros_is_running:
                 if self.ui_ros_topic_is_sub:
-                    self.send_msg_ros(msg_data)
+                    # self.send_msg_ros(msg_data)
+                    self.msg_out_queue.put_nowait(msg_data)
                 else:
                     self.logger.info('/ui_ros_topic is not Subscriber')
             else:

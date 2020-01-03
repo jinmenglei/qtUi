@@ -228,8 +228,8 @@ class ModeWorkingPanel(AppQt.Q_App):
             self.m_button_cancel.setEnabled(False)
             self.m_button_cancel.setStyleSheet(self.cancel_style_sheet_disable)
             self.set_button_enable(False)
-            self.send_set_pause_msg(False)
             self.turn_off_all(up=False)
+            self.send_set_pause_msg(False)
 
     def send_set_pause_msg(self, is_pause:bool):
         msg_data = {'msg_id': 'set_pause', 'msg_type': 'control',
