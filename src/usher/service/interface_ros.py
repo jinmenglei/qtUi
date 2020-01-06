@@ -206,7 +206,7 @@ class InterfaceRos(App):
     def amcl_pose_callback(self, pose:PoseWithCovarianceStamped):
         amcl_x = pose.pose.pose.position.x
         amcl_y = pose.pose.pose.position.y
-        self.logger.info('receive_position x:' + str(amcl_x) + ' y:' + str(amcl_y))
+        # self.logger.info('receive_position x:' + str(amcl_x) + ' y:' + str(amcl_y))
         msg_data = {'x': amcl_x, 'y': amcl_y, 'z': 0}
         self.send_msg_dispatcher(self.msg_id.mode_working_position_notify, msg_data)
 

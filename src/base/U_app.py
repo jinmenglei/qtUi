@@ -175,7 +175,8 @@ class App(object):
             msg_id = data_dict['msg_id']
             if (msg_id != self.msg_id.mode_mt_update_button_status) and (
                     msg_id != self.msg_id.base_frame_info_notify) and (
-                    msg_id != self.msg_id.ui_manager_robot_status_notify):
+                    msg_id != self.msg_id.ui_manager_robot_status_notify)and (
+                    msg_id != self.msg_id.mode_working_position_notify):
                 self.__logger.info('receive from ' + str(data_dict['msg_src']) + ' :' + str(data_dict))
 
             if self.__multi_default_callback is not None:
@@ -237,7 +238,8 @@ class App(object):
                 send_queue.send(send_msg)
                 if (msg_id != self.msg_id.mode_mt_update_button_status) and (
                         msg_id != self.msg_id.base_frame_info_notify) and (
-                        msg_id != self.msg_id.ui_manager_robot_status_notify):
+                        msg_id != self.msg_id.ui_manager_robot_status_notify)and (
+                        msg_id != self.msg_id.mode_working_position_notify):
                     self.__logger.info('send to ' + str(self.msg_id.out_dispatcher) + ' :' + str(send_msg))
                 if msg_dst == self.msg_id.out_dispatcher and self.__lock is not None:
                     self.__logger.info('get lock : ' + str(self.__lock))

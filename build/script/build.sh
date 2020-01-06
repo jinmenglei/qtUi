@@ -65,7 +65,7 @@ then
 fi
 #pyinstaller -F --noconsole auto_test/start_test_unstop.py
 echo "step 2: mv file"
-rm "$PATH_BIN"/*
+rm "$PATH_BIN"/* -rf
 mv dist/ui_main/* "$PATH_BIN"
 rm "$PATH_RELEASE_UTRY_SHELL"/start_test
 if [ "$1" == "D" ] || [ "$1" == "d" ]
