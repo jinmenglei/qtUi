@@ -34,8 +34,10 @@ def get_logger(name='root', filename='utry_log.log', level='info', max_bytes=10 
         logger.setLevel(level=level_relations[level])
         log_path = os.path.join(os.environ['HOME'] + '/release/log', filename)
 
-        if not os.path.isdir(os.environ['HOME'] + '/release/log'):
-            os.mkdir(os.environ['HOME'] + '/release/log')
+        log_dir = os.environ['HOME'] + '/release/log'
+        if not os.path.isdir(log_dir):
+            os.system('mkdir -p ' + log_dir)
+            # os.mkdir(os.environ['HOME'] + '/release/log')
 
         formatter = logging.Formatter('%(asctime)s - %(levelname)7s - %(message)s - %(name)s')
 

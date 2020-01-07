@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 cd ../../
 UTRY_ROOT_PATH=$(pwd)
 if [ "$1" == "D" ] || [ "$1" == "d" ]
