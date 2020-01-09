@@ -1,5 +1,5 @@
 /release/bin/ui/launchStart
-/release/bin/ui
+/release/bin/ui/*
 /release/res/frame/
 /release/res/mode_author/
 /release/res/mode_check/
